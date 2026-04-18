@@ -94,6 +94,26 @@ DROP TRIGGER IF EXISTS trg_clients_updated_at ON clients;
 CREATE TRIGGER trg_clients_updated_at
 BEFORE UPDATE ON clients
 FOR EACH ROW EXECUTE FUNCTION set_updated_at();
+
+-- =====================================================
+-- INVITES (cadastro por convite, token de uso único)
+-- token_hash: SHA-256 do token plaintext (nunca armazenamos o token)
+-- =====================================================
+CREATE TABLE IF NOT EXISTS invites (
+  id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  tenant_id     UUID NOT NULL REFERENCES tenants(id) ON DELETE CASCADE,
+  email         TEXT,
+  role          TEXT NOT NULL CHECK (role IN ('user','admin','super_admin')),
+  token_hash    TEXT NOT NULL UNIQUE,
+  created_by    UUID REFERENCES users(id) ON DELETE SET NULL,
+  expires_at    TIMESTAMPTZ NOT NULL,
+  used_at       TIMESTAMPTZ,
+  used_by       UUID REFERENCES users(id) ON DELETE SET NULL,
+  created_at    TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS idx_invites_tenant_created ON invites (tenant_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_invites_expires ON invites (expires_at);
 `;
 
 export async function runMigrations() {
