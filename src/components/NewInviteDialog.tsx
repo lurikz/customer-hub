@@ -76,7 +76,11 @@ export function NewInviteDialog({ open, onOpenChange }: Props) {
   const onSubmit = async (values: FormValues) => {
     setError(null);
     try {
-      const { token } = await adminApi.createInvite(values);
+      const { token } = await adminApi.createInvite({
+        email: values.email,
+        role: values.role,
+        expiresInHours: values.expiresInHours,
+      });
       const url = `${window.location.origin}/signup?token=${encodeURIComponent(token)}`;
       setLink(url);
       qc.invalidateQueries({ queryKey: ["admin-invites"] });
