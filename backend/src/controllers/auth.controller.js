@@ -1,5 +1,5 @@
 import * as service from '../services/auth.service.js';
-import { loginSchema } from '../validators/auth.schema.js';
+import { loginSchema, changePasswordSchema } from '../validators/auth.schema.js';
 import * as audit from '../repositories/audit.repo.js';
 
 export async function login(req, res, next) {
@@ -30,6 +30,28 @@ export async function me(req, res, next) {
     const user = await service.me(req.auth.userId);
     res.json(user);
   } catch (e) {
+    next(e);
+  }
+}
+
+export async function changePassword(req, res, next) {
+  try {
+    const { email, currentPassword, newPassword } = changePasswordSchema.parse(req.body);
+    await service.changePassword(email, currentPassword, newPassword);
+    await audit.log({
+      action: 'auth.password_changed',
+      ip: req.ip,
+      metadata: { email },
+    });
+    res.json({ ok: true });
+  } catch (e) {
+    if (e.status === 401) {
+      await audit.log({
+        action: 'auth.password_change_failed',
+        ip: req.ip,
+        metadata: { email: req.body?.email || null },
+      });
+    }
     next(e);
   }
 }

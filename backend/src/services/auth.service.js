@@ -52,3 +52,22 @@ export async function me(userId) {
     role: u.role,
   };
 }
+
+/**
+ * Troca de senha sem JWT: exige email + senha atual válidos.
+ * Usado enquanto a tela de login estiver desativada.
+ */
+export async function changePassword(email, currentPassword, newPassword) {
+  const user = await users.findByEmail(email);
+  const hash = user?.password_hash || '$2a$12$invalidsaltinvalidsaltinvaliuO5kQYY1Z1Z1Z1Z1Z1Z1Z1Z1Z1Z';
+  const ok = await bcrypt.compare(currentPassword, hash);
+  if (!user || !ok) throw httpError(401, 'Credenciais inválidas');
+
+  if (currentPassword === newPassword) {
+    throw httpError(400, 'A nova senha deve ser diferente da atual');
+  }
+
+  const newHash = await bcrypt.hash(newPassword, 12);
+  await users.updatePasswordHash(user.id, newHash);
+  return { ok: true };
+}

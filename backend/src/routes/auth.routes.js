@@ -13,7 +13,16 @@ const loginLimiter = rateLimit({
   message: { error: 'Muitas tentativas, tente novamente em instantes' },
 });
 
+const passwordChangeLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 5, // 5 trocas/15min/IP
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Muitas tentativas de troca de senha, tente novamente em instantes' },
+});
+
 router.post('/login', loginLimiter, ctrl.login);
 router.get('/me', jwtAuth, ctrl.me);
+router.post('/change-password', passwordChangeLimiter, ctrl.changePassword);
 
 export default router;
