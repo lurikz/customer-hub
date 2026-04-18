@@ -11,11 +11,12 @@ import { jwtAuth } from './middleware/jwtAuth.js';
 import { errorHandler } from './middleware/errorHandler.js';
 import clientsRouter from './routes/clients.routes.js';
 import authRouter from './routes/auth.routes.js';
+import adminRouter from './routes/admin.routes.js';
 
 const app = express();
 const PORT = Number(process.env.PORT) || 3001;
 
-app.set('trust proxy', 1); // atrás de nginx/EasyPanel — req.ip correto
+app.set('trust proxy', 1);
 app.disable('x-powered-by');
 app.use(helmet());
 app.use(express.json({ limit: '100kb' }));
@@ -48,13 +49,11 @@ app.use(
   })
 );
 
-// Healthcheck público
 app.get('/health', (_req, res) => res.json({ status: 'ok' }));
 
-// Defesa em camadas: x-api-key (proxy) protege todo o perímetro autenticado.
-// JWT identifica usuário/tenant. Rotas /auth e /clients passam por API key.
 app.use('/auth', apiKeyAuth, authRouter);
 app.use('/clients', apiKeyAuth, jwtAuth, clientsRouter);
+app.use('/admin', apiKeyAuth, jwtAuth, adminRouter);
 
 app.use((_req, res) => res.status(404).json({ error: 'Rota não encontrada' }));
 app.use(errorHandler);

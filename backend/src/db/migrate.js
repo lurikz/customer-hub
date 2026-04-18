@@ -4,7 +4,7 @@ const SQL = `
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
 -- =====================================================
--- TENANTS (empresas/clientes do SaaS)
+-- TENANTS
 -- =====================================================
 CREATE TABLE IF NOT EXISTS tenants (
   id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -13,8 +13,9 @@ CREATE TABLE IF NOT EXISTS tenants (
 );
 
 -- =====================================================
--- USERS (operadores dentro de cada tenant)
--- role: 'owner' | 'admin' | 'member'
+-- USERS
+-- role: 'user' | 'admin' | 'super_admin'
+-- (legado: aceita 'owner' e 'member' temporariamente — migrados abaixo)
 -- =====================================================
 CREATE TABLE IF NOT EXISTS users (
   id             UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -22,16 +23,25 @@ CREATE TABLE IF NOT EXISTS users (
   name           TEXT NOT NULL,
   email          TEXT NOT NULL,
   password_hash  TEXT NOT NULL,
-  role           TEXT NOT NULL DEFAULT 'member' CHECK (role IN ('owner','admin','member')),
+  role           TEXT NOT NULL DEFAULT 'user',
   created_at     TIMESTAMPTZ NOT NULL DEFAULT now(),
   UNIQUE (email)
 );
+
+-- Migração de roles legadas
+UPDATE users SET role = 'super_admin' WHERE role = 'owner';
+UPDATE users SET role = 'user' WHERE role = 'member';
+
+-- Garante CHECK atualizado
+ALTER TABLE users DROP CONSTRAINT IF EXISTS users_role_check;
+ALTER TABLE users ADD CONSTRAINT users_role_check
+  CHECK (role IN ('user','admin','super_admin'));
 
 CREATE INDEX IF NOT EXISTS idx_users_tenant_id ON users (tenant_id);
 CREATE INDEX IF NOT EXISTS idx_users_email ON users (email);
 
 -- =====================================================
--- CLIENTS (isolados por tenant_id)
+-- CLIENTS
 -- =====================================================
 CREATE TABLE IF NOT EXISTS clients (
   id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -45,7 +55,6 @@ CREATE TABLE IF NOT EXISTS clients (
   updated_at  TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
--- Adiciona tenant_id em deploys antigos (idempotente)
 ALTER TABLE clients ADD COLUMN IF NOT EXISTS tenant_id UUID REFERENCES tenants(id) ON DELETE CASCADE;
 ALTER TABLE clients ADD COLUMN IF NOT EXISTS created_by UUID REFERENCES users(id) ON DELETE SET NULL;
 
@@ -53,7 +62,7 @@ CREATE INDEX IF NOT EXISTS idx_clients_tenant_id ON clients (tenant_id);
 CREATE INDEX IF NOT EXISTS idx_clients_tenant_created ON clients (tenant_id, created_at DESC);
 
 -- =====================================================
--- AUDIT LOG (trilha de auditoria)
+-- AUDIT LOG
 -- =====================================================
 CREATE TABLE IF NOT EXISTS audit_log (
   id          BIGSERIAL PRIMARY KEY,
@@ -71,7 +80,7 @@ CREATE INDEX IF NOT EXISTS idx_audit_tenant_created ON audit_log (tenant_id, cre
 CREATE INDEX IF NOT EXISTS idx_audit_user ON audit_log (user_id);
 
 -- =====================================================
--- TRIGGER: updated_at em clients
+-- TRIGGER updated_at
 -- =====================================================
 CREATE OR REPLACE FUNCTION set_updated_at()
 RETURNS TRIGGER AS $$
