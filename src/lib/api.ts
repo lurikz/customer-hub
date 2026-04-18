@@ -1,7 +1,10 @@
-// Cliente HTTP para a API do CRM em modo "acesso livre".
-// O nginx injeta a x-api-key (perímetro). Não há autenticação de usuário.
+// Cliente HTTP para a API do CRM, com JWT Bearer.
+// O nginx injeta a x-api-key (perímetro). O JWT identifica o usuário.
 
 const API_URL = (import.meta.env.VITE_API_URL as string | undefined)?.replace(/\/$/, "") ?? "/api";
+const TOKEN_KEY = "crm.token";
+
+export type Role = "user" | "admin" | "super_admin";
 
 export interface Client {
   id: string;
@@ -22,6 +25,28 @@ export interface ClientInput {
   notes?: string | null;
 }
 
+export interface AuthUser {
+  id: string;
+  tenantId: string | null;
+  name: string;
+  email: string;
+  role: Role;
+}
+
+export interface AdminUser {
+  id: string;
+  tenant_id: string | null;
+  name: string;
+  email: string;
+  role: Role;
+  created_at: string;
+}
+
+export interface AdminStats {
+  ok: true;
+  stats: { tenants: number; users: number; clients: number };
+}
+
 export class ApiError extends Error {
   status: number;
   constructor(message: string, status: number) {
@@ -30,14 +55,33 @@ export class ApiError extends Error {
   }
 }
 
-async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
+export const tokenStore = {
+  get: () => localStorage.getItem(TOKEN_KEY),
+  set: (t: string) => localStorage.setItem(TOKEN_KEY, t),
+  clear: () => localStorage.removeItem(TOKEN_KEY),
+};
+
+let onUnauthorized: (() => void) | null = null;
+export const setUnauthorizedHandler = (fn: () => void) => {
+  onUnauthorized = fn;
+};
+
+async function request<T>(path: string, init: RequestInit = {}, auth = true): Promise<T> {
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
     ...((init.headers as Record<string, string>) || {}),
   };
+  if (auth) {
+    const token = tokenStore.get();
+    if (token) headers["Authorization"] = `Bearer ${token}`;
+  }
 
   const res = await fetch(`${API_URL}${path}`, { ...init, headers });
 
+  if (res.status === 401 && auth) {
+    tokenStore.clear();
+    onUnauthorized?.();
+  }
   if (res.status === 204) return undefined as T;
 
   let body: unknown = null;
@@ -55,6 +99,16 @@ async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
   return body as T;
 }
 
+export const authApi = {
+  login: (email: string, password: string) =>
+    request<{ token: string; user: AuthUser }>(
+      "/auth/login",
+      { method: "POST", body: JSON.stringify({ email, password }) },
+      false
+    ),
+  me: () => request<AuthUser>("/auth/me"),
+};
+
 export const clientsApi = {
   list: () => request<Client[]>("/clients"),
   get: (id: string) => request<Client>(`/clients/${id}`),
@@ -63,6 +117,11 @@ export const clientsApi = {
   update: (id: string, data: ClientInput) =>
     request<Client>(`/clients/${id}`, { method: "PUT", body: JSON.stringify(data) }),
   remove: (id: string) => request<void>(`/clients/${id}`, { method: "DELETE" }),
+};
+
+export const adminApi = {
+  overview: () => request<AdminStats>("/admin"),
+  listUsers: () => request<AdminUser[]>("/admin/users"),
 };
 
 export const apiConfig = { url: API_URL };
