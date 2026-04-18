@@ -63,7 +63,12 @@ export function NewUserDialog({ open, onOpenChange }: Props) {
   const onSubmit = async (values: FormValues) => {
     setError(null);
     try {
-      await adminApi.createUser(values);
+      await adminApi.createUser({
+        name: values.name,
+        email: values.email,
+        password: values.password,
+        role: values.role,
+      });
       toast({ title: "Usuário criado" });
       form.reset();
       qc.invalidateQueries({ queryKey: ["admin-users"] });
