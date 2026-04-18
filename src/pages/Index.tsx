@@ -1,15 +1,17 @@
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Plus, Search, Users } from "lucide-react";
+import { LogOut, Plus, Search, Users } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { ClientsTable } from "@/components/ClientsTable";
 import { ClientFormDialog } from "@/components/ClientFormDialog";
-import { apiConfig, clientsApi, type Client } from "@/lib/api";
+import { clientsApi, type Client } from "@/lib/api";
+import { useAuth } from "@/contexts/AuthContext";
 
 const Index = () => {
+  const { user, logout } = useAuth();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<Client | null>(null);
   const [search, setSearch] = useState("");
@@ -17,7 +19,6 @@ const Index = () => {
   const { data, isLoading, error } = useQuery({
     queryKey: ["clients"],
     queryFn: clientsApi.list,
-    enabled: Boolean(apiConfig.url),
   });
 
   const filtered = useMemo(() => {
@@ -56,29 +57,23 @@ const Index = () => {
             <div>
               <h1 className="text-xl font-semibold tracking-tight">CRM</h1>
               <p className="text-xs text-muted-foreground">
-                Gestão simples de clientes
+                {user ? `${user.name} · ${user.role}` : "Gestão simples de clientes"}
               </p>
             </div>
           </div>
-          <Button onClick={openNew} className="gap-2">
-            <Plus className="h-4 w-4" />
-            Novo Cliente
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button onClick={openNew} className="gap-2">
+              <Plus className="h-4 w-4" />
+              Novo Cliente
+            </Button>
+            <Button onClick={logout} variant="outline" size="icon" aria-label="Sair">
+              <LogOut className="h-4 w-4" />
+            </Button>
+          </div>
         </div>
       </header>
 
       <main className="mx-auto max-w-6xl space-y-6 px-4 py-8 sm:px-6">
-        {!apiConfig.url && (
-          <Alert variant="destructive">
-            <AlertTitle>API não configurada</AlertTitle>
-            <AlertDescription>
-              Defina <code>VITE_API_URL</code> (e <code>VITE_API_KEY</code>) no{" "}
-              <code>.env</code> do frontend apontando para o backend publicado
-              no EasyPanel.
-            </AlertDescription>
-          </Alert>
-        )}
-
         {error && (
           <Alert variant="destructive">
             <AlertTitle>Erro ao carregar clientes</AlertTitle>

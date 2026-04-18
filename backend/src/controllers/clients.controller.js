@@ -1,4 +1,5 @@
 import * as service from '../services/clients.service.js';
+import * as audit from '../repositories/audit.repo.js';
 import {
   createClientSchema,
   updateClientSchema,
@@ -6,9 +7,9 @@ import {
 } from '../validators/client.schema.js';
 import { httpError } from '../middleware/errorHandler.js';
 
-export async function list(_req, res, next) {
+export async function list(req, res, next) {
   try {
-    const clients = await service.listClients();
+    const clients = await service.listClients(req.auth.tenantId);
     res.json(clients);
   } catch (e) {
     next(e);
@@ -18,7 +19,7 @@ export async function list(_req, res, next) {
 export async function getOne(req, res, next) {
   try {
     const { id } = idParamSchema.parse(req.params);
-    const client = await service.getClient(id);
+    const client = await service.getClient(req.auth.tenantId, id);
     if (!client) throw httpError(404, 'Cliente não encontrado');
     res.json(client);
   } catch (e) {
@@ -29,7 +30,15 @@ export async function getOne(req, res, next) {
 export async function create(req, res, next) {
   try {
     const data = createClientSchema.parse(req.body);
-    const created = await service.createClient(data);
+    const created = await service.createClient(req.auth.tenantId, req.auth.userId, data);
+    await audit.log({
+      tenantId: req.auth.tenantId,
+      userId: req.auth.userId,
+      action: 'client.create',
+      entity: 'client',
+      entityId: created.id,
+      ip: req.ip,
+    });
     res.status(201).json(created);
   } catch (e) {
     next(e);
@@ -40,8 +49,16 @@ export async function update(req, res, next) {
   try {
     const { id } = idParamSchema.parse(req.params);
     const data = updateClientSchema.parse(req.body);
-    const updated = await service.updateClient(id, data);
+    const updated = await service.updateClient(req.auth.tenantId, id, data);
     if (!updated) throw httpError(404, 'Cliente não encontrado');
+    await audit.log({
+      tenantId: req.auth.tenantId,
+      userId: req.auth.userId,
+      action: 'client.update',
+      entity: 'client',
+      entityId: id,
+      ip: req.ip,
+    });
     res.json(updated);
   } catch (e) {
     next(e);
@@ -51,8 +68,16 @@ export async function update(req, res, next) {
 export async function remove(req, res, next) {
   try {
     const { id } = idParamSchema.parse(req.params);
-    const ok = await service.deleteClient(id);
+    const ok = await service.deleteClient(req.auth.tenantId, id);
     if (!ok) throw httpError(404, 'Cliente não encontrado');
+    await audit.log({
+      tenantId: req.auth.tenantId,
+      userId: req.auth.userId,
+      action: 'client.delete',
+      entity: 'client',
+      entityId: id,
+      ip: req.ip,
+    });
     res.status(204).send();
   } catch (e) {
     next(e);
