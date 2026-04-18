@@ -6,6 +6,7 @@ import morgan from 'morgan';
 import rateLimit from 'express-rate-limit';
 
 import { runMigrations } from './db/migrate.js';
+import { ensureSuperAdmin } from './db/ensureSuperAdmin.js';
 import { apiKeyAuth } from './middleware/apiKey.js';
 import { jwtAuth } from './middleware/jwtAuth.js';
 import { errorHandler } from './middleware/errorHandler.js';
