@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { AlertTriangle } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -21,13 +22,13 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { authApi } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
 
 const schema = z
   .object({
     email: z.string().trim().email("E-mail inválido").max(200),
-    currentPassword: z.string().min(1, "Informe a senha atual").max(200),
     newPassword: z
       .string()
       .min(8, "A nova senha deve ter ao menos 8 caracteres")
@@ -37,10 +38,6 @@ const schema = z
   .refine((d) => d.newPassword === d.confirmPassword, {
     path: ["confirmPassword"],
     message: "As senhas não coincidem",
-  })
-  .refine((d) => d.newPassword !== d.currentPassword, {
-    path: ["newPassword"],
-    message: "A nova senha deve ser diferente da atual",
   });
 
 type FormValues = z.infer<typeof schema>;
@@ -58,7 +55,6 @@ export function ChangePasswordDialog({ open, onOpenChange }: Props) {
     resolver: zodResolver(schema),
     defaultValues: {
       email: "",
-      currentPassword: "",
       newPassword: "",
       confirmPassword: "",
     },
@@ -67,11 +63,7 @@ export function ChangePasswordDialog({ open, onOpenChange }: Props) {
   const onSubmit = async (values: FormValues) => {
     setError(null);
     try {
-      await authApi.changePassword(
-        values.email,
-        values.currentPassword,
-        values.newPassword
-      );
+      await authApi.changePassword(values.email, values.newPassword);
       toast({
         title: "Senha alterada",
         description: "Sua senha foi atualizada com sucesso.",
@@ -98,9 +90,17 @@ export function ChangePasswordDialog({ open, onOpenChange }: Props) {
         <DialogHeader>
           <DialogTitle>Alterar senha</DialogTitle>
           <DialogDescription>
-            Informe seu e-mail e a senha atual para definir uma nova.
+            Informe o e-mail e defina uma nova senha.
           </DialogDescription>
         </DialogHeader>
+
+        <Alert variant="destructive">
+          <AlertTriangle className="h-4 w-4" />
+          <AlertDescription>
+            Esta tela não pede a senha atual. Use somente em ambiente
+            controlado.
+          </AlertDescription>
+        </Alert>
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -115,23 +115,6 @@ export function ChangePasswordDialog({ open, onOpenChange }: Props) {
                       type="email"
                       autoComplete="username"
                       placeholder="voce@empresa.com"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="currentPassword"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Senha atual</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="password"
-                      autoComplete="current-password"
                       {...field}
                     />
                   </FormControl>
