@@ -68,6 +68,7 @@ async function start() {
       process.exit(1);
     }
     await runMigrations();
+    await ensureSuperAdmin();
     app.listen(PORT, '0.0.0.0', () => {
       console.log(`✅ CRM API rodando na porta ${PORT}`);
     });
