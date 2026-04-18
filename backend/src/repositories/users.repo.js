@@ -71,3 +71,22 @@ export async function deleteById(userId, tenantId) {
   );
   return rowCount > 0;
 }
+
+/**
+ * Garante a existência de um workspace "Master" e vincula o usuário a ele.
+ * Usado para super_admins criados sem tenant_id.
+ */
+export async function ensureMasterWorkspace(userId) {
+  const existing = await query(
+    `SELECT id FROM tenants WHERE name = 'Master Workspace' LIMIT 1`
+  );
+  let tenantId = existing.rows[0]?.id;
+  if (!tenantId) {
+    const ins = await query(
+      `INSERT INTO tenants (name) VALUES ('Master Workspace') RETURNING id`
+    );
+    tenantId = ins.rows[0].id;
+  }
+  await query(`UPDATE users SET tenant_id = $1 WHERE id = $2`, [tenantId, userId]);
+  return tenantId;
+}
