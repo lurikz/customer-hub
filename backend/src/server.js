@@ -6,14 +6,10 @@ import morgan from 'morgan';
 import rateLimit from 'express-rate-limit';
 
 import { runMigrations } from './db/migrate.js';
-import { ensureSuperAdmin } from './db/ensureSuperAdmin.js';
 import { apiKeyAuth } from './middleware/apiKey.js';
-import { jwtAuth } from './middleware/jwtAuth.js';
+import { demoAuth } from './middleware/demoAuth.js';
 import { errorHandler } from './middleware/errorHandler.js';
 import clientsRouter from './routes/clients.routes.js';
-import authRouter from './routes/auth.routes.js';
-import adminRouter from './routes/admin.routes.js';
-import invitesPublicRouter from './routes/invites.public.routes.js';
 
 const app = express();
 const PORT = Number(process.env.PORT) || 3001;
@@ -53,24 +49,17 @@ app.use(
 
 app.get('/health', (_req, res) => res.json({ status: 'ok' }));
 
-app.use('/auth', apiKeyAuth, authRouter);
-app.use('/invites', apiKeyAuth, invitesPublicRouter); // público (sem JWT) — lookup/accept
-app.use('/clients', apiKeyAuth, jwtAuth, clientsRouter);
-app.use('/admin', apiKeyAuth, jwtAuth, adminRouter);
+// Modo "acesso livre": apenas API key de perímetro + tenant/usuário demo automático.
+app.use('/clients', apiKeyAuth, demoAuth, clientsRouter);
 
 app.use((_req, res) => res.status(404).json({ error: 'Rota não encontrada' }));
 app.use(errorHandler);
 
 async function start() {
   try {
-    if (!process.env.JWT_SECRET || process.env.JWT_SECRET.length < 32) {
-      console.error('❌ JWT_SECRET ausente ou < 32 chars. Defina no .env');
-      process.exit(1);
-    }
     await runMigrations();
-    await ensureSuperAdmin();
     app.listen(PORT, '0.0.0.0', () => {
-      console.log(`✅ CRM API rodando na porta ${PORT}`);
+      console.log(`✅ CRM API rodando na porta ${PORT} (modo acesso livre)`);
     });
   } catch (err) {
     console.error('❌ Falha ao iniciar a API:', err);
