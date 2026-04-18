@@ -189,4 +189,28 @@ export const invitesApi = {
     ),
 };
 
+export interface Tenant {
+  id: string;
+  name: string;
+  created_at: string;
+  users_count: number;
+  clients_count: number;
+}
+
+export interface NewTenantInput {
+  name: string;
+  adminName: string;
+  adminEmail: string;
+  adminPassword: string;
+}
+
+export const tenantsApi = {
+  list: () => request<Tenant[]>("/admin/tenants"),
+  create: (data: NewTenantInput) =>
+    request<{ tenant: Tenant; admin: AdminUser }>("/admin/tenants", {
+      method: "POST",
+      body: JSON.stringify(data),
+    }),
+};
+
 export const apiConfig = { url: API_URL };

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ArrowLeft, Mail, Plus, Shield, Trash2, UserPlus } from "lucide-react";
+import { ArrowLeft, Building2, Mail, Plus, Shield, Trash2, UserPlus } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -115,12 +115,22 @@ export default function Admin() {
               </p>
             </div>
           </div>
-          <Button asChild variant="outline" className="gap-2">
-            <Link to="/">
-              <ArrowLeft className="h-4 w-4" />
-              Voltar ao CRM
-            </Link>
-          </Button>
+          <div className="flex items-center gap-2">
+            {user?.role === "super_admin" && (
+              <Button asChild variant="outline" className="gap-2">
+                <Link to="/admin/tenants">
+                  <Building2 className="h-4 w-4" />
+                  Empresas
+                </Link>
+              </Button>
+            )}
+            <Button asChild variant="outline" className="gap-2">
+              <Link to="/">
+                <ArrowLeft className="h-4 w-4" />
+                Voltar ao CRM
+              </Link>
+            </Button>
+          </div>
         </div>
       </header>
 

@@ -9,6 +9,7 @@ import Index from "./pages/Index.tsx";
 import Login from "./pages/Login.tsx";
 import Signup from "./pages/Signup.tsx";
 import Admin from "./pages/Admin.tsx";
+import Tenants from "./pages/Tenants.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
@@ -36,6 +37,14 @@ const App = () => (
               element={
                 <ProtectedRoute roles={["admin", "super_admin"]}>
                   <Admin />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/tenants"
+              element={
+                <ProtectedRoute roles={["super_admin"]}>
+                  <Tenants />
                 </ProtectedRoute>
               }
             />
