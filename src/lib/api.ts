@@ -1,8 +1,10 @@
 // Cliente HTTP simples para a API do CRM.
 // Configure VITE_API_URL e VITE_API_KEY no seu .env (frontend).
 
-const API_URL = (import.meta.env.VITE_API_URL as string | undefined)?.replace(/\/$/, "") ?? "";
-const API_KEY = (import.meta.env.VITE_API_KEY as string | undefined) ?? "";
+// Em produção, o frontend chama o backend através de um proxy reverso (nginx)
+// que injeta o header x-api-key server-side. A chave NÃO é mais embarcada no
+// bundle JS. Em dev, deixe VITE_API_URL vazio para usar o mesmo proxy via "/api".
+const API_URL = (import.meta.env.VITE_API_URL as string | undefined)?.replace(/\/$/, "") ?? "/api";
 
 export interface Client {
   id: string;
@@ -41,7 +43,6 @@ async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
     ...init,
     headers: {
       "Content-Type": "application/json",
-      ...(API_KEY ? { "x-api-key": API_KEY } : {}),
       ...(init.headers || {}),
     },
   });
@@ -84,5 +85,5 @@ export const clientsApi = {
 
 export const apiConfig = {
   url: API_URL,
-  hasKey: Boolean(API_KEY),
+  hasKey: true, // gerenciado pelo proxy reverso (nginx) — não exposto no bundle
 };
