@@ -2,12 +2,8 @@ import jwt from 'jsonwebtoken';
 import { httpError } from './errorHandler.js';
 
 /**
- * Valida um JWT no header Authorization: Bearer <token>.
+ * Valida JWT em Authorization: Bearer <token>.
  * Anexa req.auth = { userId, tenantId, role, email }.
- *
- * MODO ABERTO (temporário): se DEFAULT_TENANT_ID estiver definido no env e
- * não houver token, usa esse tenant como fallback. Útil enquanto a tela
- * de login estiver desativada. NÃO usar em produção real sem auth.
  */
 export function jwtAuth(req, _res, next) {
   try {
@@ -18,17 +14,6 @@ export function jwtAuth(req, _res, next) {
 
     const header = req.header('authorization') || '';
     const [scheme, token] = header.split(' ');
-
-    // Fallback aberto: sem token mas com tenant default configurado
-    if ((!scheme || scheme !== 'Bearer' || !token) && process.env.DEFAULT_TENANT_ID) {
-      req.auth = {
-        userId: process.env.DEFAULT_USER_ID || null,
-        tenantId: process.env.DEFAULT_TENANT_ID,
-        role: 'owner',
-        email: process.env.DEFAULT_USER_EMAIL || 'anon@local',
-      };
-      return next();
-    }
 
     if (scheme !== 'Bearer' || !token) {
       throw httpError(401, 'Token ausente');
@@ -46,7 +31,7 @@ export function jwtAuth(req, _res, next) {
     req.auth = {
       userId: payload.sub,
       tenantId: payload.tenantId,
-      role: payload.role || 'member',
+      role: payload.role || 'user',
       email: payload.email,
     };
     next();

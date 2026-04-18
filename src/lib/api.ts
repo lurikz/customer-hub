@@ -4,6 +4,8 @@
 const API_URL = (import.meta.env.VITE_API_URL as string | undefined)?.replace(/\/$/, "") ?? "/api";
 const TOKEN_KEY = "crm.token";
 
+export type Role = "user" | "admin" | "super_admin";
+
 export interface Client {
   id: string;
   tenant_id: string;
@@ -28,7 +30,23 @@ export interface AuthUser {
   tenantId: string;
   name: string;
   email: string;
-  role: "owner" | "admin" | "member";
+  role: Role;
+}
+
+export interface AdminUser {
+  id: string;
+  tenant_id: string;
+  name: string;
+  email: string;
+  role: Role;
+  created_at: string;
+}
+
+export interface NewUserInput {
+  name: string;
+  email: string;
+  password: string;
+  role: Role;
 }
 
 export class ApiError extends Error {
@@ -91,15 +109,11 @@ export const authApi = {
       false
     ),
   me: () => request<AuthUser>("/auth/me"),
-  changePassword: (email: string, newPassword: string) =>
-    request<{ ok: true }>(
-      "/auth/change-password",
-      {
-        method: "POST",
-        body: JSON.stringify({ email, newPassword }),
-      },
-      false
-    ),
+  changePassword: (currentPassword: string, newPassword: string) =>
+    request<{ ok: true }>("/auth/change-password", {
+      method: "POST",
+      body: JSON.stringify({ currentPassword, newPassword }),
+    }),
 };
 
 export const clientsApi = {
@@ -110,6 +124,19 @@ export const clientsApi = {
   update: (id: string, data: ClientInput) =>
     request<Client>(`/clients/${id}`, { method: "PUT", body: JSON.stringify(data) }),
   remove: (id: string) => request<void>(`/clients/${id}`, { method: "DELETE" }),
+};
+
+export const adminApi = {
+  listUsers: () => request<AdminUser[]>("/admin/users"),
+  createUser: (data: NewUserInput) =>
+    request<AdminUser>("/admin/users", { method: "POST", body: JSON.stringify(data) }),
+  updateRole: (id: string, role: Role) =>
+    request<AdminUser>(`/admin/users/${id}/role`, {
+      method: "PATCH",
+      body: JSON.stringify({ role }),
+    }),
+  deleteUser: (id: string) =>
+    request<void>(`/admin/users/${id}`, { method: "DELETE" }),
 };
 
 export const apiConfig = { url: API_URL };

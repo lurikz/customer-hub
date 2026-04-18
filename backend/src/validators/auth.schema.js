@@ -6,7 +6,7 @@ export const loginSchema = z.object({
 });
 
 export const changePasswordSchema = z.object({
-  email: z.string().trim().toLowerCase().email('E-mail inválido').max(200),
+  currentPassword: z.string().min(1, 'Senha atual obrigatória').max(200),
   newPassword: z
     .string()
     .min(8, 'Nova senha deve ter ao menos 8 caracteres')

@@ -36,12 +36,13 @@ export async function me(req, res, next) {
 
 export async function changePassword(req, res, next) {
   try {
-    const { email, newPassword } = changePasswordSchema.parse(req.body);
-    await service.changePassword(email, newPassword);
+    const { currentPassword, newPassword } = changePasswordSchema.parse(req.body);
+    await service.changePassword(req.auth.userId, currentPassword, newPassword);
     await audit.log({
+      tenantId: req.auth.tenantId,
+      userId: req.auth.userId,
       action: 'auth.password_changed',
       ip: req.ip,
-      metadata: { email, insecure: true },
     });
     res.json({ ok: true });
   } catch (e) {

@@ -23,7 +23,7 @@ function signToken(user) {
 
 export async function login(email, password) {
   const user = await users.findByEmail(email);
-  // Compara sempre (mesmo se user for nulo) para evitar timing attack básico
+  // Compara sempre para evitar timing attack básico
   const hash = user?.password_hash || '$2a$12$invalidsaltinvalidsaltinvaliuO5kQYY1Z1Z1Z1Z1Z1Z1Z1Z1Z1Z';
   const ok = await bcrypt.compare(password, hash);
   if (!user || !ok) throw httpError(401, 'Credenciais inválidas');
@@ -54,13 +54,14 @@ export async function me(userId) {
 }
 
 /**
- * ⚠️ INSEGURO: troca de senha SEM verificação da senha atual.
- * Qualquer um que conheça o e-mail pode tomar a conta.
- * Mantido temporariamente a pedido — substituir por fluxo com token de reset.
+ * Troca de senha SEGURA: exige a senha atual do próprio usuário autenticado.
  */
-export async function changePassword(email, newPassword) {
-  const user = await users.findByEmail(email);
+export async function changePassword(userId, currentPassword, newPassword) {
+  const user = await users.findByIdWithHash(userId);
   if (!user) throw httpError(404, 'Usuário não encontrado');
+
+  const ok = await bcrypt.compare(currentPassword, user.password_hash);
+  if (!ok) throw httpError(401, 'Senha atual incorreta');
 
   const newHash = await bcrypt.hash(newPassword, 12);
   await users.updatePasswordHash(user.id, newHash);

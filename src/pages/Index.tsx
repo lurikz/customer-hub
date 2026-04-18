@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
+import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { KeyRound, Plus, Search, User as UserIcon, Users } from "lucide-react";
+import { KeyRound, LogOut, Plus, Search, Shield, User as UserIcon, Users } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -17,8 +18,10 @@ import { ClientsTable } from "@/components/ClientsTable";
 import { ClientFormDialog } from "@/components/ClientFormDialog";
 import { ChangePasswordDialog } from "@/components/ChangePasswordDialog";
 import { clientsApi, type Client } from "@/lib/api";
+import { useAuth } from "@/contexts/AuthContext";
 
 const Index = () => {
+  const { user, logout, hasRole } = useAuth();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<Client | null>(null);
   const [search, setSearch] = useState("");
@@ -80,12 +83,32 @@ const Index = () => {
                   <UserIcon className="h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-48">
-                <DropdownMenuLabel>Conta</DropdownMenuLabel>
+              <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuLabel>
+                  <div className="flex flex-col">
+                    <span className="font-medium">{user?.name}</span>
+                    <span className="truncate text-xs font-normal text-muted-foreground">
+                      {user?.email}
+                    </span>
+                  </div>
+                </DropdownMenuLabel>
                 <DropdownMenuSeparator />
+                {hasRole("admin", "super_admin") && (
+                  <DropdownMenuItem asChild>
+                    <Link to="/admin">
+                      <Shield className="mr-2 h-4 w-4" />
+                      Painel Admin
+                    </Link>
+                  </DropdownMenuItem>
+                )}
                 <DropdownMenuItem onClick={() => setPwdOpen(true)}>
                   <KeyRound className="mr-2 h-4 w-4" />
                   Alterar senha
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={logout}>
+                  <LogOut className="mr-2 h-4 w-4" />
+                  Sair
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
