@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import * as ctrl from '../controllers/clients.controller.js';
 
+// JWT já aplicado no nível do app (server.js)
 const router = Router();
 
 router.get('/', ctrl.list);
