@@ -10,9 +10,21 @@ if (!process.env.DATABASE_URL) {
 // No EasyPanel, a comunicação interna entre serviços não usa SSL.
 const useSsl = /sslmode=require/i.test(process.env.DATABASE_URL || '');
 
+// Em produção, exige certificado válido (previne MITM). Para desenvolvimento
+// com certificados self-signed, defina PG_SSL_INSECURE=true explicitamente.
+const allowInsecureSsl =
+  process.env.PG_SSL_INSECURE === 'true' && process.env.NODE_ENV !== 'production';
+
+const sslConfig = useSsl
+  ? {
+      rejectUnauthorized: !allowInsecureSsl,
+      ...(process.env.PG_SSL_CA ? { ca: process.env.PG_SSL_CA } : {}),
+    }
+  : false;
+
 export const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
-  ssl: useSsl ? { rejectUnauthorized: false } : false,
+  ssl: sslConfig,
   max: 10,
   idleTimeoutMillis: 30_000,
 });
