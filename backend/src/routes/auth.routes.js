@@ -52,7 +52,7 @@ router.post('/login', loginLimiter, async (req, res, next) => {
   try {
     const { email, password } = loginSchema.parse(req.body);
     // Busca apenas pelo email (sem filtrar por tenant_id).
-    const user = await users.findByEmail(email);
+    let user = await users.findByEmail(email);
     const hash = user?.password_hash || DUMMY_HASH;
     const ok = await bcrypt.compare(password, hash);
 
@@ -63,6 +63,12 @@ router.post('/login', loginLimiter, async (req, res, next) => {
         metadata: { email },
       });
       throw httpError(401, 'Credenciais inválidas');
+    }
+
+    // super_admin sem tenant → vincular a um workspace "Master" para usar o CRM.
+    if (user.role === 'super_admin' && !user.tenant_id) {
+      const tenantId = await users.ensureMasterWorkspace(user.id);
+      user = { ...user, tenant_id: tenantId };
     }
 
     const token = signToken(user);
