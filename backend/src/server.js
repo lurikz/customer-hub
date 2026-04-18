@@ -12,6 +12,7 @@ import { errorHandler } from './middleware/errorHandler.js';
 import clientsRouter from './routes/clients.routes.js';
 import authRouter from './routes/auth.routes.js';
 import adminRouter from './routes/admin.routes.js';
+import invitesPublicRouter from './routes/invites.public.routes.js';
 
 const app = express();
 const PORT = Number(process.env.PORT) || 3001;
@@ -52,6 +53,7 @@ app.use(
 app.get('/health', (_req, res) => res.json({ status: 'ok' }));
 
 app.use('/auth', apiKeyAuth, authRouter);
+app.use('/invites', apiKeyAuth, invitesPublicRouter); // público (sem JWT) — lookup/accept
 app.use('/clients', apiKeyAuth, jwtAuth, clientsRouter);
 app.use('/admin', apiKeyAuth, jwtAuth, adminRouter);
 

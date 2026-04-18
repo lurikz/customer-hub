@@ -137,6 +137,56 @@ export const adminApi = {
     }),
   deleteUser: (id: string) =>
     request<void>(`/admin/users/${id}`, { method: "DELETE" }),
+  listInvites: () => request<Invite[]>("/admin/invites"),
+  createInvite: (data: NewInviteInput) =>
+    request<{ invite: Invite; token: string }>("/admin/invites", {
+      method: "POST",
+      body: JSON.stringify(data),
+    }),
+  revokeInvite: (id: string) =>
+    request<void>(`/admin/invites/${id}`, { method: "DELETE" }),
+};
+
+export interface Invite {
+  id: string;
+  tenant_id: string;
+  email: string | null;
+  role: Role;
+  created_by: string | null;
+  expires_at: string;
+  used_at: string | null;
+  used_by: string | null;
+  created_at: string;
+}
+
+export interface NewInviteInput {
+  email?: string;
+  role: Role;
+  expiresInHours: number;
+}
+
+export interface InviteLookup {
+  email: string | null;
+  role: Role;
+  expires_at: string;
+}
+
+export const invitesApi = {
+  lookup: (token: string) =>
+    request<InviteLookup>(
+      `/invites/lookup?token=${encodeURIComponent(token)}`,
+      {},
+      false
+    ),
+  accept: (token: string, name: string, password: string) =>
+    request<{ token: string; user: AuthUser }>(
+      "/invites/accept",
+      {
+        method: "POST",
+        body: JSON.stringify({ token, name, password }),
+      },
+      false
+    ),
 };
 
 export const apiConfig = { url: API_URL };
