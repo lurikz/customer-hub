@@ -19,7 +19,7 @@ CREATE TABLE IF NOT EXISTS tenants (
 -- =====================================================
 CREATE TABLE IF NOT EXISTS users (
   id             UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  tenant_id      UUID NOT NULL REFERENCES tenants(id) ON DELETE CASCADE,
+  tenant_id      UUID REFERENCES tenants(id) ON DELETE CASCADE,
   name           TEXT NOT NULL,
   email          TEXT NOT NULL,
   password_hash  TEXT NOT NULL,
@@ -27,6 +27,9 @@ CREATE TABLE IF NOT EXISTS users (
   created_at     TIMESTAMPTZ NOT NULL DEFAULT now(),
   UNIQUE (email)
 );
+
+-- super_admin global pode ter tenant_id NULL
+ALTER TABLE users ALTER COLUMN tenant_id DROP NOT NULL;
 
 -- Migração de roles legadas
 UPDATE users SET role = 'super_admin' WHERE role = 'owner';
