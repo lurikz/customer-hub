@@ -1,20 +1,28 @@
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { LogOut, Plus, Search, Users } from "lucide-react";
+import { KeyRound, Plus, Search, User as UserIcon, Users } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { ClientsTable } from "@/components/ClientsTable";
 import { ClientFormDialog } from "@/components/ClientFormDialog";
+import { ChangePasswordDialog } from "@/components/ChangePasswordDialog";
 import { clientsApi, type Client } from "@/lib/api";
-import { useAuth } from "@/contexts/AuthContext";
 
 const Index = () => {
-  const { user, logout } = useAuth();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<Client | null>(null);
   const [search, setSearch] = useState("");
+  const [pwdOpen, setPwdOpen] = useState(false);
 
   const { data, isLoading, error } = useQuery({
     queryKey: ["clients"],
@@ -57,7 +65,7 @@ const Index = () => {
             <div>
               <h1 className="text-xl font-semibold tracking-tight">CRM</h1>
               <p className="text-xs text-muted-foreground">
-                {user ? `${user.name} · ${user.role}` : "Gestão simples de clientes"}
+                Gestão simples de clientes
               </p>
             </div>
           </div>
@@ -66,9 +74,21 @@ const Index = () => {
               <Plus className="h-4 w-4" />
               Novo Cliente
             </Button>
-            <Button onClick={logout} variant="outline" size="icon" aria-label="Sair">
-              <LogOut className="h-4 w-4" />
-            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="icon" aria-label="Usuário">
+                  <UserIcon className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48">
+                <DropdownMenuLabel>Conta</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => setPwdOpen(true)}>
+                  <KeyRound className="mr-2 h-4 w-4" />
+                  Alterar senha
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
       </header>
@@ -110,6 +130,7 @@ const Index = () => {
         onOpenChange={setDialogOpen}
         client={editing}
       />
+      <ChangePasswordDialog open={pwdOpen} onOpenChange={setPwdOpen} />
     </div>
   );
 };

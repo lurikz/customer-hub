@@ -17,3 +17,11 @@ export async function findById(id) {
   );
   return rows[0] || null;
 }
+
+export async function updatePasswordHash(userId, passwordHash) {
+  const { rowCount } = await query(
+    `UPDATE users SET password_hash = $1 WHERE id = $2`,
+    [passwordHash, userId]
+  );
+  return rowCount > 0;
+}

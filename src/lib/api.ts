@@ -91,6 +91,15 @@ export const authApi = {
       false
     ),
   me: () => request<AuthUser>("/auth/me"),
+  changePassword: (email: string, currentPassword: string, newPassword: string) =>
+    request<{ ok: true }>(
+      "/auth/change-password",
+      {
+        method: "POST",
+        body: JSON.stringify({ email, currentPassword, newPassword }),
+      },
+      false
+    ),
 };
 
 export const clientsApi = {
