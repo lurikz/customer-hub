@@ -1,9 +1,10 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
+import { Plus, Check, ChevronsUpDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -22,6 +23,20 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
+import { cn } from "@/lib/utils";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/hooks/use-toast";
 import { clientsApi, type Client } from "@/lib/api";
@@ -38,6 +53,7 @@ const schema = z.object({
     .trim()
     .regex(/^\d{4}-\d{2}-\d{2}$|^$/, "Use o formato AAAA-MM-DD")
     .optional(),
+  source: z.string().trim().max(100).optional(),
   notes: z.string().trim().max(2000, "Máximo 2000 caracteres").optional(),
 });
 
@@ -59,9 +75,14 @@ export function ClientFormDialog({ open, onOpenChange, client }: Props) {
       name: "",
       company: "",
       birth_date: "",
+      source: "",
       notes: "",
     },
   });
+
+  const [sources, setSources] = useState<string[]>(["Indicações", "Lead"]);
+  const [newSource, setNewSource] = useState("");
+  const [popoverOpen, setPopoverOpen] = useState(false);
 
   useEffect(() => {
     if (open) {
@@ -69,10 +90,29 @@ export function ClientFormDialog({ open, onOpenChange, client }: Props) {
         name: client?.name ?? "",
         company: client?.company ?? "",
         birth_date: client?.birth_date ?? "",
+        source: client?.source ?? "",
         notes: client?.notes ?? "",
       });
     }
   }, [open, client, form]);
+
+  useEffect(() => {
+    const savedSources = localStorage.getItem("crm.sources");
+    if (savedSources) {
+      setSources(JSON.parse(savedSources));
+    }
+  }, []);
+
+  const addSource = () => {
+    const trimmed = newSource.trim();
+    if (trimmed && !sources.includes(trimmed)) {
+      const updated = [...sources, trimmed];
+      setSources(updated);
+      localStorage.setItem("crm.sources", JSON.stringify(updated));
+      form.setValue("source", trimmed);
+      setNewSource("");
+    }
+  };
 
   const mutation = useMutation({
     mutationFn: async (values: FormValues) => {
@@ -80,6 +120,7 @@ export function ClientFormDialog({ open, onOpenChange, client }: Props) {
         name: values.name,
         company: values.company?.trim() ? values.company.trim() : null,
         birth_date: values.birth_date?.trim() ? values.birth_date.trim() : null,
+        source: values.source?.trim() ? values.source.trim() : null,
         notes: values.notes?.trim() ? values.notes.trim() : null,
       };
       return isEditing && client
