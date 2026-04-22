@@ -119,10 +119,6 @@ const Index = () => {
               <LayoutDashboard className="h-4 w-4" />
               Clientes
             </TabsTrigger>
-            <TabsTrigger value="calendar" className="gap-2">
-              <CalendarDays className="h-4 w-4" />
-              Calendário
-            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="clients" className="space-y-6">
@@ -157,44 +153,6 @@ const Index = () => {
             )}
           </TabsContent>
 
-          <TabsContent value="calendar" className="space-y-6">
-            <div className="grid gap-6 md:grid-cols-[300px,1fr]">
-              <div className="rounded-xl border bg-card p-4 shadow-sm">
-                <Calendar mode="single" className="rounded-md" />
-              </div>
-              <div className="rounded-xl border bg-card p-6 shadow-sm">
-                <div className="mb-4 flex items-center justify-between">
-                  <h3 className="text-lg font-semibold">Agenda de Hoje</h3>
-                  <Button variant="outline" size="sm">
-                    Ver Tudo
-                  </Button>
-                </div>
-                <div className="space-y-4">
-                  {[
-                    { time: "09:00", title: "Reunião com Novo Cliente", client: "João Silva" },
-                    { time: "11:30", title: "Apresentação de Proposta", client: "Maria Oliveira" },
-                    { time: "14:00", title: "Follow-up", client: "Pedro Santos" },
-                    { time: "16:30", title: "Treinamento de Equipe", client: "Empresa ABC" },
-                  ].map((event, i) => (
-                    <div
-                      key={i}
-                      className="flex items-start gap-4 rounded-lg border p-4 transition-colors hover:bg-accent/50"
-                    >
-                      <div className="min-w-[50px] text-sm font-medium text-primary">
-                        {event.time}
-                      </div>
-                      <div>
-                        <h4 className="font-medium">{event.title}</h4>
-                        <p className="text-xs text-muted-foreground">
-                          {event.client}
-                        </p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </TabsContent>
         </Tabs>
       </main>
 
