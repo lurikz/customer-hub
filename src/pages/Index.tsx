@@ -1,7 +1,9 @@
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { LogOut, Plus, Search, Shield, User as UserIcon, Users } from "lucide-react";
+import { CalendarDays, LayoutDashboard, LogOut, Plus, Search, Shield, User as UserIcon, Users } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Calendar } from "@/components/ui/calendar";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -110,36 +112,90 @@ const Index = () => {
         </div>
       </header>
 
-      <main className="mx-auto max-w-6xl space-y-6 px-4 py-8 sm:px-6">
-        {error && (
-          <Alert variant="destructive">
-            <AlertTitle>Erro ao carregar clientes</AlertTitle>
-            <AlertDescription>{(error as Error).message}</AlertDescription>
-          </Alert>
-        )}
+      <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
+        <Tabs defaultValue="clients" className="space-y-6">
+          <TabsList>
+            <TabsTrigger value="clients" className="gap-2">
+              <LayoutDashboard className="h-4 w-4" />
+              Clientes
+            </TabsTrigger>
+            <TabsTrigger value="calendar" className="gap-2">
+              <CalendarDays className="h-4 w-4" />
+              Calendário
+            </TabsTrigger>
+          </TabsList>
 
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div className="relative w-full sm:max-w-sm">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Buscar por nome, empresa ou anotação..."
-              className="pl-9"
-            />
-          </div>
-          <p className="text-sm text-muted-foreground">
-            {data ? `${filtered.length} de ${data.length} clientes` : "—"}
-          </p>
-        </div>
+          <TabsContent value="clients" className="space-y-6">
+            {error && (
+              <Alert variant="destructive">
+                <AlertTitle>Erro ao carregar clientes</AlertTitle>
+                <AlertDescription>{(error as Error).message}</AlertDescription>
+              </Alert>
+            )}
 
-        {isLoading ? (
-          <div className="rounded-lg border p-12 text-center text-muted-foreground">
-            Carregando clientes...
-          </div>
-        ) : (
-          <ClientsTable clients={filtered} onEdit={openEdit} />
-        )}
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div className="relative w-full sm:max-w-sm">
+                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                <Input
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  placeholder="Buscar por nome, empresa ou anotação..."
+                  className="pl-9"
+                />
+              </div>
+              <p className="text-sm text-muted-foreground">
+                {data ? `${filtered.length} de ${data.length} clientes` : "—"}
+              </p>
+            </div>
+
+            {isLoading ? (
+              <div className="rounded-lg border p-12 text-center text-muted-foreground">
+                Carregando clientes...
+              </div>
+            ) : (
+              <ClientsTable clients={filtered} onEdit={openEdit} />
+            )}
+          </TabsContent>
+
+          <TabsContent value="calendar" className="space-y-6">
+            <div className="grid gap-6 md:grid-cols-[300px,1fr]">
+              <div className="rounded-xl border bg-card p-4 shadow-sm">
+                <Calendar mode="single" className="rounded-md" />
+              </div>
+              <div className="rounded-xl border bg-card p-6 shadow-sm">
+                <div className="mb-4 flex items-center justify-between">
+                  <h3 className="text-lg font-semibold">Agenda de Hoje</h3>
+                  <Button variant="outline" size="sm">
+                    Ver Tudo
+                  </Button>
+                </div>
+                <div className="space-y-4">
+                  {[
+                    { time: "09:00", title: "Reunião com Novo Cliente", client: "João Silva" },
+                    { time: "11:30", title: "Apresentação de Proposta", client: "Maria Oliveira" },
+                    { time: "14:00", title: "Follow-up", client: "Pedro Santos" },
+                    { time: "16:30", title: "Treinamento de Equipe", client: "Empresa ABC" },
+                  ].map((event, i) => (
+                    <div
+                      key={i}
+                      className="flex items-start gap-4 rounded-lg border p-4 transition-colors hover:bg-accent/50"
+                    >
+                      <div className="min-w-[50px] text-sm font-medium text-primary">
+                        {event.time}
+                      </div>
+                      <div>
+                        <h4 className="font-medium">{event.title}</h4>
+                        <p className="text-xs text-muted-foreground">
+                          {event.client}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </TabsContent>
+        </Tabs>
       </main>
 
       <ClientFormDialog
