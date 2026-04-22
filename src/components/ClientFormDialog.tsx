@@ -191,19 +191,91 @@ export function ClientFormDialog({ open, onOpenChange, client }: Props) {
               )}
             />
 
-            <FormField
-              control={form.control}
-              name="birth_date"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Data de nascimento</FormLabel>
-                  <FormControl>
-                    <Input type="date" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="birth_date"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Data de nascimento</FormLabel>
+                    <FormControl>
+                      <Input type="date" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="source"
+                render={({ field }) => (
+                  <FormItem className="flex flex-col">
+                    <FormLabel className="mb-2">Origem</FormLabel>
+                    <Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
+                      <PopoverTrigger asChild>
+                        <FormControl>
+                          <Button
+                            variant="outline"
+                            role="combobox"
+                            className={cn(
+                              "w-full justify-between font-normal",
+                              !field.value && "text-muted-foreground"
+                            )}
+                          >
+                            {field.value || "Selecione a origem"}
+                            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                          </Button>
+                        </FormControl>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-[200px] p-0" align="start">
+                        <Command>
+                          <CommandInput 
+                            placeholder="Buscar ou criar..." 
+                            value={newSource}
+                            onValueChange={setNewSource}
+                          />
+                          <CommandList>
+                            <CommandEmpty className="p-2">
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                className="w-full justify-start text-xs"
+                                onClick={addSource}
+                              >
+                                <Plus className="mr-2 h-3 w-3" />
+                                Criar "{newSource}"
+                              </Button>
+                            </CommandEmpty>
+                            <CommandGroup>
+                              {sources.map((s) => (
+                                <CommandItem
+                                  key={s}
+                                  value={s}
+                                  onSelect={() => {
+                                    form.setValue("source", s);
+                                    setPopoverOpen(false);
+                                  }}
+                                >
+                                  <Check
+                                    className={cn(
+                                      "mr-2 h-4 w-4",
+                                      s === field.value ? "opacity-100" : "opacity-0"
+                                    )}
+                                  />
+                                  {s}
+                                </CommandItem>
+                              ))}
+                            </CommandGroup>
+                          </CommandList>
+                        </Command>
+                      </PopoverContent>
+                    </Popover>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
 
             <FormField
               control={form.control}
