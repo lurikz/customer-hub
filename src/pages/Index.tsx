@@ -1,9 +1,8 @@
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { CalendarDays, LayoutDashboard, LogOut, Plus, Search, Shield, User as UserIcon, Users } from "lucide-react";
+import { LayoutDashboard, LogOut, Plus, Search, Shield, User as UserIcon, Users } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Calendar } from "@/components/ui/calendar";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
