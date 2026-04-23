@@ -47,8 +47,8 @@ const schema = z.object({
   description: z.string().trim().max(2000).optional(),
   datetime: z.string().min(1, "A data e hora são obrigatórias"),
   status: z.enum(["pendente", "concluído"]),
-  client_id: z.string().uuid().optional().nullable().or(z.literal("")),
-  user_id: z.string().uuid("Selecione o responsável"),
+  client_id: z.string().optional().nullable().or(z.literal("")),
+  user_id: z.string().min(1, "Selecione o responsável"),
 });
 
 type FormValues = z.infer<typeof schema>;
@@ -196,7 +196,7 @@ export function TaskFormDialog({ open, onOpenChange, task, defaultDate, defaultC
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Status</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <Select onValueChange={field.onChange} value={field.value} defaultValue={field.value}>
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Selecione o status" />
@@ -289,7 +289,7 @@ export function TaskFormDialog({ open, onOpenChange, task, defaultDate, defaultC
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Responsável *</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <Select onValueChange={field.onChange} value={field.value} defaultValue={field.value}>
                     <FormControl>
                       <SelectTrigger>
                         <SelectValue placeholder="Selecione o responsável" />
