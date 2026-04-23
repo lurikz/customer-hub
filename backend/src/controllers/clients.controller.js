@@ -1,3 +1,33 @@
+ export async function listRecords(req, res, next) {
+   try {
+     const { id } = idParamSchema.parse(req.params);
+     const records = await service.listRecords(req.auth.tenantId, id);
+     res.json(records);
+   } catch (e) {
+     next(e);
+   }
+ }
+ 
+ export async function createRecord(req, res, next) {
+   try {
+     const { id } = idParamSchema.parse(req.params);
+     const { description, type } = req.body;
+     if (!description) throw httpError(400, 'A descrição é obrigatória');
+     
+     const created = await service.createRecord(req.auth.tenantId, req.auth.userId, id, { description, type });
+     await audit.log({
+       tenantId: req.auth.tenantId,
+       userId: req.auth.userId,
+       action: 'client.record.create',
+       entity: 'client_record',
+       entityId: created.id,
+       ip: req.ip,
+     });
+     res.status(201).json(created);
+   } catch (e) {
+     next(e);
+   }
+ }
 import * as service from '../services/clients.service.js';
 import * as audit from '../repositories/audit.repo.js';
 import {
