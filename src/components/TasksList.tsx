@@ -80,17 +80,13 @@ export function TasksList({ tasks, onEdit, onToggleStatus }: Props) {
                 <TableCell className="font-medium">
                   <div className="flex flex-col">
                     <span>{task.title}</span>
-                    {task.description && (
-                      <span className="text-xs text-muted-foreground line-clamp-1">
-                        {task.description}
-                      </span>
-                    )}
+                    {task.description && <span className={cn("text-xs line-clamp-1", !isOverdue && "text-muted-foreground")}>{task.description}</span>}
                   </div>
                 </TableCell>
                 <TableCell>
                   <div className="flex items-center gap-1.5 text-sm">
-                    <Clock className="h-3.5 w-3.5 text-muted-foreground" />
-                    <span className={cn(isOverdue && "font-bold")}>
+                    <Clock className={cn("h-3.5 w-3.5", !isOverdue && "text-muted-foreground")} />
+                    <span className={cn(isOverdue && "font-bold text-destructive")}>
                       {format(date, "dd/MM/yyyy HH:mm", { locale: ptBR })}
                     </span>
                   </div>
@@ -104,7 +100,7 @@ export function TasksList({ tasks, onEdit, onToggleStatus }: Props) {
                 </TableCell>
                 <TableCell>
                   <div className="flex items-center gap-1.5 text-sm">
-                    <User className="h-3.5 w-3.5 text-muted-foreground" />
+                    <User className={cn("h-3.5 w-3.5", !isOverdue && "text-muted-foreground")} />
                     {task.user_name}
                   </div>
                 </TableCell>

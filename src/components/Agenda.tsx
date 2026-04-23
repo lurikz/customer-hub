@@ -234,7 +234,7 @@ export function Agenda() {
 
                 <div className="space-y-1.5">
                   {(view === "month" ? dayTasks.slice(0, 4) : dayTasks).map((task) => {
-                    const isTaskOverdue = isPast(new Date(task.datetime)) && !isToday(new Date(task.datetime)) && task.status === "pendente";
+                    const isTaskOverdue = isPast(new Date(task.datetime)) && task.status === "pendente";
                     return (
                       <div
                         key={task.id}
