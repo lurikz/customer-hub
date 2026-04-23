@@ -48,13 +48,16 @@ const schema = z.object({
     .min(1, "Informe o nome")
     .max(120, "Máximo 120 caracteres"),
   company: z.string().trim().max(120).optional(),
-  birth_date: z
-    .string()
-    .trim()
-    .regex(/^\d{4}-\d{2}-\d{2}$|^$/, "Use o formato AAAA-MM-DD")
-    .optional(),
-  source: z.string().trim().max(100).optional(),
-  notes: z.string().trim().max(2000, "Máximo 2000 caracteres").optional(),
+   birth_date: z
+     .string()
+     .trim()
+     .regex(/^\d{4}-\d{2}-\d{2}$|^$/, "Use o formato AAAA-MM-DD")
+     .optional(),
+   email: z.string().trim().max(120).optional().or(z.literal("")),
+   phone: z.string().trim().max(20).optional(),
+   cpf_cnpj: z.string().trim().max(20).optional(),
+   source: z.string().trim().max(100).optional(),
+   notes: z.string().trim().max(2000, "Máximo 2000 caracteres").optional(),
 });
 
 type FormValues = z.infer<typeof schema>;
@@ -72,12 +75,15 @@ export function ClientFormDialog({ open, onOpenChange, client }: Props) {
   const form = useForm<FormValues>({
     resolver: zodResolver(schema),
     defaultValues: {
-      name: "",
-      company: "",
-      birth_date: "",
-      source: "",
-      notes: "",
-    },
+       name: "",
+       company: "",
+       birth_date: "",
+       email: "",
+       phone: "",
+       cpf_cnpj: "",
+       source: "",
+       notes: "",
+     },
   });
 
    const [newSearchSource, setNewSearchSource] = useState("");
@@ -93,12 +99,15 @@ export function ClientFormDialog({ open, onOpenChange, client }: Props) {
    useEffect(() => {
      if (open) {
        form.reset({
-         name: client?.name ?? "",
-         company: client?.company ?? "",
-         birth_date: client?.birth_date ?? "",
-         source: client?.source ?? "",
-         notes: client?.notes ?? "",
-       });
+          name: client?.name ?? "",
+          company: client?.company ?? "",
+          birth_date: client?.birth_date ?? "",
+          email: client?.email ?? "",
+          phone: client?.phone ?? "",
+          cpf_cnpj: client?.cpf_cnpj ?? "",
+          source: client?.source ?? "",
+          notes: client?.notes ?? "",
+        });
      }
    }, [open, client, form]);
  
