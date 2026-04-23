@@ -225,7 +225,7 @@
                <div className="flex items-start gap-3">
                  <User className="h-4 w-4 mt-1 text-muted-foreground" />
                  <div>
-                   <p className="text-xs text-muted-foreground uppercase font-semibold">Nome</p>
+                    <p className="text-xs text-muted-foreground/90 uppercase font-semibold">Nome</p>
                    <p className="text-sm">{client.name}</p>
                  </div>
                </div>
@@ -233,7 +233,7 @@
                  <div className="flex items-start gap-3">
                    <Building2 className="h-4 w-4 mt-1 text-muted-foreground" />
                    <div>
-                     <p className="text-xs text-muted-foreground uppercase font-semibold">Empresa</p>
+                      <p className="text-xs text-muted-foreground/90 uppercase font-semibold">Empresa</p>
                      <p className="text-sm">{client.company}</p>
                    </div>
                  </div>
@@ -241,42 +241,42 @@
                <div className="flex items-start gap-3">
                  <Mail className="h-4 w-4 mt-1 text-muted-foreground" />
                  <div>
-                   <p className="text-xs text-muted-foreground uppercase font-semibold">Email</p>
+                    <p className="text-xs text-muted-foreground/90 uppercase font-semibold">Email</p>
                    <p className="text-sm">{client.email || "Não informado"}</p>
                  </div>
                </div>
                 <div className="flex items-start gap-3">
                   <Phone className="h-4 w-4 mt-1 text-muted-foreground" />
                   <div className="flex-1">
-                    <p className="text-xs text-muted-foreground uppercase font-semibold">Telefone</p>
+                    <p className="text-xs text-muted-foreground/90 uppercase font-semibold">Telefone</p>
                      <p className="text-sm">{client.phone || "Não informado"}</p>
                   </div>
                 </div>
                <div className="flex items-start gap-3">
                  <FileText className="h-4 w-4 mt-1 text-muted-foreground" />
                  <div>
-                   <p className="text-xs text-muted-foreground uppercase font-semibold">CPF / CNPJ</p>
+                    <p className="text-xs text-muted-foreground/90 uppercase font-semibold">CPF / CNPJ</p>
                    <p className="text-sm">{client.cpf_cnpj || "Não informado"}</p>
                  </div>
                </div>
                <div className="flex items-start gap-3">
                  <Calendar className="h-4 w-4 mt-1 text-muted-foreground" />
                  <div>
-                   <p className="text-xs text-muted-foreground uppercase font-semibold">Nascimento</p>
+                    <p className="text-xs text-muted-foreground/90 uppercase font-semibold">Nascimento</p>
                    <p className="text-sm">{formatDate(client.birth_date)}</p>
                  </div>
                </div>
                <div className="flex items-start gap-3">
                  <MapPin className="h-4 w-4 mt-1 text-muted-foreground" />
                  <div>
-                   <p className="text-xs text-muted-foreground uppercase font-semibold">Endereço</p>
+                    <p className="text-xs text-muted-foreground/90 uppercase font-semibold">Endereço</p>
                    <p className="text-sm">{client.address || "Não informado"}</p>
                  </div>
                </div>
                <div className="flex items-start gap-3">
                  <Share2 className="h-4 w-4 mt-1 text-muted-foreground" />
                  <div>
-                   <p className="text-xs text-muted-foreground uppercase font-semibold">Origem</p>
+                    <p className="text-xs text-muted-foreground/90 uppercase font-semibold">Origem</p>
                    <Badge variant="secondary" className="mt-1 font-normal">
                      {client.source || "Não informada"}
                    </Badge>
@@ -285,7 +285,7 @@
                <div className="flex items-start gap-3">
                  <Clock className="h-4 w-4 mt-1 text-muted-foreground" />
                  <div>
-                   <p className="text-xs text-muted-foreground uppercase font-semibold">Cadastrado em</p>
+                    <p className="text-xs text-muted-foreground/90 uppercase font-semibold">Cadastrado em</p>
                    <p className="text-sm">{formatDateTime(client.created_at)}</p>
                  </div>
                </div>
