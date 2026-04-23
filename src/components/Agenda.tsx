@@ -254,13 +254,8 @@ export function Agenda() {
                      </div>
  
                       <div className="flex-1 overflow-hidden px-0.5 flex flex-col gap-0.5">
-                        {STATUS_GROUPS.filter(g => ["pendente", "concluído", "atrasada", "cancelada"].includes(g.id)).map((group) => {
-                          const groupTasks = dayTasks.filter(t => {
-                            const status = getTaskStatusGroup(t);
-                            // Se o status for "em_andamento", contamos como "pendente" para atender ao pedido do usuário
-                            if (group.id === "pendente" && status === "em_andamento") return true;
-                            return status === group.id;
-                          });
+                        {STATUS_GROUPS.filter(g => ["em_andamento", "pendente", "concluído", "atrasada", "cancelada"].includes(g.id)).map((group) => {
+                          const groupTasks = dayTasks.filter(t => getTaskStatusGroup(t) === group.id);
                           if (groupTasks.length === 0) return null;
                           return (
                             <div 
