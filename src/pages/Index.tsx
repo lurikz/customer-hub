@@ -56,7 +56,7 @@ import { useAuth } from "@/contexts/AuthContext";
    const activeTab = searchParams.get("tab") || "clients";
  
    return (
-     <div className="space-y-8 pb-10">
+      <div className="flex h-full flex-col space-y-8">
        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
          <div>
             <h2 className="text-3xl font-bold tracking-tight">Dashboard</h2>
@@ -70,7 +70,7 @@ import { useAuth } from "@/contexts/AuthContext";
          </div>
        </div>
  
-       <Tabs value={activeTab} onValueChange={(v) => setSearchParams({ tab: v })} className="w-full">
+        <Tabs value={activeTab} onValueChange={(v) => setSearchParams({ tab: v })} className="flex w-full flex-1 flex-col overflow-hidden">
           <TabsList className="inline-flex h-12 w-full justify-start rounded-xl border border-border/50 bg-background/50 p-1 backdrop-blur-sm sm:w-auto">
            <TabsTrigger value="clients" className="h-10 gap-2 rounded-lg px-6 data-[state=active]:bg-primary data-[state=active]:text-white">
              <LayoutDashboard className="h-4 w-4" />
@@ -122,11 +122,11 @@ import { useAuth } from "@/contexts/AuthContext";
            )}
          </TabsContent>
  
-          <TabsContent value="agenda" className="mt-6 outline-none">
-            <div className="overflow-hidden rounded-2xl border border-border/50 bg-card/50 shadow-xl backdrop-blur-sm">
-             <Agenda />
-           </div>
-         </TabsContent>
+           <TabsContent value="agenda" className="mt-6 flex flex-1 flex-col overflow-hidden outline-none">
+             <div className="flex-1 overflow-hidden rounded-2xl border border-border/50 bg-card/50 shadow-xl backdrop-blur-sm">
+               <Agenda />
+             </div>
+           </TabsContent>
        </Tabs>
  
        <ClientFormDialog
