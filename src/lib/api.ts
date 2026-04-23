@@ -18,6 +18,7 @@ export interface Client {
   source: string | null;
   notes: string | null;
   created_by: string | null;
+  created_by_name?: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -260,6 +261,7 @@ export const clientsApi = {
         source: data.source ?? null,
         notes: data.notes ?? null,
         created_by: DEMO_USER.id,
+        created_by_name: DEMO_USER.name,
         created_at: now,
         updated_at: now,
       };

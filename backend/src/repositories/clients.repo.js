@@ -3,14 +3,15 @@
  */
 import { query } from '../db/pool.js';
 
-const COLUMNS =
-  'id, tenant_id, name, company, birth_date, notes, created_by, created_at, updated_at';
+const COLUMNS = 'id, tenant_id, name, company, birth_date, notes, source, created_by, created_at, updated_at';
 
 export async function findAll(tenantId) {
   const { rows } = await query(
-    `SELECT ${COLUMNS} FROM clients
-     WHERE tenant_id = $1
-     ORDER BY created_at DESC`,
+    `SELECT c.*, u.name as created_by_name
+     FROM clients c
+     LEFT JOIN users u ON u.id = c.created_by
+     WHERE c.tenant_id = $1
+     ORDER BY c.created_at DESC`,
     [tenantId]
   );
   return rows;
@@ -18,25 +19,28 @@ export async function findAll(tenantId) {
 
 export async function findById(tenantId, id) {
   const { rows } = await query(
-    `SELECT ${COLUMNS} FROM clients WHERE tenant_id = $1 AND id = $2`,
+    `SELECT c.*, u.name as created_by_name
+     FROM clients c
+     LEFT JOIN users u ON u.id = c.created_by
+     WHERE c.tenant_id = $1 AND c.id = $2`,
     [tenantId, id]
   );
   return rows[0] || null;
 }
 
 export async function insert(tenantId, userId, data) {
-  const { name, company = null, birth_date = null, notes = null } = data;
+  const { name, company = null, birth_date = null, notes = null, source = null } = data;
   const { rows } = await query(
-    `INSERT INTO clients (tenant_id, created_by, name, company, birth_date, notes)
-     VALUES ($1, $2, $3, $4, $5, $6)
+    `INSERT INTO clients (tenant_id, created_by, name, company, birth_date, notes, source)
+     VALUES ($1, $2, $3, $4, $5, $6, $7)
      RETURNING ${COLUMNS}`,
-    [tenantId, userId, name, company, birth_date, notes]
+    [tenantId, userId, name, company, birth_date, notes, source]
   );
-  return rows[0];
+  return findById(tenantId, rows[0].id);
 }
 
 export async function update(tenantId, id, data) {
-  const allowed = ['name', 'company', 'birth_date', 'notes'];
+  const allowed = ['name', 'company', 'birth_date', 'notes', 'source'];
   const sets = [];
   const values = [];
   let i = 1;
