@@ -77,7 +77,7 @@ export function ClientsTable({ clients, onEdit }: Props) {
             <TableHead>Cliente</TableHead>
             <TableHead>Data Cadastro</TableHead>
             <TableHead>Origem</TableHead>
-            <TableHead>Usuário</TableHead>
+            <TableHead>Nome</TableHead>
             <TableHead className="w-[120px] text-right">Ações</TableHead>
           </TableRow>
         </TableHeader>
