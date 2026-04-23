@@ -5,7 +5,8 @@
    ArrowLeft, 
    Calendar, 
    Clock, 
-   Edit, 
+    Edit,
+    Trash2,
    MessageSquare, 
    Plus, 
    User, 
@@ -64,9 +65,10 @@
  export default function ClientProfile() {
    const { id } = useParams<{ id: string }>();
    const queryClient = useQueryClient();
-   const [recordDialogOpen, setRecordDialogOpen] = useState(false);
-   const [editDialogOpen, setEditDialogOpen] = useState(false);
-   const [newRecord, setNewRecord] = useState({ description: "", type: "atendimento" });
+    const [recordDialogOpen, setRecordDialogOpen] = useState(false);
+    const [editDialogOpen, setEditDialogOpen] = useState(false);
+    const [editingRecord, setEditingRecord] = useState<ClientRecord | null>(null);
+    const [recordForm, setRecordForm] = useState({ description: "", type: "atendimento" });
  
    const { data: client, isLoading: loadingClient, error: clientError } = useQuery({
      queryKey: ["client", id],
@@ -80,18 +82,61 @@
      enabled: !!id,
    });
  
-   const createRecordMutation = useMutation({
-     mutationFn: (data: typeof newRecord) => recordsApi.create(id!, data),
-     onSuccess: () => {
-       queryClient.invalidateQueries({ queryKey: ["client-records", id] });
-       setRecordDialogOpen(false);
-       setNewRecord({ description: "", type: "atendimento" });
-       toast({ title: "Registro adicionado" });
-     },
-     onError: (e: Error) => {
-       toast({ title: "Erro ao adicionar", description: e.message, variant: "destructive" });
-     },
-   });
+    const createRecordMutation = useMutation({
+      mutationFn: (data: typeof recordForm) => recordsApi.create(id!, data),
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ["client-records", id] });
+        setRecordDialogOpen(false);
+        setRecordForm({ description: "", type: "atendimento" });
+        toast({ title: "Registro adicionado" });
+      },
+      onError: (e: Error) => {
+        toast({ title: "Erro ao adicionar", description: e.message, variant: "destructive" });
+      },
+    });
+
+    const updateRecordMutation = useMutation({
+      mutationFn: (data: typeof recordForm) => recordsApi.update(id!, editingRecord!.id, data),
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ["client-records", id] });
+        setRecordDialogOpen(false);
+        setEditingRecord(null);
+        setRecordForm({ description: "", type: "atendimento" });
+        toast({ title: "Registro atualizado" });
+      },
+      onError: (e: Error) => {
+        toast({ title: "Erro ao atualizar", description: e.message, variant: "destructive" });
+      },
+    });
+
+    const deleteRecordMutation = useMutation({
+      mutationFn: (recordId: string) => recordsApi.remove(id!, recordId),
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ["client-records", id] });
+        toast({ title: "Registro excluído" });
+      },
+      onError: (e: Error) => {
+        toast({ title: "Erro ao excluir", description: e.message, variant: "destructive" });
+      },
+    });
+
+    const handleAddRecord = () => {
+      setEditingRecord(null);
+      setRecordForm({ description: "", type: "atendimento" });
+      setRecordDialogOpen(true);
+    };
+
+    const handleEditRecord = (record: ClientRecord) => {
+      setEditingRecord(record);
+      setRecordForm({ description: record.description, type: record.type || "atendimento" });
+      setRecordDialogOpen(true);
+    };
+
+    const handleDeleteRecord = (recordId: string) => {
+      if (confirm("Tem certeza que deseja excluir este registro?")) {
+        deleteRecordMutation.mutate(recordId);
+      }
+    };
  
    if (loadingClient) {
      return (
@@ -226,7 +271,7 @@
          <div className="md:col-span-2 space-y-6">
            <div className="flex items-center justify-between">
              <h2 className="text-lg font-semibold">Histórico de Atendimento</h2>
-             <Button onClick={() => setRecordDialogOpen(true)} size="sm" className="gap-2">
+              <Button onClick={handleAddRecord} size="sm" className="gap-2">
                <Plus className="h-4 w-4" />
                Adicionar Registro
              </Button>
@@ -251,9 +296,27 @@
                            {formatDateTime(record.created_at)}
                          </span>
                        </div>
-                       <span className="text-xs text-muted-foreground">
-                         Por: {record.created_by_name || "Sistema"}
-                       </span>
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs text-muted-foreground mr-2">
+                            Por: {record.created_by_name || "Sistema"}
+                          </span>
+                          <Button 
+                            variant="ghost" 
+                            size="icon" 
+                            className="h-7 w-7" 
+                            onClick={() => handleEditRecord(record)}
+                          >
+                            <Edit className="h-3.5 w-3.5" />
+                          </Button>
+                          <Button 
+                            variant="ghost" 
+                            size="icon" 
+                            className="h-7 w-7 text-destructive hover:text-destructive hover:bg-destructive/10" 
+                            onClick={() => handleDeleteRecord(record.id)}
+                          >
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </Button>
+                        </div>
                      </div>
                    </CardHeader>
                    <CardContent className="py-3 px-4 pt-0">
@@ -279,53 +342,55 @@
          client={client} 
        />
  
-       <Dialog open={recordDialogOpen} onOpenChange={setRecordDialogOpen}>
-         <DialogContent>
-           <DialogHeader>
-             <DialogTitle>Novo Registro</DialogTitle>
-             <DialogDescription>
-               Adicione uma observação ou detalhe sobre o atendimento deste cliente.
-             </DialogDescription>
-           </DialogHeader>
-           <div className="space-y-4 py-4">
-             <div className="space-y-2">
-               <label className="text-sm font-medium">Tipo de Registro</label>
-               <Select 
-                 value={newRecord.type} 
-                 onValueChange={(v) => setNewRecord({ ...newRecord, type: v })}
-               >
-                 <SelectTrigger>
-                   <SelectValue placeholder="Selecione o tipo" />
-                 </SelectTrigger>
-                 <SelectContent>
-                   <SelectItem value="atendimento">Atendimento</SelectItem>
-                   <SelectItem value="venda">Venda</SelectItem>
-                   <SelectItem value="suporte">Suporte</SelectItem>
-                   <SelectItem value="negociacao">Negociação</SelectItem>
-                   <SelectItem value="observacao">Observação</SelectItem>
-                 </SelectContent>
-               </Select>
-             </div>
-             <div className="space-y-2">
-               <label className="text-sm font-medium">Descrição</label>
-               <Textarea 
-                 placeholder="Descreva o que aconteceu..." 
-                 value={newRecord.description}
-                 onChange={(e) => setNewRecord({ ...newRecord, description: e.target.value })}
-                 rows={5}
-               />
-             </div>
-           </div>
-           <DialogFooter>
-             <Button variant="outline" onClick={() => setRecordDialogOpen(false)}>Cancelar</Button>
-             <Button 
-               onClick={() => createRecordMutation.mutate(newRecord)}
-               disabled={!newRecord.description.trim() || createRecordMutation.isPending}
-             >
-               {createRecordMutation.isPending ? "Salvando..." : "Salvar Registro"}
-             </Button>
-           </DialogFooter>
-         </DialogContent>
+        <Dialog open={recordDialogOpen} onOpenChange={setRecordDialogOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>{editingRecord ? "Editar Registro" : "Novo Registro"}</DialogTitle>
+              <DialogDescription>
+                {editingRecord 
+                  ? "Atualize as informações deste atendimento." 
+                  : "Adicione uma observação ou detalhe sobre o atendimento deste cliente."}
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Tipo de Registro</label>
+                <Select 
+                  value={recordForm.type} 
+                  onValueChange={(v) => setRecordForm({ ...recordForm, type: v })}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione o tipo" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="atendimento">Atendimento</SelectItem>
+                    <SelectItem value="venda">Venda</SelectItem>
+                    <SelectItem value="suporte">Suporte</SelectItem>
+                    <SelectItem value="negociacao">Negociação</SelectItem>
+                    <SelectItem value="observacao">Observação</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Descrição</label>
+                <Textarea 
+                  placeholder="Descreva o que aconteceu..." 
+                  value={recordForm.description}
+                  onChange={(e) => setRecordForm({ ...recordForm, description: e.target.value })}
+                  rows={5}
+                />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setRecordDialogOpen(false)}>Cancelar</Button>
+              <Button 
+                onClick={() => editingRecord ? updateRecordMutation.mutate(recordForm) : createRecordMutation.mutate(recordForm)}
+                disabled={!recordForm.description.trim() || createRecordMutation.isPending || updateRecordMutation.isPending}
+              >
+                {createRecordMutation.isPending || updateRecordMutation.isPending ? "Salvando..." : "Salvar Registro"}
+              </Button>
+            </DialogFooter>
+           </DialogContent>
        </Dialog>
      </div>
    );
