@@ -52,11 +52,11 @@ import { TasksList } from "./TasksList";
 import { cn } from "@/lib/utils";
 
 const STATUS_GROUPS = [
-  { id: "em_andamento", label: "Em andamento", color: "text-blue-600", bg: "bg-blue-50", border: "border-blue-100" },
-  { id: "pendente", label: "Pendentes", color: "text-amber-600", bg: "bg-amber-50", border: "border-amber-100" },
-  { id: "atrasada", label: "Atrasadas", color: "text-red-600", bg: "bg-red-50", border: "border-red-100" },
-  { id: "concluído", label: "Concluídas", color: "text-emerald-600", bg: "bg-emerald-50", border: "border-emerald-100" },
-  { id: "cancelada", label: "Canceladas", color: "text-slate-500", bg: "bg-slate-50", border: "border-slate-100" },
+   { id: "em_andamento", label: "Em andamento", color: "text-blue-600", bg: "bg-blue-50/50", border: "border-blue-200" },
+   { id: "pendente", label: "Pendentes", color: "text-amber-600", bg: "bg-amber-50/50", border: "border-amber-200" },
+   { id: "atrasada", label: "Atrasadas", color: "text-red-700", bg: "bg-red-50", border: "border-red-200", isCritical: true },
+   { id: "concluído", label: "Concluídas", color: "text-emerald-600", bg: "bg-emerald-50/50", border: "border-emerald-200" },
+   { id: "cancelada", label: "Canceladas", color: "text-slate-500", bg: "bg-slate-50/50", border: "border-slate-200" },
 ] as const;
 
 type StatusGroupId = typeof STATUS_GROUPS[number]["id"];
@@ -133,14 +133,14 @@ export function Agenda() {
 
   return (
     <div className="flex h-full flex-col gap-4 overflow-hidden">
-      <div className="flex flex-col gap-3 shrink-0 sm:flex-row sm:items-center sm:justify-between">
+       <div className="flex flex-col gap-2 shrink-0 sm:flex-row sm:items-center sm:justify-between px-1">
         <div className="flex items-center gap-2">
           <div className="flex items-center bg-card rounded-md border p-1">
             <Button
               variant={view === "month" ? "secondary" : "ghost"}
               size="sm"
               onClick={() => setView("month")}
-              className="h-8 gap-1.5"
+               className="h-7 px-2 text-xs gap-1.5"
             >
               <LayoutGrid className="h-4 w-4" />
               Calendário
@@ -149,7 +149,7 @@ export function Agenda() {
               variant={view === "list" ? "secondary" : "ghost"}
               size="sm"
               onClick={() => setView("list")}
-              className="h-8 gap-1.5"
+               className="h-7 px-2 text-xs gap-1.5"
             >
               <List className="h-4 w-4" />
               Lista
@@ -158,16 +158,16 @@ export function Agenda() {
 
           {view !== "list" && (
             <div className="flex items-center gap-1 ml-2">
-              <Button variant="outline" size="icon" className="h-8 w-8" onClick={prevDate}>
-                <ChevronLeft className="h-4 w-4" />
+               <Button variant="outline" size="icon" className="h-7 w-7" onClick={prevDate}>
+                 <ChevronLeft className="h-3.5 w-3.5" />
               </Button>
-              <Button variant="outline" size="sm" className="h-8" onClick={resetToToday}>
+               <Button variant="outline" size="sm" className="h-7 px-2 text-xs" onClick={resetToToday}>
                 Hoje
               </Button>
-              <Button variant="outline" size="icon" className="h-8 w-8" onClick={nextDate}>
-                <ChevronRight className="h-4 w-4" />
+               <Button variant="outline" size="icon" className="h-7 w-7" onClick={nextDate}>
+                 <ChevronRight className="h-3.5 w-3.5" />
               </Button>
-              <h2 className="ml-2 font-semibold capitalize">
+               <h2 className="ml-1 font-bold text-sm capitalize">
                 {format(currentDate, "MMMM yyyy", { locale: ptBR })}
               </h2>
             </div>
@@ -177,7 +177,7 @@ export function Agenda() {
         <div className="flex items-center gap-2">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm" className="gap-2">
+               <Button variant="outline" size="sm" className="h-8 gap-2 text-xs">
                 <Filter className="h-4 w-4" />
                 Filtros
                 {filterMyTasks && <Badge className="ml-1 h-5 w-5 rounded-full p-0 flex items-center justify-center">1</Badge>}
@@ -195,7 +195,7 @@ export function Agenda() {
             </DropdownMenuContent>
           </DropdownMenu>
 
-          <Button onClick={() => handleNewTask()} size="sm" className="gap-2">
+           <Button onClick={() => handleNewTask()} size="sm" className="h-8 gap-2 text-xs">
             <Plus className="h-4 w-4" />
             Nova tarefa
           </Button>
@@ -213,79 +213,82 @@ export function Agenda() {
           </div>
         ) : (
           <div className="flex h-full flex-col border rounded-lg bg-background overflow-hidden">
-            <div className="grid grid-cols-7 border-b bg-muted/30">
+             <div className="grid grid-cols-7 border-b bg-muted/50 backdrop-blur-sm">
               {["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"].map((day) => (
-                <div key={day} className="p-2 text-center text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
+                 <div key={day} className="py-1.5 text-center text-[9px] font-bold text-muted-foreground uppercase tracking-widest">
                   {day}
                 </div>
               ))}
             </div>
-            <div className="grid grid-cols-7 flex-1 overflow-hidden divide-x divide-y">
+             <div 
+               className="grid grid-cols-7 flex-1 overflow-hidden divide-x divide-y bg-muted/20"
+               style={{ 
+                 gridTemplateRows: `repeat(${Math.ceil(days.length / 7)}, 1fr)` 
+               }}
+             >
               {days.map((day, idx) => {
                 const dayTasks = tasks.filter((t) => isSameDay(new Date(t.datetime), day));
                 const isMonthDay = day.getMonth() === currentDate.getMonth();
                 const isTodayDay = isToday(day);
 
                 return (
-                  <div
-                    key={idx}
-                    className={cn(
-                      "flex flex-col min-h-0 bg-card p-1 transition-colors hover:bg-muted/10 cursor-pointer",
-                      !isMonthDay && "bg-muted/5 opacity-40",
-                      isTodayDay && "bg-accent/5"
-                    )}
-                    onClick={() => handleDayClick(day)}
-                  >
-                    <div className="flex items-center justify-between mb-0.5 px-1">
-                      <span className={cn(
-                        "flex h-5 w-5 items-center justify-center rounded-full text-[11px] font-medium",
-                        isTodayDay ? "bg-primary text-primary-foreground" : "text-muted-foreground"
-                      )}>
-                        {format(day, "d")}
-                      </span>
-                      {dayTasks.length > 0 && (
-                        <span className="text-[10px] text-muted-foreground font-semibold">
-                          {dayTasks.length}
-                        </span>
-                      )}
-                    </div>
-
-                    <div className="flex-1 space-y-1 overflow-hidden px-0.5 pb-1">
-                      {STATUS_GROUPS.map((group) => {
-                        const groupTasks = dayTasks.filter(t => getTaskStatusGroup(t) === group.id);
-                        if (groupTasks.length === 0) return null;
-
-                        return (
-                          <div key={group.id} className="space-y-0.5">
-                            <div className={cn("px-1 text-[8px] font-bold uppercase tracking-tight opacity-70", group.color)}>
-                              {group.label}
-                            </div>
-                            <div className="space-y-0.5">
-                              {groupTasks.slice(0, 2).map((task) => (
-                                <div
-                                  key={task.id}
-                                  className={cn(
-                                    "truncate rounded px-1 py-0.5 text-[9px] font-medium leading-none",
-                                    group.bg,
-                                    group.color,
-                                    group.border,
-                                    "border"
-                                  )}
-                                >
-                                  {task.title}
-                                </div>
-                              ))}
-                              {groupTasks.length > 2 && (
-                                <div className="px-1 text-[8px] text-muted-foreground italic">
-                                  +{groupTasks.length - 2}
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
+                   <div
+                     key={idx}
+                     className={cn(
+                       "flex flex-col min-h-0 bg-card p-0.5 transition-colors hover:bg-muted/10 cursor-pointer relative",
+                       !isMonthDay && "bg-muted/5 opacity-40",
+                       isTodayDay && "bg-accent/10 shadow-inner"
+                     )}
+                     onClick={() => handleDayClick(day)}
+                   >
+                     <div className="flex items-center justify-between px-1 border-b border-border/10 mb-0.5">
+                       <span className={cn(
+                         "flex h-4 w-4 items-center justify-center rounded-full text-[10px] font-medium",
+                         isTodayDay ? "bg-primary text-primary-foreground" : "text-muted-foreground"
+                       )}>
+                         {format(day, "d")}
+                       </span>
+                       {dayTasks.some(t => getTaskStatusGroup(t) === "atrasada") && (
+                         <span className="absolute top-1 right-1 h-1.5 w-1.5 rounded-full bg-red-500 animate-pulse" />
+                       )}
+                     </div>
+ 
+                     <div className="flex-1 overflow-hidden px-0.5">
+                       {STATUS_GROUPS.map((group) => {
+                         const groupTasks = dayTasks.filter(t => getTaskStatusGroup(t) === group.id);
+                         if (groupTasks.length === 0) return null;
+ 
+                         return (
+                           <div key={group.id} className="mb-0.5">
+                             <div className={cn("px-0.5 text-[7px] font-bold uppercase tracking-tighter opacity-80 leading-tight", group.color)}>
+                               {group.label}
+                             </div>
+                             <div className="flex flex-col">
+                               {groupTasks.slice(0, 2).map((task) => (
+                                 <div
+                                   key={task.id}
+                                   className={cn(
+                                     "truncate rounded-sm px-1 py-0.5 text-[8px] font-medium leading-[1.1] mb-[1px]",
+                                     group.bg,
+                                     group.color,
+                                     "border border-transparent",
+                                     group.id === "atrasada" && "border-red-200 shadow-[0_0_2px_rgba(239,68,68,0.2)] font-bold"
+                                   )}
+                                 >
+                                   {task.title}
+                                 </div>
+                               ))}
+                               {groupTasks.length > 2 && (
+                                 <div className="px-0.5 text-[7px] text-muted-foreground/70 font-semibold leading-none mb-0.5">
+                                   +{groupTasks.length - 2}
+                                 </div>
+                               )}
+                             </div>
+                           </div>
+                         );
+                       })}
+                     </div>
+                   </div>
                 );
               })}
             </div>
@@ -317,14 +320,14 @@ export function Agenda() {
             </DialogTitle>
           </DialogHeader>
           
-          <div className="flex-1 overflow-y-auto p-6 pt-2 space-y-6">
+          <div className="flex-1 overflow-y-auto p-4 pt-0 space-y-4">
             {selectedDay && (() => {
               const dayTasks = tasks.filter((t) => isSameDay(new Date(t.datetime), selectedDay));
               
               if (dayTasks.length === 0) {
                 return (
-                  <div className="py-12 text-center text-muted-foreground">
-                    <p>Nenhuma tarefa agendada para este dia.</p>
+                  <div className="py-10 text-center text-muted-foreground border border-dashed rounded-lg m-4">
+                    <p className="text-sm">Nenhuma tarefa agendada.</p>
                   </div>
                 );
               }
@@ -334,21 +337,21 @@ export function Agenda() {
                 if (groupTasks.length === 0) return null;
 
                 return (
-                  <div key={group.id} className="space-y-3">
-                    <h3 className={cn("text-xs font-bold uppercase tracking-widest flex items-center gap-2", group.color)}>
-                      <span className={cn("h-1.5 w-1.5 rounded-full", group.bg.replace('bg-', 'bg-').replace('50', '500'))}></span>
+                  <div key={group.id} className="space-y-2">
+                    <h3 className={cn("text-[10px] font-bold uppercase tracking-widest flex items-center gap-2 sticky top-0 bg-background/95 backdrop-blur py-2 z-10", group.color)}>
+                      <span className={cn("h-1.5 w-1.5 rounded-full", group.id === "atrasada" ? "bg-red-500 animate-pulse" : group.bg.replace('bg-', 'bg-').split('/')[0])}></span>
                       {group.label}
-                      <span className="ml-auto text-[10px] bg-muted px-1.5 py-0.5 rounded-full text-muted-foreground">
+                      <span className="ml-auto text-[9px] bg-muted px-1.5 py-0.5 rounded-full text-muted-foreground font-medium">
                         {groupTasks.length}
                       </span>
                     </h3>
-                    <div className="grid gap-2">
+                    <div className="grid gap-1.5">
                       {groupTasks.map((task) => (
                         <div 
                           key={task.id} 
                           className={cn(
-                            "flex items-center justify-between gap-4 p-3 rounded-lg border bg-card transition-all hover:shadow-md cursor-pointer",
-                            group.border
+                            "group relative flex items-center justify-between gap-3 p-2.5 rounded-md border bg-card transition-all hover:border-primary/30 cursor-pointer shadow-sm",
+                            group.id === "atrasada" && "border-red-200 bg-red-50/10"
                           )}
                           onClick={() => {
                             setDayModalOpen(false);
@@ -357,21 +360,21 @@ export function Agenda() {
                         >
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2 mb-1">
-                              <span className="font-semibold text-sm truncate">{task.title}</span>
-                              <Badge variant="outline" className="text-[10px] h-4 py-0 flex gap-1 items-center font-mono">
+                              <span className={cn("font-medium text-sm truncate", group.id === "atrasada" && "text-red-700")}>{task.title}</span>
+                              <span className="text-[10px] font-mono text-muted-foreground bg-muted/50 px-1 rounded flex items-center gap-1 shrink-0">
                                 <Clock className="h-2.5 w-2.5" />
                                 {format(new Date(task.datetime), "HH:mm")}
-                              </Badge>
+                              </span>
                             </div>
-                            <div className="flex flex-wrap gap-x-4 gap-y-1">
+                            <div className="flex flex-wrap gap-x-3 gap-y-0.5 items-center">
                               {task.client_name && (
-                                <span className="text-xs text-muted-foreground flex items-center gap-1">
-                                  <User className="h-3 w-3" />
+                                <span className="text-[10px] text-muted-foreground flex items-center gap-1 bg-secondary/30 px-1.5 rounded-sm">
+                                  <User className="h-2.5 w-2.5" />
                                   {task.client_name}
                                 </span>
                               )}
-                              <span className="text-xs text-muted-foreground flex items-center gap-1">
-                                <div className="h-3 w-3 rounded-full bg-primary/20 flex items-center justify-center">
+                              <span className="text-[10px] text-muted-foreground flex items-center gap-1">
+                                <div className="h-3 w-3 rounded-full bg-primary/10 flex items-center justify-center">
                                   <User className="h-2 w-2 text-primary" />
                                 </div>
                                 {task.user_name}
@@ -379,20 +382,20 @@ export function Agenda() {
                             </div>
                           </div>
                           
-                          <div className="flex items-center gap-2 shrink-0">
+                          <div className="flex items-center gap-1 shrink-0">
                             <Button
                               variant="ghost"
                               size="icon"
-                              className="h-8 w-8 rounded-full"
+                              className="h-7 w-7 rounded-full opacity-60 hover:opacity-100 hover:bg-emerald-50"
                               onClick={(e) => {
                                 e.stopPropagation();
                                 toggleStatusMutation.mutate(task);
                               }}
                             >
                               {task.status === "concluído" ? (
-                                <CheckCircle2 className="h-5 w-5 text-emerald-500" />
+                                <CheckCircle2 className="h-4.5 w-4.5 text-emerald-500" />
                               ) : (
-                                <Circle className="h-5 w-5 text-muted-foreground" />
+                                <Circle className="h-4.5 w-4.5 text-muted-foreground group-hover:text-emerald-500 transition-colors" />
                               )}
                             </Button>
                           </div>
