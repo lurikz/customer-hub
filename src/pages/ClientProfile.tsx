@@ -354,10 +354,10 @@
                                   <Calendar className="h-3 w-3" />
                                   Atividade
                                 </Badge>
-                                <Badge 
-                                  variant={task.status === "concluído" ? "default" : "outline"} 
-                                  className={`capitalize ${task.status === "concluído" ? "bg-green-600 hover:bg-green-600 text-white" : ""}`}
-                                >
+                                 <Badge
+                                   variant={task.status === "concluído" ? "default" : "outline"}
+                                   className={`capitalize text-sm font-bold px-3 py-0.5 ${task.status === "concluído" ? "bg-green-600 hover:bg-green-600 text-white" : ""}`}
+                                 >
                                   {task.status === "pendente" ? "Pendente" : 
                                    task.status === "em_andamento" ? "Em Andamento" : 
                                    task.status === "concluído" ? "Concluído" : "Cancelada"}
