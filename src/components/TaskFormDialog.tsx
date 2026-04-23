@@ -57,7 +57,7 @@ const schema = z.object({
   title: z.string().trim().min(1, "O título é obrigatório").max(200),
   description: z.string().trim().max(2000).optional(),
   datetime: z.string().min(1, "A data e hora são obrigatórias"),
-  status: z.enum(["pendente", "concluído"]),
+  status: z.enum(["pendente", "em_andamento", "concluído", "cancelada"]),
   client_id: z.string().optional().nullable().or(z.literal("")),
   user_id: z.string().min(1, "Selecione o responsável"),
 });
@@ -235,16 +235,18 @@ export function TaskFormDialog({ open, onOpenChange, task, defaultDate, defaultC
                  render={({ field }) => (
                    <FormItem>
                      <FormLabel>Status</FormLabel>
-                     <Select onValueChange={field.onChange} value={field.value} defaultValue={field.value} disabled={isLocked}>
+                      <Select onValueChange={field.onChange} value={field.value} defaultValue={field.value}>
                        <FormControl>
                          <SelectTrigger>
                            <SelectValue placeholder="Selecione o status" />
                          </SelectTrigger>
                        </FormControl>
-                       <SelectContent>
-                         <SelectItem value="pendente">Pendente</SelectItem>
-                         <SelectItem value="concluído">Concluído</SelectItem>
-                       </SelectContent>
+                        <SelectContent>
+                          <SelectItem value="pendente">Pendente</SelectItem>
+                          <SelectItem value="em_andamento">Em andamento</SelectItem>
+                          <SelectItem value="concluído">Concluído</SelectItem>
+                          <SelectItem value="cancelada">Cancelada</SelectItem>
+                        </SelectContent>
                      </Select>
                      <FormMessage />
                    </FormItem>
@@ -368,16 +370,36 @@ export function TaskFormDialog({ open, onOpenChange, task, defaultDate, defaultC
              />
 
              <DialogFooter className="gap-2 sm:gap-0">
-               {isLocked && isEditing ? (
-                 <Button 
-                   type="button" 
-                   className="gap-2"
-                   onClick={() => setIsLocked(false)}
-                 >
-                   <Pencil className="h-4 w-4" />
-                   Editar
-                 </Button>
-               ) : (
+                {isLocked && isEditing && (
+                  <div className="flex w-full justify-between items-center gap-2">
+                    <Button 
+                      type="button" 
+                      variant="outline"
+                      onClick={() => onOpenChange(false)}
+                    >
+                      Fechar
+                    </Button>
+                    <div className="flex gap-2">
+                      <Button 
+                        type="button" 
+                        variant="outline"
+                        className="gap-2"
+                        onClick={() => setIsLocked(false)}
+                      >
+                        <Pencil className="h-4 w-4" />
+                        Editar tudo
+                      </Button>
+                      <Button 
+                        type="button"
+                        onClick={() => mutation.mutate(form.getValues())}
+                        disabled={mutation.isPending}
+                      >
+                        {mutation.isPending ? "Salvando..." : "Salvar status"}
+                      </Button>
+                    </div>
+                  </div>
+                )}
+                {(!isLocked || !isEditing) && (
                  <div className="flex w-full justify-between items-center gap-2">
                    {isEditing && (
                      <AlertDialog>
