@@ -162,8 +162,9 @@ export function ClientFormDialog({ open, onOpenChange, client }: Props) {
     },
   });
 
-  return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+   return (
+     <>
+       <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>
@@ -346,9 +347,9 @@ export function ClientFormDialog({ open, onOpenChange, client }: Props) {
           </form>
         </Form>
       </DialogContent>
-     </Dialog>
+       </Dialog>
  
-     <Dialog open={originDialogOpen} onOpenChange={setOriginDialogOpen}>
+       <Dialog open={originDialogOpen} onOpenChange={setOriginDialogOpen}>
        <DialogContent className="sm:max-w-[425px]">
          <DialogHeader>
            <DialogTitle>Nova Origem</DialogTitle>
