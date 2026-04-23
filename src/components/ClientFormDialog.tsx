@@ -250,23 +250,36 @@ export function ClientFormDialog({ open, onOpenChange, client }: Props) {
                               value={newSource}
                               onValueChange={setNewSource}
                             />
-                            <CommandList>
+                             <CommandList className="max-h-[300px] overflow-y-auto">
                                <CommandEmpty>Nenhuma origem encontrada.</CommandEmpty>
+                               <CommandGroup>
+                                 <CommandItem
+                                   onSelect={() => {
+                                     const name = window.prompt("Nome da nova origem:");
+                                     if (name?.trim()) addSource(name);
+                                   }}
+                                 >
+                                   <Plus className="mr-2 h-4 w-4" />
+                                   Novo
+                                 </CommandItem>
+                               </CommandGroup>
+
                                {newSource &&
                                  !sources.some(
                                    (s) => s.toLowerCase() === newSource.toLowerCase()
                                  ) && (
-                                 <CommandGroup>
-                                   <CommandItem
-                                     value={newSource}
-                                     onSelect={() => addSource(newSource)}
-                                   >
-                                     <Plus className="mr-2 h-4 w-4" />
-                                     Criar "{newSource}"
-                                   </CommandItem>
-                                 </CommandGroup>
-                               )}
-                              <CommandGroup heading="Sugestões">
+                                   <CommandGroup>
+                                     <CommandItem
+                                       value={newSource}
+                                       onSelect={() => addSource(newSource)}
+                                     >
+                                       <Plus className="mr-2 h-4 w-4" />
+                                       Criar "{newSource}"
+                                     </CommandItem>
+                                   </CommandGroup>
+                                 )}
+
+                               <CommandGroup heading="Sugestões">
                                 {sources.map((s) => (
                                   <CommandItem
                                     key={s}
