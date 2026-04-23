@@ -37,9 +37,7 @@ const Index = () => {
     if (!q) return data;
     return data.filter(
       (c) =>
-        c.name.toLowerCase().includes(q) ||
-        (c.company ?? "").toLowerCase().includes(q) ||
-        (c.notes ?? "").toLowerCase().includes(q)
+        c.name.toLowerCase().includes(q) || (c.company ?? "").toLowerCase().includes(q)
     );
   }, [data, search]);
 
@@ -134,7 +132,7 @@ const Index = () => {
                 <Input
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
-                  placeholder="Buscar por nome, empresa ou anotação..."
+                  placeholder="Buscar por nome ou empresa..."
                   className="pl-9"
                 />
               </div>

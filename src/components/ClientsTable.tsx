@@ -78,7 +78,6 @@ export function ClientsTable({ clients, onEdit }: Props) {
             <TableHead>Empresa</TableHead>
             <TableHead>Nascimento</TableHead>
             <TableHead>Origem</TableHead>
-            <TableHead className="hidden md:table-cell">Anotação</TableHead>
             <TableHead className="w-[120px] text-right">Ações</TableHead>
           </TableRow>
         </TableHeader>
@@ -89,9 +88,6 @@ export function ClientsTable({ clients, onEdit }: Props) {
               <TableCell>{c.company || "—"}</TableCell>
               <TableCell>{formatDate(c.birth_date)}</TableCell>
               <TableCell>{c.source || "—"}</TableCell>
-              <TableCell className="hidden md:table-cell max-w-xs truncate text-muted-foreground">
-                {c.notes || "—"}
-              </TableCell>
               <TableCell className="text-right">
                 <div className="flex justify-end gap-1">
                   <Button
