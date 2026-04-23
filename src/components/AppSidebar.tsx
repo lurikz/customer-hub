@@ -1,4 +1,5 @@
- import { Calendar, LayoutDashboard, LogOut, Shield, Users, User, Settings } from "lucide-react";
+import { Calendar, LayoutDashboard, LogOut, Shield, Users, User, Settings, Moon, Sun } from "lucide-react";
+import { useTheme } from "next-themes";
  import { Link, useLocation } from "react-router-dom";
  import { useAuth } from "@/contexts/AuthContext";
  import {
@@ -18,6 +19,7 @@
  export function AppSidebar() {
    const { user, logout, hasRole } = useAuth();
    const location = useLocation();
+    const { theme, setTheme } = useTheme();
  
    const menuItems = [
      {
@@ -95,8 +97,27 @@
            </SidebarGroup>
          )}
        </SidebarContent>
-       <SidebarFooter className="border-t border-white/5 p-4">
-         <div className="flex flex-col gap-4">
+        <SidebarFooter className="border-t border-border/40 p-4">
+          <div className="flex flex-col gap-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="w-full justify-start gap-3 px-2 text-muted-foreground transition-all hover:bg-accent hover:text-accent-foreground group-data-[collapsible=icon]:justify-center"
+              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+            >
+              {theme === "dark" ? (
+                <>
+                  <Sun className="h-5 w-5" />
+                  <span className="group-data-[collapsible=icon]:hidden">Modo Claro</span>
+                </>
+              ) : (
+                <>
+                  <Moon className="h-5 w-5" />
+                  <span className="group-data-[collapsible=icon]:hidden">Modo Escuro</span>
+                </>
+              )}
+            </Button>
+
            <div className="flex items-center gap-3 px-2 group-data-[collapsible=icon]:hidden">
              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white/10 text-white">
                <User className="h-4 w-4" />
