@@ -59,7 +59,7 @@ import { useAuth } from "@/contexts/AuthContext";
      <div className="space-y-8 pb-10">
        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
          <div>
-           <h2 className="text-3xl font-bold tracking-tight text-white">Dashboard</h2>
+            <h2 className="text-3xl font-bold tracking-tight">Dashboard</h2>
            <p className="text-muted-foreground">Gerencie seus clientes e compromissos com facilidade.</p>
          </div>
          <div className="flex items-center gap-3">
@@ -71,7 +71,7 @@ import { useAuth } from "@/contexts/AuthContext";
        </div>
  
        <Tabs value={activeTab} onValueChange={(v) => setSearchParams({ tab: v })} className="w-full">
-         <TabsList className="inline-flex h-12 w-full justify-start rounded-xl border border-white/5 bg-black/40 p-1 backdrop-blur-sm sm:w-auto">
+          <TabsList className="inline-flex h-12 w-full justify-start rounded-xl border border-border/50 bg-background/50 p-1 backdrop-blur-sm sm:w-auto">
            <TabsTrigger value="clients" className="h-10 gap-2 rounded-lg px-6 data-[state=active]:bg-primary data-[state=active]:text-white">
              <LayoutDashboard className="h-4 w-4" />
              Clientes
@@ -90,7 +90,7 @@ import { useAuth } from "@/contexts/AuthContext";
                  value={search}
                  onChange={(e) => setSearch(e.target.value)}
                  placeholder="Buscar por nome ou empresa..."
-                 className="h-12 rounded-xl border-white/5 bg-black/40 pl-11 text-white backdrop-blur-sm transition-all focus:border-primary/50 focus:ring-primary/20"
+                  className="h-12 rounded-xl border-border/50 bg-background/50 pl-11 backdrop-blur-sm transition-all focus:border-primary/50 focus:ring-primary/20"
                />
              </div>
              <p className="text-sm font-medium text-muted-foreground">
@@ -109,21 +109,21 @@ import { useAuth } from "@/contexts/AuthContext";
                <AlertDescription>{(error as Error).message}</AlertDescription>
              </Alert>
            ) : isLoading ? (
-             <div className="flex h-[400px] w-full items-center justify-center rounded-2xl border border-white/5 bg-black/20 backdrop-blur-sm">
+              <div className="flex h-[400px] w-full items-center justify-center rounded-2xl border border-border/50 bg-card/50 backdrop-blur-sm">
                <div className="flex flex-col items-center gap-4">
                  <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
                  <p className="text-sm text-muted-foreground">Carregando dados dos clientes...</p>
                </div>
              </div>
            ) : (
-             <div className="overflow-hidden rounded-2xl border border-white/5 bg-black/20 shadow-2xl backdrop-blur-sm">
+              <div className="overflow-hidden rounded-2xl border border-border/50 bg-card/50 shadow-xl backdrop-blur-sm">
                <ClientsTable clients={filtered} onEdit={openEdit} />
              </div>
            )}
          </TabsContent>
  
-         <TabsContent value="agenda" className="mt-6 outline-none">
-           <div className="overflow-hidden rounded-2xl border border-white/5 bg-black/20 shadow-2xl backdrop-blur-sm">
+          <TabsContent value="agenda" className="mt-6 outline-none">
+            <div className="overflow-hidden rounded-2xl border border-border/50 bg-card/50 shadow-xl backdrop-blur-sm">
              <Agenda />
            </div>
          </TabsContent>

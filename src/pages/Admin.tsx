@@ -46,14 +46,14 @@ export default function Admin() {
      <div className="space-y-8 pb-10">
        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
          <div>
-           <h2 className="text-3xl font-bold tracking-tight text-white flex items-center gap-3">
+            <h2 className="text-3xl font-bold tracking-tight flex items-center gap-3">
              <Shield className="h-8 w-8 text-primary" />
              Painel Master
            </h2>
            <p className="text-muted-foreground">Visão geral do sistema e gerenciamento de usuários.</p>
          </div>
          <div className="flex items-center gap-3">
-           <Button asChild variant="outline" className="h-11 gap-2 rounded-xl border-white/10 bg-white/5 px-6 backdrop-blur-sm transition-all hover:bg-white/10">
+            <Button asChild variant="outline" className="h-11 gap-2 rounded-xl border-border/50 bg-card/50 px-6 backdrop-blur-sm transition-all hover:bg-accent">
              <Link to="/">
                <ArrowLeft className="h-4 w-4" />
                Ir ao CRM
@@ -77,7 +77,7 @@ export default function Admin() {
  
        <section className="space-y-6">
          <div className="flex items-center justify-between px-2">
-           <h3 className="text-xl font-semibold text-white">Todos os usuários</h3>
+            <h3 className="text-xl font-semibold">Todos os usuários</h3>
            <Badge variant="outline" className="border-primary/20 bg-primary/10 text-primary">
              {users?.length || 0} Registrados
            </Badge>
@@ -90,14 +90,14 @@ export default function Admin() {
            </Alert>
          )}
  
-         <div className="overflow-hidden rounded-2xl border border-white/5 bg-black/20 shadow-2xl backdrop-blur-sm">
+          <div className="overflow-hidden rounded-2xl border border-border/50 bg-card/50 shadow-xl backdrop-blur-sm">
            <Table>
-             <TableHeader className="bg-white/5">
-               <TableRow className="border-white/5 hover:bg-transparent">
-                 <TableHead className="text-white">Nome</TableHead>
-                 <TableHead className="text-white">E-mail</TableHead>
-                 <TableHead className="text-white">Tenant</TableHead>
-                 <TableHead className="text-white">Tipo</TableHead>
+              <TableHeader className="bg-accent/50">
+                <TableRow className="border-border/50 hover:bg-transparent">
+                  <TableHead>Nome</TableHead>
+                  <TableHead>E-mail</TableHead>
+                  <TableHead>Tenant</TableHead>
+                  <TableHead>Tipo</TableHead>
                </TableRow>
              </TableHeader>
              <TableBody>
@@ -118,8 +118,8 @@ export default function Admin() {
                  </TableRow>
                ) : (
                  users.map((u) => (
-                   <TableRow key={u.id} className="border-white/5 hover:bg-white/5 transition-colors">
-                     <TableCell className="font-medium text-white">
+                    <TableRow key={u.id} className="border-border/50 hover:bg-accent/50 transition-colors">
+                      <TableCell className="font-medium">
                        <div className="flex items-center gap-2">
                          {u.name}
                          {u.id === user?.id && (
@@ -136,7 +136,7 @@ export default function Admin() {
                          variant={roleVariant[u.role] ?? "secondary"}
                          className={cn(
                            "rounded-md px-2 py-0.5",
-                           u.role === "super_admin" ? "bg-primary text-white hover:bg-primary/90" : ""
+                          u.role === "super_admin" ? "bg-primary text-primary-foreground hover:bg-primary/90" : ""
                          )}
                        >
                          {roleLabel[u.role] ?? u.role}
@@ -163,14 +163,14 @@ function StatCard({
   icon: React.ComponentType<{ className?: string }>;
 }) {
    return (
-     <div className="group relative overflow-hidden rounded-2xl border border-white/5 bg-black/20 p-6 shadow-xl backdrop-blur-sm transition-all hover:border-primary/20">
+      <div className="group relative overflow-hidden rounded-2xl border border-border/50 bg-card/50 p-6 shadow-xl backdrop-blur-sm transition-all hover:border-primary/20">
        <div className="flex items-center justify-between">
          <p className="text-sm font-medium text-muted-foreground">{label}</p>
          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary transition-transform group-hover:scale-110">
            <Icon className="h-4 w-4" />
          </div>
        </div>
-       <p className="mt-4 text-4xl font-bold tracking-tight text-white">
+        <p className="mt-4 text-4xl font-bold tracking-tight">
          {value ?? "—"}
        </p>
        <div className="absolute -bottom-1 -right-1 h-12 w-12 rounded-full bg-primary/5 blur-2xl transition-opacity group-hover:opacity-100 opacity-0" />

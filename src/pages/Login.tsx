@@ -61,19 +61,19 @@ interface LocationState {
   };
 
    return (
-     <div className="relative flex min-h-screen w-full items-center justify-center overflow-hidden bg-[#0A0A0A] px-4 py-12">
+      <div className="relative flex min-h-screen w-full items-center justify-center overflow-hidden bg-background px-4 py-12">
        {/* Background Decor */}
        <div className="absolute -left-1/4 -top-1/4 h-[1000px] w-[1000px] rounded-full bg-primary/5 blur-[120px]" />
        <div className="absolute -bottom-1/4 -right-1/4 h-[800px] w-[800px] rounded-full bg-primary/10 blur-[100px]" />
        
        <div className="relative w-full max-w-md animate-in fade-in zoom-in duration-500">
-         <div className="flex flex-col items-center gap-6 rounded-3xl border border-white/5 bg-black/40 p-8 shadow-2xl backdrop-blur-2xl sm:p-12">
+          <div className="flex flex-col items-center gap-6 rounded-3xl border border-border/50 bg-card/40 p-8 shadow-2xl backdrop-blur-2xl sm:p-12">
            <div className="flex flex-col items-center gap-4 text-center">
-             <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-primary shadow-[0_0_30px_rgba(124,58,237,0.4)]">
-               <Users className="h-8 w-8 text-white" />
+              <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-primary shadow-lg shadow-primary/20">
+                <Users className="h-8 w-8 text-primary-foreground" />
              </div>
              <div className="space-y-1">
-               <h1 className="text-3xl font-bold tracking-tight text-white">Bem-vindo</h1>
+                <h1 className="text-3xl font-bold tracking-tight">Bem-vindo</h1>
                <p className="text-sm text-muted-foreground">
                  Acesse sua plataforma CRM tecnológica
                </p>
@@ -87,13 +87,13 @@ interface LocationState {
                  name="email"
                  render={({ field }) => (
                    <FormItem>
-                     <FormLabel className="text-white/70">E-mail</FormLabel>
+                      <FormLabel className="text-foreground/70">E-mail</FormLabel>
                      <FormControl>
                        <Input
                          type="email"
                          autoComplete="username"
                          placeholder="exemplo@empresa.com"
-                         className="h-12 rounded-xl border-white/10 bg-white/5 text-white placeholder:text-white/20 focus:border-primary/50 focus:ring-primary/20"
+                          className="h-12 rounded-xl border-border/50 bg-background/50 placeholder:text-muted-foreground/50 focus:border-primary/50 focus:ring-primary/20"
                          {...field}
                        />
                      </FormControl>
@@ -106,13 +106,13 @@ interface LocationState {
                  name="password"
                  render={({ field }) => (
                    <FormItem>
-                     <FormLabel className="text-white/70">Senha</FormLabel>
+                      <FormLabel className="text-foreground/70">Senha</FormLabel>
                      <FormControl>
                        <Input
                          type="password"
                          autoComplete="current-password"
                          placeholder="••••••••"
-                         className="h-12 rounded-xl border-white/10 bg-white/5 text-white placeholder:text-white/20 focus:border-primary/50 focus:ring-primary/20"
+                          className="h-12 rounded-xl border-border/50 bg-background/50 placeholder:text-muted-foreground/50 focus:border-primary/50 focus:ring-primary/20"
                          {...field}
                        />
                      </FormControl>

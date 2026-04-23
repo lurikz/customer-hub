@@ -72,7 +72,7 @@
        <Icon className="h-5 w-5 mt-1 text-primary/60" />
        <div className="space-y-1">
          <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/70">{label}</p>
-         <p className="text-sm font-medium text-white">{value}</p>
+          <p className="text-sm font-medium">{value}</p>
        </div>
      </div>
    );
@@ -211,17 +211,17 @@
       <div className="space-y-8 pb-10">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-4">
-            <Button asChild variant="ghost" size="icon" className="rounded-full bg-white/5 transition-all hover:bg-white/10">
+            <Button asChild variant="ghost" size="icon" className="rounded-full bg-accent/50 transition-all hover:bg-accent">
               <Link to="/"><ArrowLeft className="h-5 w-5" /></Link>
             </Button>
             <div>
-              <h1 className="text-3xl font-bold tracking-tight text-white">{client.name}</h1>
+              <h1 className="text-3xl font-bold tracking-tight">{client.name}</h1>
               <p className="text-sm text-muted-foreground">
                 {client.company || "Pessoa Física"} • Perfil do Cliente
               </p>
             </div>
           </div>
-          <Button onClick={() => setEditDialogOpen(true)} variant="outline" className="h-11 gap-2 rounded-xl border-white/10 bg-white/5 px-6 backdrop-blur-sm transition-all hover:bg-white/10">
+          <Button onClick={() => setEditDialogOpen(true)} variant="outline" className="h-11 gap-2 rounded-xl border-border/50 bg-card/50 px-6 backdrop-blur-sm transition-all hover:bg-accent">
             <Edit className="h-4 w-4" />
             Editar Cliente
           </Button>
@@ -230,8 +230,8 @@
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
           {/* Sidebar: Client Info */}
           <div className="space-y-6">
-            <Card className="overflow-hidden border-white/5 bg-black/20 shadow-xl backdrop-blur-sm">
-              <CardHeader className="bg-white/5 py-4">
+            <Card className="overflow-hidden border-border/50 bg-card/50 shadow-xl backdrop-blur-sm">
+              <CardHeader className="bg-accent/30 py-4">
                 <CardTitle className="text-xs font-bold uppercase tracking-widest text-primary">Informações de Contato</CardTitle>
               </CardHeader>
               <CardContent className="space-y-6 p-6">
@@ -254,7 +254,7 @@
             </Card>
  
             {client.notes && (
-              <Card className="border-white/5 bg-black/20 shadow-xl backdrop-blur-sm">
+              <Card className="border-border/50 bg-card/50 shadow-xl backdrop-blur-sm">
                 <CardHeader className="py-4">
                   <CardTitle className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-primary">
                     <StickyNote className="h-4 w-4" />
@@ -313,7 +313,7 @@
                     if (item.timelineType === 'record') {
                       const record = item as any;
                       return (
-                        <Card key={record.id} className="border-white/5 bg-black/20 backdrop-blur-sm border-l-4 border-l-primary/50">
+                        <Card key={record.id} className="border-border/50 bg-card/50 backdrop-blur-sm border-l-4 border-l-primary/50">
                           <CardHeader className="py-3 px-4">
                             <div className="flex items-center justify-between">
                               <div className="flex items-center gap-2">
@@ -346,7 +346,7 @@
                     } else {
                       const task = item as any;
                       return (
-                        <Card key={task.id} className="border-white/5 bg-black/20 backdrop-blur-sm border-l-4 border-l-amber-500/50">
+                        <Card key={task.id} className="border-border/50 bg-card/50 backdrop-blur-sm border-l-4 border-l-amber-500/50">
                           <CardHeader className="py-3 px-4">
                             <div className="flex items-center justify-between">
                               <div className="flex items-center gap-2">

@@ -1,4 +1,5 @@
- import { Calendar, LayoutDashboard, LogOut, Shield, Users, User, Settings } from "lucide-react";
+import { Calendar, LayoutDashboard, LogOut, Shield, Users, User, Settings, Moon, Sun } from "lucide-react";
+import { useTheme } from "next-themes";
  import { Link, useLocation } from "react-router-dom";
  import { useAuth } from "@/contexts/AuthContext";
  import {
@@ -18,6 +19,7 @@
  export function AppSidebar() {
    const { user, logout, hasRole } = useAuth();
    const location = useLocation();
+    const { theme, setTheme } = useTheme();
  
    const menuItems = [
      {
@@ -33,14 +35,14 @@
    ];
  
    return (
-     <Sidebar collapsible="icon" className="border-r border-white/5 bg-black/50 backdrop-blur-xl">
-       <SidebarHeader className="border-b border-white/5 p-4">
+      <Sidebar collapsible="icon" className="border-r border-border/50 bg-sidebar backdrop-blur-xl">
+        <SidebarHeader className="border-b border-border/50 p-4">
          <div className="flex items-center gap-3 px-2">
-           <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary shadow-[0_0_20px_rgba(124,58,237,0.3)]">
-             <LayoutDashboard className="h-5 w-5 text-white" />
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary shadow-lg shadow-primary/20">
+              <LayoutDashboard className="h-5 w-5 text-primary-foreground" />
            </div>
            <div className="flex flex-col group-data-[collapsible=icon]:hidden">
-             <span className="text-sm font-bold tracking-tight text-white">TECH CRM</span>
+              <span className="text-sm font-bold tracking-tight">TECH CRM</span>
              <span className="text-[10px] uppercase tracking-wider text-muted-foreground">Sistema de Gestão</span>
            </div>
          </div>
@@ -56,7 +58,7 @@
                      asChild
                      isActive={location.pathname === item.url || (item.url !== "/" && location.pathname.startsWith(item.url))}
                      tooltip={item.title}
-                     className="relative h-11 px-4 transition-all hover:bg-white/5 hover:text-primary data-[active=true]:bg-primary/10 data-[active=true]:text-primary"
+                      className="relative h-11 px-4 transition-all hover:bg-accent hover:text-primary data-[active=true]:bg-primary/10 data-[active=true]:text-primary"
                    >
                      <Link to={item.url}>
                        <item.icon className="h-5 w-5" />
@@ -82,7 +84,7 @@
                      asChild
                      isActive={location.pathname === "/admin"}
                      tooltip="Painel Master"
-                     className="h-11 px-4 transition-all hover:bg-white/5 hover:text-primary data-[active=true]:bg-primary/10 data-[active=true]:text-primary"
+                      className="h-11 px-4 transition-all hover:bg-accent hover:text-primary data-[active=true]:bg-primary/10 data-[active=true]:text-primary"
                    >
                      <Link to="/admin">
                        <Shield className="h-5 w-5" />
@@ -95,14 +97,33 @@
            </SidebarGroup>
          )}
        </SidebarContent>
-       <SidebarFooter className="border-t border-white/5 p-4">
-         <div className="flex flex-col gap-4">
-           <div className="flex items-center gap-3 px-2 group-data-[collapsible=icon]:hidden">
-             <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white/10 text-white">
-               <User className="h-4 w-4" />
+        <SidebarFooter className="border-t border-border/50 p-4">
+          <div className="flex flex-col gap-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="w-full justify-start gap-3 px-2 text-muted-foreground transition-all hover:bg-accent hover:text-accent-foreground group-data-[collapsible=icon]:justify-center"
+              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+            >
+              {theme === "dark" ? (
+                <>
+                  <Sun className="h-5 w-5" />
+                  <span className="group-data-[collapsible=icon]:hidden">Modo Claro</span>
+                </>
+              ) : (
+                <>
+                  <Moon className="h-5 w-5" />
+                  <span className="group-data-[collapsible=icon]:hidden">Modo Escuro</span>
+                </>
+              )}
+            </Button>
+
+            <div className="mt-2 flex items-center gap-3 px-2 group-data-[collapsible=icon]:hidden">
+              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-accent text-accent-foreground">
+                <User className="h-4 w-4" />
              </div>
              <div className="flex flex-col overflow-hidden">
-               <span className="truncate text-sm font-medium text-white">{user?.name}</span>
+                <span className="truncate text-sm font-medium">{user?.name}</span>
                <span className="truncate text-[10px] text-muted-foreground">{user?.email}</span>
              </div>
            </div>

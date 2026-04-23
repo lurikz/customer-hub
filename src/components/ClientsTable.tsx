@@ -72,7 +72,7 @@ function formatDate(value: string | null) {
   }
 
    return (
-     <div className="relative w-full overflow-x-auto rounded-2xl border border-white/5 bg-black/20 backdrop-blur-sm shadow-2xl">
+      <div className="relative w-full overflow-x-auto rounded-2xl border border-border/50 bg-card/50 backdrop-blur-sm shadow-xl">
        <Table className="min-w-[800px]">
         <TableHeader>
           <TableRow>
