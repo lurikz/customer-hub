@@ -90,7 +90,7 @@ export function TasksList({ tasks, onEdit, onToggleStatus }: Props) {
                 <TableCell>
                   <div className="flex items-center gap-1.5 text-sm">
                     <Clock className="h-3.5 w-3.5 text-muted-foreground" />
-                    <span className={cn(isOverdue && "font-semibold text-destructive")}>
+                    <span className={cn(isOverdue && "font-bold")}>
                       {format(date, "dd/MM/yyyy HH:mm", { locale: ptBR })}
                     </span>
                   </div>
