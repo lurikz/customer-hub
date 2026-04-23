@@ -4,7 +4,8 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/contexts/AuthContext";
-import { ProtectedRoute } from "@/components/ProtectedRoute";
+ import { ProtectedRoute } from "@/components/ProtectedRoute";
+ import { DashboardLayout } from "@/components/DashboardLayout";
 import Index from "./pages/Index.tsx";
 import Login from "./pages/Login.tsx";
 import Admin from "./pages/Admin.tsx";
@@ -22,30 +23,36 @@ const App = () => (
         <AuthProvider>
           <Routes>
             <Route path="/login" element={<Login />} />
-            <Route
-              path="/"
-              element={
-                <ProtectedRoute>
-                  <Index />
-                </ProtectedRoute>
+             <Route
+               path="/"
+               element={
+                 <ProtectedRoute>
+                   <DashboardLayout>
+                     <Index />
+                   </DashboardLayout>
+                 </ProtectedRoute>
                }
              />
              <Route
                path="/clientes/:id"
                element={
                  <ProtectedRoute>
-                   <ClientProfile />
+                   <DashboardLayout>
+                     <ClientProfile />
+                   </DashboardLayout>
                  </ProtectedRoute>
                }
              />
              <Route
                path="/admin"
-              element={
-                <ProtectedRoute roles={["super_admin"]}>
-                  <Admin />
-                </ProtectedRoute>
-              }
-            />
+               element={
+                 <ProtectedRoute roles={["super_admin"]}>
+                   <DashboardLayout>
+                     <Admin />
+                   </DashboardLayout>
+                 </ProtectedRoute>
+               }
+             />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
