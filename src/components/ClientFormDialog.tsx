@@ -486,7 +486,7 @@ export function ClientFormDialog({ open, onOpenChange, client }: Props) {
                id="origin-name"
                value={newOriginName}
                onChange={(e) => setNewOriginName(e.target.value)}
-               placeholder="Ex: Instagram, WhatsApp..."
+                placeholder="Ex: Instagram, Indicação..."
                autoFocus
                onKeyDown={(e) => {
                  if (e.key === "Enter") {
