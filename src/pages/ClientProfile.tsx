@@ -343,69 +343,70 @@
                   <MessageSquare className="h-5 w-5" />
                   Histórico de Atendimento
                 </h2>
-                 <Button onClick={handleAddRecord} size="sm" className="gap-2">
+                <Button onClick={handleAddRecord} size="sm" className="gap-2">
                   <Plus className="h-4 w-4" />
                   Adicionar Registro
                 </Button>
               </div>
- 
-           <div className="space-y-4">
-             {loadingRecords ? (
-               Array(3).fill(0).map((_, i) => (
-                 <Skeleton key={i} className="h-24 w-full" />
-               ))
-             ) : records && records.length > 0 ? (
-               records.map((record: ClientRecord) => (
-                 <Card key={record.id} className="border-l-4 border-l-primary/50">
-                   <CardHeader className="py-3 px-4">
-                     <div className="flex items-center justify-between">
-                       <div className="flex items-center gap-2">
-                         <Badge variant="outline" className="capitalize">
-                           {record.type || "Geral"}
-                         </Badge>
-                         <span className="text-xs text-muted-foreground flex items-center gap-1">
-                           <Clock className="h-3 w-3" />
-                           {formatDateTime(record.created_at)}
-                         </span>
-                       </div>
-                        <div className="flex items-center gap-2">
-                          <span className="text-xs text-muted-foreground mr-2">
-                            Por: {record.created_by_name || "Sistema"}
-                          </span>
-                          <Button 
-                            variant="ghost" 
-                            size="icon" 
-                            className="h-7 w-7" 
-                            onClick={() => handleEditRecord(record)}
-                          >
-                            <Edit className="h-3.5 w-3.5" />
-                          </Button>
-                          <Button 
-                            variant="ghost" 
-                            size="icon" 
-                            className="h-7 w-7 text-destructive hover:text-destructive hover:bg-destructive/10" 
-                            onClick={() => handleDeleteRecord(record.id)}
-                          >
-                            <Trash2 className="h-3.5 w-3.5" />
-                          </Button>
+
+              <div className="space-y-4">
+                {loadingRecords ? (
+                  Array(3).fill(0).map((_, i) => (
+                    <Skeleton key={i} className="h-24 w-full" />
+                  ))
+                ) : records && records.length > 0 ? (
+                  records.map((record: ClientRecord) => (
+                    <Card key={record.id} className="border-l-4 border-l-primary/50">
+                      <CardHeader className="py-3 px-4">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <Badge variant="outline" className="capitalize">
+                              {record.type || "Geral"}
+                            </Badge>
+                            <span className="text-xs text-muted-foreground flex items-center gap-1">
+                              <Clock className="h-3 w-3" />
+                              {formatDateTime(record.created_at)}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs text-muted-foreground mr-2">
+                              Por: {record.created_by_name || "Sistema"}
+                            </span>
+                            <Button 
+                              variant="ghost" 
+                              size="icon" 
+                              className="h-7 w-7" 
+                              onClick={() => handleEditRecord(record)}
+                            >
+                              <Edit className="h-3.5 w-3.5" />
+                            </Button>
+                            <Button 
+                              variant="ghost" 
+                              size="icon" 
+                              className="h-7 w-7 text-destructive hover:text-destructive hover:bg-destructive/10" 
+                              onClick={() => handleDeleteRecord(record.id)}
+                            >
+                              <Trash2 className="h-3.5 w-3.5" />
+                            </Button>
+                          </div>
                         </div>
-                     </div>
-                   </CardHeader>
-                   <CardContent className="py-3 px-4 pt-0">
-                     <p className="text-sm text-foreground whitespace-pre-wrap">{record.description}</p>
-                   </CardContent>
-                 </Card>
-               ))
-             ) : (
-               <div className="rounded-lg border border-dashed p-12 text-center text-muted-foreground">
-                 <MessageSquare className="h-12 w-12 mx-auto mb-4 opacity-20" />
-                 <p>Nenhum registro encontrado para este cliente.</p>
-                 <p className="text-sm">Comece adicionando um novo atendimento ou observação.</p>
-               </div>
-             )}
-           </div>
-         </div>
-       </div>
+                      </CardHeader>
+                      <CardContent className="py-3 px-4 pt-0">
+                        <p className="text-sm text-foreground whitespace-pre-wrap">{record.description}</p>
+                      </CardContent>
+                    </Card>
+                  ))
+                ) : (
+                  <div className="rounded-lg border border-dashed p-12 text-center text-muted-foreground">
+                    <MessageSquare className="h-12 w-12 mx-auto mb-4 opacity-20" />
+                    <p>Nenhum registro encontrado para este cliente.</p>
+                    <p className="text-sm">Comece adicionando um novo atendimento ou observação.</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
  
         {/* Modals */}
         <ClientFormDialog 
