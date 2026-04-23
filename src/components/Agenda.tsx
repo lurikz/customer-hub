@@ -78,7 +78,7 @@ export function Agenda() {
   const [selectedDay, setSelectedDay] = useState<Date | null>(null);
   const [dayModalOpen, setDayModalOpen] = useState(false);
 
-  const { data: tasks = [] } = useQuery({
+  const { data: tasks = [], isLoading } = useQuery({
     queryKey: ["tasks", filterMyTasks ? user?.id : null],
     queryFn: () => tasksApi.list(filterMyTasks ? { userId: user?.id } : undefined),
   });
@@ -126,6 +126,25 @@ export function Agenda() {
   const prevDate = () => setCurrentDate(subMonths(currentDate, 1));
   const resetToToday = () => setCurrentDate(new Date());
 
+  const stats = useMemo(() => {
+    const counts = {
+      em_andamento: 0,
+      pendente: 0,
+      atrasada: 0,
+      concluído: 0,
+      cancelada: 0,
+    };
+    
+    tasks.forEach(task => {
+      const group = getTaskStatusGroup(task);
+      if (counts.hasOwnProperty(group)) {
+        counts[group as keyof typeof counts]++;
+      }
+    });
+    
+    return counts;
+  }, [tasks]);
+
   const handleDayClick = (day: Date) => {
     setSelectedDay(day);
     setDayModalOpen(true);
@@ -133,7 +152,21 @@ export function Agenda() {
 
   return (
     <div className="flex h-full flex-col gap-4 overflow-hidden">
-       <div className="flex flex-col gap-2 shrink-0 sm:flex-row sm:items-center sm:justify-between px-1">
+       <div className="flex flex-col gap-3 shrink-0 px-1">
+        <div className="flex flex-wrap items-center gap-2 mb-1">
+          {STATUS_GROUPS.map((group) => (
+            <div key={group.id} className={cn("flex items-center gap-1.5 px-2 py-1 rounded-full border text-[10px] font-medium transition-colors bg-card")}>
+              <span className={cn("h-1.5 w-1.5 rounded-full", group.id === "atrasada" ? "bg-red-500 animate-pulse" : group.bg.replace('bg-', 'bg-').split('/')[0])}></span>
+              <span className="text-muted-foreground">{group.label}:</span>
+              <span className={cn("font-bold", group.color)}>{stats[group.id as keyof typeof stats]}</span>
+            </div>
+          ))}
+          <div className="ml-auto text-[10px] text-muted-foreground italic">
+            {tasks.length} tarefas no total
+          </div>
+        </div>
+
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-2">
           <div className="flex items-center bg-card rounded-md border p-1">
             <Button
