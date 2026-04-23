@@ -13,6 +13,7 @@ import { errorHandler } from './middleware/errorHandler.js';
 import clientsRouter from './routes/clients.routes.js';
 import authRouter from './routes/auth.routes.js';
 import adminRouter from './routes/admin.routes.js';
+import tasksRouter from './routes/tasks.routes.js';
 
 const app = express();
 const PORT = Number(process.env.PORT) || 3001;
@@ -54,6 +55,7 @@ app.get('/health', (_req, res) => res.json({ status: 'ok' }));
 
 app.use('/auth', apiKeyAuth, authRouter);
 app.use('/clients', apiKeyAuth, jwtAuth, clientsRouter);
+app.use('/tasks', apiKeyAuth, jwtAuth, tasksRouter);
 app.use('/admin', apiKeyAuth, adminRouter);
 
 app.use((_req, res) => res.status(404).json({ error: 'Rota não encontrada' }));
