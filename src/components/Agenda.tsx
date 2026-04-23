@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { 
   format, 
@@ -16,29 +16,38 @@ import {
   isPast
 } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { 
-  Calendar as CalendarIcon, 
-  ChevronLeft, 
-  ChevronRight, 
-  List, 
-  Plus, 
+import {
+  Calendar as CalendarIcon,
+  ChevronLeft,
+  ChevronRight,
+  List,
+  Plus,
   LayoutGrid,
   Filter,
-  User
+  User,
+  Clock,
+  CheckCircle2,
+  Circle,
+  MoreHorizontal
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { 
-  DropdownMenu, 
-  DropdownMenuContent, 
+import {
+  DropdownMenu,
+  DropdownMenuContent,
   DropdownMenuCheckboxItem,
   DropdownMenuTrigger,
   DropdownMenuLabel,
   DropdownMenuSeparator
 } from "@/components/ui/dropdown-menu";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { tasksApi, type Task } from "@/lib/api";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "@/hooks/use-toast";
@@ -46,14 +55,32 @@ import { TaskFormDialog } from "./TaskFormDialog";
 import { TasksList } from "./TasksList";
 import { cn } from "@/lib/utils";
 
+const STATUS_GROUPS = [
+  { id: "em_andamento", label: "Em andamento", color: "text-blue-600", bg: "bg-blue-50", border: "border-blue-100" },
+  { id: "pendente", label: "Pendentes", color: "text-amber-600", bg: "bg-amber-50", border: "border-amber-100" },
+  { id: "atrasada", label: "Atrasadas", color: "text-red-600", bg: "bg-red-50", border: "border-red-100" },
+  { id: "concluído", label: "Concluídas", color: "text-emerald-600", bg: "bg-emerald-50", border: "border-emerald-100" },
+  { id: "cancelada", label: "Canceladas", color: "text-slate-500", bg: "bg-slate-50", border: "border-slate-100" },
+] as const;
+
+type StatusGroupId = typeof STATUS_GROUPS[number]["id"];
+
+function getTaskStatusGroup(task: Task): StatusGroupId {
+  const isOverdue = isPast(new Date(task.datetime)) && !isToday(new Date(task.datetime)) && (task.status === "pendente" || task.status === "em_andamento");
+  if (isOverdue) return "atrasada";
+  return task.status as StatusGroupId;
+}
+
 export function Agenda() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
-  const [view, setView] = useState<"month" | "week" | "list">("month");
+  const [view, setView] = useState<"month" | "list">("month");
   const [currentDate, setCurrentDate] = useState(new Date());
   const [taskFormOpen, setTaskFormOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [filterMyTasks, setFilterMyTasks] = useState(false);
+  const [selectedDay, setSelectedDay] = useState<Date | null>(null);
+  const [dayModalOpen, setDayModalOpen] = useState(false);
 
   const { data: tasks = [], isLoading } = useQuery({
     queryKey: ["tasks", filterMyTasks ? user?.id : null],
@@ -108,42 +135,36 @@ export function Agenda() {
 
   const nextDate = () => {
     if (view === "month") setCurrentDate(addMonths(currentDate, 1));
-    else if (view === "week") setCurrentDate(addWeeks(currentDate, 1));
   };
 
   const prevDate = () => {
     if (view === "month") setCurrentDate(subMonths(currentDate, 1));
-    else if (view === "week") setCurrentDate(subWeeks(currentDate, 1));
   };
 
   const resetToToday = () => setCurrentDate(new Date());
 
+  const handleDayClick = (day: Date) => {
+    setSelectedDay(day);
+    setDayModalOpen(true);
+  };
+
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+    <div className="flex h-full flex-col gap-4 overflow-hidden">
+      <div className="flex flex-col gap-3 shrink-0 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-2">
           <div className="flex items-center bg-card rounded-md border p-1">
-            <Button 
-              variant={view === "month" ? "secondary" : "ghost"} 
-              size="sm" 
+            <Button
+              variant={view === "month" ? "secondary" : "ghost"}
+              size="sm"
               onClick={() => setView("month")}
               className="h-8 gap-1.5"
             >
               <LayoutGrid className="h-4 w-4" />
-              Mês
+              Calendário
             </Button>
-            <Button 
-              variant={view === "week" ? "secondary" : "ghost"} 
-              size="sm" 
-              onClick={() => setView("week")}
-              className="h-8 gap-1.5"
-            >
-              <CalendarIcon className="h-4 w-4" />
-              Semana
-            </Button>
-            <Button 
-              variant={view === "list" ? "secondary" : "ghost"} 
-              size="sm" 
+            <Button
+              variant={view === "list" ? "secondary" : "ghost"}
+              size="sm"
               onClick={() => setView("list")}
               className="h-8 gap-1.5"
             >
@@ -197,107 +218,3 @@ export function Agenda() {
           </Button>
         </div>
       </div>
-
-      {view === "list" ? (
-        <TasksList 
-          tasks={tasks} 
-          onEdit={handleEditTask} 
-          onToggleStatus={(t) => toggleStatusMutation.mutate(t)} 
-        />
-      ) : (
-        <div className="grid grid-cols-7 gap-px overflow-hidden rounded-lg border bg-border">
-          {/* Header Dias da Semana */}
-          {["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"].map((day) => (
-            <div key={day} className="bg-muted/50 p-2 text-center text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-              {day}
-            </div>
-          ))}
-
-          {/* Células de Dias */}
-          {days.map((day, idx) => {
-            const dayTasks = tasks.filter((t) => isSameDay(new Date(t.datetime), day));
-            const isMonthDay = view === "week" || day.getMonth() === currentDate.getMonth();
-            const isTodayDay = isToday(day);
-
-            return (
-              <div
-                key={idx}
-                className={cn(
-                  "bg-card p-2 transition-colors hover:bg-muted/30",
-                  view === "month" ? "min-h-[140px]" : "min-h-[300px]",
-                  !isMonthDay && "bg-muted/20 text-muted-foreground",
-                  isTodayDay && "bg-accent/10"
-                )}
-                onClick={() => handleNewTask(day)}
-              >
-                <div className="flex items-center justify-between mb-1">
-                  <span className={cn(
-                    "inline-flex h-6 w-6 items-center justify-center rounded-full text-sm",
-                    isTodayDay && "bg-primary text-primary-foreground font-bold"
-                  )}>
-                    {format(day, "d")}
-                  </span>
-                </div>
-
-                <div className="space-y-1.5">
-                  {(view === "month" ? dayTasks.slice(0, 4) : dayTasks).map((task) => {
-                    const isTaskOverdue = isPast(new Date(task.datetime)) && (task.status === "pendente" || task.status === "em_andamento");
-                    return (
-                      <div
-                        key={task.id}
-                        className={cn(
-                          "group flex flex-col rounded border px-2 py-1.5 text-[10px] leading-tight cursor-pointer shadow-sm transition-all hover:ring-1 hover:ring-primary/20",
-                          task.status === "concluído" || task.status === "cancelada"
-                            ? "bg-muted/40 border-transparent text-muted-foreground opacity-70" 
-                            : task.status === "em_andamento"
-                              ? "bg-blue-50 border-blue-200 text-blue-700 font-medium"
-                              : isTaskOverdue 
-                                ? "bg-destructive/10 border-destructive/30 text-destructive font-medium" 
-                                : "bg-primary/5 border-primary/20 text-primary font-medium"
-                        )}
-                        title={`${task.title}${task.description ? ': ' + task.description : ''}`}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleEditTask(task);
-                        }}
-                      >
-                        <div className="flex items-start justify-between gap-1 mb-1">
-                          <span className={cn("font-bold truncate", (task.status === "concluído" || task.status === "cancelada") && "line-through opacity-70")}>
-                            {task.title}
-                          </span>
-                          <span className="shrink-0 opacity-70 font-medium tabular-nums">
-                            {format(new Date(task.datetime), "HH:mm")}
-                          </span>
-                        </div>
-                        {task.description && (
-                          <p className={cn(
-                            "line-clamp-2 text-[9px] leading-[1.2] opacity-80",
-                            (task.status === "concluído" || task.status === "cancelada") && "opacity-50"
-                          )}>
-                            {task.description}
-                          </p>
-                        )}
-                      </div>
-                    );
-                  })}
-                  {view === "month" && dayTasks.length > 4 && (
-                    <p className="text-[10px] text-muted-foreground text-center font-semibold bg-muted/30 rounded py-0.5">
-                      + {dayTasks.length - 4} atividades
-                    </p>
-                  )}
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      )}
-
-      <TaskFormDialog
-        open={taskFormOpen}
-        onOpenChange={setTaskFormOpen}
-        task={editingTask}
-        defaultDate={currentDate.toISOString()}
-      />
-    </div>
-  );
-}
