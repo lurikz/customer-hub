@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
  import { Plus, Check, ChevronsUpDown, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -230,10 +230,7 @@ export function ClientFormDialog({ open, onOpenChange, client }: Props) {
                     <FormLabel className="mb-2">Origem</FormLabel>
                     <Popover
                       open={popoverOpen}
-                      onOpenChange={(open) => {
-                        setPopoverOpen(open);
-                        if (!open) setNewSource("");
-                      }}
+                       onOpenChange={setPopoverOpen}
                     >
                       <PopoverTrigger asChild>
                         <FormControl>
@@ -252,39 +249,37 @@ export function ClientFormDialog({ open, onOpenChange, client }: Props) {
                       </PopoverTrigger>
                       <PopoverContent className="w-[200px] p-0" align="start">
                         <Command>
-                            <CommandInput
-                              placeholder="Buscar ou criar nova..."
-                              value={newSource}
-                              onValueChange={setNewSource}
-                            />
+                             <CommandInput 
+                               placeholder="Buscar ou criar nova..." 
+                               value={newSearchSource}
+                               onValueChange={setNewSearchSource}
+                             />
                              <CommandList className="max-h-[300px] overflow-y-auto">
                                <CommandEmpty>Nenhuma origem encontrada.</CommandEmpty>
-                               <CommandGroup>
-                                 <CommandItem
-                                   onSelect={() => {
-                                     const name = window.prompt("Nome da nova origem:");
-                                     if (name?.trim()) addSource(name);
-                                   }}
-                                 >
-                                   <Plus className="mr-2 h-4 w-4" />
-                                   Novo
-                                 </CommandItem>
-                               </CommandGroup>
+                                <CommandGroup>
+                                  <CommandItem
+                                    type="button"
+                                    onSelect={() => setOriginDialogOpen(true)}
+                                  >
+                                    <Plus className="mr-2 h-4 w-4" />
+                                    Novo
+                                  </CommandItem>
+                                </CommandGroup>
 
-                               {newSource &&
-                                 !sources.some(
-                                   (s) => s.toLowerCase() === newSource.toLowerCase()
-                                 ) && (
-                                   <CommandGroup>
-                                     <CommandItem
-                                       value={newSource}
-                                       onSelect={() => addSource(newSource)}
-                                     >
-                                       <Plus className="mr-2 h-4 w-4" />
-                                       Criar "{newSource}"
-                                     </CommandItem>
-                                   </CommandGroup>
-                                 )}
+                                {newSearchSource &&
+                                  !sources.some(
+                                    (s) => s.toLowerCase() === newSearchSource.toLowerCase()
+                                  ) && (
+                                    <CommandGroup>
+                                      <CommandItem
+                                        value={newSearchSource}
+                                        onSelect={() => originMutation.mutate(newSearchSource)}
+                                      >
+                                        <Plus className="mr-2 h-4 w-4" />
+                                        Criar "{newSearchSource}"
+                                      </CommandItem>
+                                    </CommandGroup>
+                                  )}
 
                                <CommandGroup heading="Sugestões">
                                 {sources.map((s) => (
