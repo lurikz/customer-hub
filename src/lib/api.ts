@@ -19,6 +19,7 @@ export interface Client {
    phone: string | null;
    cpf_cnpj: string | null;
    source: string | null;
+  address: string | null;
    notes: string | null;
   created_by: string | null;
   created_by_name?: string | null;
@@ -34,6 +35,7 @@ export interface Client {
    phone?: string | null;
    cpf_cnpj?: string | null;
    source?: string | null;
+  address?: string | null;
    notes?: string | null;
  }
  
@@ -304,6 +306,7 @@ export const clientsApi = {
          phone: data.phone ?? null,
          cpf_cnpj: data.cpf_cnpj ?? null,
          source: data.source ?? null,
+         address: data.address ?? null,
          notes: data.notes ?? null,
         created_by: DEMO_USER.id,
         created_by_name: DEMO_USER.name,
@@ -330,6 +333,7 @@ export const clientsApi = {
          phone: data.phone ?? null,
          cpf_cnpj: data.cpf_cnpj ?? null,
          source: data.source ?? null,
+         address: data.address ?? null,
          notes: data.notes ?? null,
         updated_at: new Date().toISOString(),
       };
