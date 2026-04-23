@@ -14,23 +14,45 @@ export interface Client {
   tenant_id: string;
   name: string;
   company: string | null;
-  birth_date: string | null;
-  source: string | null;
-  notes: string | null;
+   birth_date: string | null;
+   email: string | null;
+   phone: string | null;
+   cpf_cnpj: string | null;
+   source: string | null;
+   notes: string | null;
   created_by: string | null;
   created_by_name?: string | null;
   created_at: string;
   updated_at: string;
 }
 
-export interface ClientInput {
-  name: string;
-  company?: string | null;
-  birth_date?: string | null;
-  source?: string | null;
-  notes?: string | null;
-}
-
+ export interface ClientInput {
+   name: string;
+   company?: string | null;
+   birth_date?: string | null;
+   email?: string | null;
+   phone?: string | null;
+   cpf_cnpj?: string | null;
+   source?: string | null;
+   notes?: string | null;
+ }
+ 
+ export interface ClientRecord {
+   id: string;
+   client_id: string;
+   tenant_id: string;
+   description: string;
+   type: string | null;
+   created_by: string | null;
+   created_by_name?: string | null;
+   created_at: string;
+ }
+ 
+ export interface RecordInput {
+   description: string;
+   type?: string | null;
+ }
+ 
 export interface AuthUser {
   id: string;
   tenantId: string | null;
@@ -86,9 +108,10 @@ const DEMO_CREDENTIALS = {
   email: "padilha.ctt@gmail.com",
   password: "mp469535",
 };
-const DEMO_CLIENTS_KEY = "crm.demo.clients";
-
-const demoStore = {
+ const DEMO_CLIENTS_KEY = "crm.demo.clients";
+ const DEMO_RECORDS_KEY = "crm.demo.records";
+ 
+ const demoStore = {
   isOn: () => localStorage.getItem(DEMO_FLAG) === "1",
   enable: () => localStorage.setItem(DEMO_FLAG, "1"),
   disable: () => localStorage.removeItem(DEMO_FLAG),
@@ -99,9 +122,26 @@ const demoStore = {
       return [];
     }
   },
-  saveClients: (cs: Client[]) =>
-    localStorage.setItem(DEMO_CLIENTS_KEY, JSON.stringify(cs)),
-};
+   saveClients: (cs: Client[]) =>
+     localStorage.setItem(DEMO_CLIENTS_KEY, JSON.stringify(cs)),
+   loadRecords: (clientId: string): ClientRecord[] => {
+     try {
+       const allRaw = localStorage.getItem(DEMO_RECORDS_KEY) || "[]";
+       const all: ClientRecord[] = JSON.parse(allRaw);
+       return all
+         .filter((r) => r.client_id === clientId)
+         .sort((a, b) => b.created_at.localeCompare(a.created_at));
+     } catch {
+       return [];
+     }
+   },
+   saveRecord: (r: ClientRecord) => {
+     const allRaw = localStorage.getItem(DEMO_RECORDS_KEY) || "[]";
+     const all: ClientRecord[] = JSON.parse(allRaw);
+     all.push(r);
+     localStorage.setItem(DEMO_RECORDS_KEY, JSON.stringify(all));
+   },
+ };
 
 function uid() {
   return (crypto as { randomUUID?: () => string }).randomUUID?.() ??
@@ -257,9 +297,12 @@ export const clientsApi = {
         tenant_id: DEMO_USER.tenantId ?? "demo-tenant",
         name: data.name,
         company: data.company ?? null,
-        birth_date: data.birth_date ?? null,
-        source: data.source ?? null,
-        notes: data.notes ?? null,
+         birth_date: data.birth_date ?? null,
+         email: data.email ?? null,
+         phone: data.phone ?? null,
+         cpf_cnpj: data.cpf_cnpj ?? null,
+         source: data.source ?? null,
+         notes: data.notes ?? null,
         created_by: DEMO_USER.id,
         created_by_name: DEMO_USER.name,
         created_at: now,
@@ -280,9 +323,12 @@ export const clientsApi = {
         ...all[i],
         name: data.name,
         company: data.company ?? null,
-        birth_date: data.birth_date ?? null,
-        source: data.source ?? null,
-        notes: data.notes ?? null,
+         birth_date: data.birth_date ?? null,
+         email: data.email ?? null,
+         phone: data.phone ?? null,
+         cpf_cnpj: data.cpf_cnpj ?? null,
+         source: data.source ?? null,
+         notes: data.notes ?? null,
         updated_at: new Date().toISOString(),
       };
       demoStore.saveClients(all);
@@ -312,22 +358,53 @@ export const adminApi = {
     }
     return request<AdminStats>("/admin");
   },
-  async listUsers(): Promise<AdminUser[]> {
-    if (demoStore.isOn()) {
-      return [
-        {
-          id: DEMO_USER.id,
-          tenant_id: DEMO_USER.tenantId,
-          name: DEMO_USER.name,
-          email: DEMO_USER.email,
-          role: DEMO_USER.role,
-          created_at: new Date().toISOString(),
-        },
-      ];
-    }
-    return request<AdminUser[]>("/admin/users");
-  },
-};
+   async listUsers(): Promise<AdminUser[]> {
+     if (demoStore.isOn()) {
+       return [
+         {
+           id: DEMO_USER.id,
+           tenant_id: DEMO_USER.tenantId,
+           name: DEMO_USER.name,
+           email: DEMO_USER.email,
+           role: DEMO_USER.role,
+           created_at: new Date().toISOString(),
+         },
+       ];
+     }
+     return request<AdminUser[]>("/admin/users");
+   },
+ };
+ 
+ // =====================================================
+ // Records API
+ // =====================================================
+ export const recordsApi = {
+   async list(clientId: string): Promise<ClientRecord[]> {
+     if (demoStore.isOn()) return demoStore.loadRecords(clientId);
+     return request<ClientRecord[]>(`/clients/${clientId}/records`);
+   },
+   async create(clientId: string, data: RecordInput): Promise<ClientRecord> {
+     if (demoStore.isOn()) {
+       const now = new Date().toISOString();
+       const r: ClientRecord = {
+         id: uid(),
+         client_id: clientId,
+         tenant_id: "demo-tenant",
+         description: data.description,
+         type: data.type ?? null,
+         created_by: "demo-master",
+         created_by_name: "Padilha Master",
+         created_at: now,
+       };
+       demoStore.saveRecord(r);
+       return r;
+     }
+     return request<ClientRecord>(`/clients/${clientId}/records`, {
+       method: "POST",
+       body: JSON.stringify(data),
+     });
+   },
+ };
 
 // Limpa flag demo no logout (chamado pelo AuthContext indiretamente via tokenStore.clear()).
 const _origClear = tokenStore.clear;

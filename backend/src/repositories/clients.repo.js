@@ -3,7 +3,7 @@
  */
 import { query } from '../db/pool.js';
 
-const COLUMNS = 'id, tenant_id, name, company, birth_date, notes, source, created_by, created_at, updated_at';
+ const COLUMNS = 'id, tenant_id, name, company, birth_date, email, phone, cpf_cnpj, notes, source, created_by, created_at, updated_at';
 
 export async function findAll(tenantId) {
   const { rows } = await query(
@@ -29,18 +29,27 @@ export async function findById(tenantId, id) {
 }
 
 export async function insert(tenantId, userId, data) {
-  const { name, company = null, birth_date = null, notes = null, source = null } = data;
-  const { rows } = await query(
-    `INSERT INTO clients (tenant_id, created_by, name, company, birth_date, notes, source)
-     VALUES ($1, $2, $3, $4, $5, $6, $7)
-     RETURNING ${COLUMNS}`,
-    [tenantId, userId, name, company, birth_date, notes, source]
-  );
+   const { 
+     name, 
+     company = null, 
+     birth_date = null, 
+     email = null, 
+     phone = null, 
+     cpf_cnpj = null, 
+     notes = null, 
+     source = null 
+   } = data;
+   const { rows } = await query(
+     `INSERT INTO clients (tenant_id, created_by, name, company, birth_date, email, phone, cpf_cnpj, notes, source)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+      RETURNING ${COLUMNS}`,
+     [tenantId, userId, name, company, birth_date, email, phone, cpf_cnpj, notes, source]
+   );
   return findById(tenantId, rows[0].id);
 }
 
-export async function update(tenantId, id, data) {
-  const allowed = ['name', 'company', 'birth_date', 'notes', 'source'];
+ export async function update(tenantId, id, data) {
+   const allowed = ['name', 'company', 'birth_date', 'email', 'phone', 'cpf_cnpj', 'notes', 'source'];
   const sets = [];
   const values = [];
   let i = 1;

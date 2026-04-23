@@ -1,7 +1,8 @@
 import { format, parseISO } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { Pencil, Trash2 } from "lucide-react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+ import { Pencil, Trash2, User, ExternalLink } from "lucide-react";
+ import { useMutation, useQueryClient } from "@tanstack/react-query";
+ import { Link, useNavigate } from "react-router-dom";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -40,8 +41,9 @@ function formatDate(value: string | null) {
   }
 }
 
-export function ClientsTable({ clients, onEdit }: Props) {
-  const queryClient = useQueryClient();
+ export function ClientsTable({ clients, onEdit }: Props) {
+   const queryClient = useQueryClient();
+   const navigate = useNavigate();
 
   const deleteMutation = useMutation({
     mutationFn: (id: string) => clientsApi.remove(id),
@@ -82,19 +84,38 @@ export function ClientsTable({ clients, onEdit }: Props) {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {clients.map((c) => (
-            <TableRow key={c.id}>
-              <TableCell className="font-medium">
-                <div>{c.name}</div>
-                {c.company && (
-                  <div className="text-xs text-muted-foreground">{c.company}</div>
-                )}
-              </TableCell>
+           {clients.map((c) => (
+             <TableRow 
+               key={c.id} 
+               className="group cursor-pointer transition-colors hover:bg-muted/50"
+               onClick={() => navigate(`/clientes/${c.id}`)}
+             >
+               <TableCell className="font-medium">
+                 <div className="flex items-center gap-2">
+                   <User className="h-4 w-4 text-muted-foreground" />
+                   <div className="flex flex-col">
+                     <span className="group-hover:text-primary transition-colors">{c.name}</span>
+                     {c.company && (
+                       <span className="text-xs text-muted-foreground font-normal">{c.company}</span>
+                     )}
+                   </div>
+                 </div>
+               </TableCell>
               <TableCell>{formatDate(c.created_at)}</TableCell>
               <TableCell>{c.source || "—"}</TableCell>
               <TableCell>{c.created_by_name || c.created_by || "—"}</TableCell>
-              <TableCell className="text-right">
-                <div className="flex justify-end gap-1">
+               <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>
+                 <div className="flex justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                   <Button
+                     variant="ghost"
+                     size="icon"
+                     asChild
+                     aria-label={`Ver perfil de ${c.name}`}
+                   >
+                     <Link to={`/clientes/${c.id}`}>
+                       <ExternalLink className="h-4 w-4" />
+                     </Link>
+                   </Button>
                   <Button
                     variant="ghost"
                     size="icon"

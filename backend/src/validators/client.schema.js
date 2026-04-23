@@ -12,10 +12,14 @@ const birthDateSchema = z
 
 export const createClientSchema = z.object({
   name: z.string().trim().min(1, 'Nome é obrigatório').max(120),
-  company: z.string().trim().max(120).optional().nullable(),
-  birth_date: birthDateSchema,
-  notes: z.string().trim().max(2000).optional().nullable(),
-});
+   company: z.string().trim().max(120).optional().nullable(),
+   birth_date: birthDateSchema,
+   email: z.string().trim().email('Email inválido').max(120).optional().nullable().or(z.literal('')),
+   phone: z.string().trim().max(20).optional().nullable(),
+   cpf_cnpj: z.string().trim().max(20).optional().nullable(),
+   notes: z.string().trim().max(2000).optional().nullable(),
+   source: z.string().trim().max(120).optional().nullable(),
+ });
 
 export const updateClientSchema = createClientSchema.partial().refine(
   (obj) => Object.keys(obj).length > 0,

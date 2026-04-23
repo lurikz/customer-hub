@@ -5,6 +5,7 @@ import {
   updateClientSchema,
   idParamSchema,
 } from '../validators/client.schema.js';
+ import { createRecordSchema } from '../validators/record.schema.js';
 import { httpError } from '../middleware/errorHandler.js';
 
 export async function list(req, res, next) {
@@ -78,8 +79,37 @@ export async function remove(req, res, next) {
       entityId: id,
       ip: req.ip,
     });
-    res.status(204).send();
-  } catch (e) {
-    next(e);
-  }
-}
+     res.status(204).send();
+   } catch (e) {
+     next(e);
+   }
+ }
+ 
+ export async function listRecords(req, res, next) {
+   try {
+     const { id } = idParamSchema.parse(req.params);
+     const records = await service.listRecords(req.auth.tenantId, id);
+     res.json(records);
+   } catch (e) {
+     next(e);
+   }
+ }
+ 
+ export async function createRecord(req, res, next) {
+   try {
+     const { id } = idParamSchema.parse(req.params);
+     const data = createRecordSchema.parse(req.body);
+     const created = await service.createRecord(req.auth.tenantId, req.auth.userId, id, data);
+     await audit.log({
+       tenantId: req.auth.tenantId,
+       userId: req.auth.userId,
+       action: 'client.record.create',
+       entity: 'client_record',
+       entityId: created.id,
+       ip: req.ip,
+     });
+     res.status(201).json(created);
+   } catch (e) {
+     next(e);
+   }
+ }

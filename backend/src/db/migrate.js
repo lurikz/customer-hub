@@ -49,19 +49,25 @@ CREATE INDEX IF NOT EXISTS idx_users_email ON users (email);
 CREATE TABLE IF NOT EXISTS clients (
   id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   tenant_id   UUID NOT NULL REFERENCES tenants(id) ON DELETE CASCADE,
-  name        TEXT NOT NULL,
-  company     TEXT,
-  birth_date  DATE,
-  notes       TEXT,
-  source      TEXT,
+   name        TEXT NOT NULL,
+   company     TEXT,
+   birth_date  DATE,
+   email       TEXT,
+   phone       TEXT,
+   cpf_cnpj    TEXT,
+   notes       TEXT,
+   source      TEXT,
   created_by  UUID REFERENCES users(id) ON DELETE SET NULL,
   created_at  TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at  TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
 ALTER TABLE clients ADD COLUMN IF NOT EXISTS tenant_id UUID REFERENCES tenants(id) ON DELETE CASCADE;
-ALTER TABLE clients ADD COLUMN IF NOT EXISTS created_by UUID REFERENCES users(id) ON DELETE SET NULL;
-ALTER TABLE clients ADD COLUMN IF NOT EXISTS source TEXT;
+ ALTER TABLE clients ADD COLUMN IF NOT EXISTS created_by UUID REFERENCES users(id) ON DELETE SET NULL;
+ ALTER TABLE clients ADD COLUMN IF NOT EXISTS source TEXT;
+ ALTER TABLE clients ADD COLUMN IF NOT EXISTS email TEXT;
+ ALTER TABLE clients ADD COLUMN IF NOT EXISTS phone TEXT;
+ ALTER TABLE clients ADD COLUMN IF NOT EXISTS cpf_cnpj TEXT;
 
 CREATE INDEX IF NOT EXISTS idx_clients_tenant_id ON clients (tenant_id);
 CREATE INDEX IF NOT EXISTS idx_clients_tenant_created ON clients (tenant_id, created_at DESC);
@@ -117,9 +123,25 @@ CREATE TABLE IF NOT EXISTS invites (
   created_at    TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
-CREATE INDEX IF NOT EXISTS idx_invites_tenant_created ON invites (tenant_id, created_at DESC);
-CREATE INDEX IF NOT EXISTS idx_invites_expires ON invites (expires_at);
-`;
+ CREATE INDEX IF NOT EXISTS idx_invites_tenant_created ON invites (tenant_id, created_at DESC);
+ CREATE INDEX IF NOT EXISTS idx_invites_expires ON invites (expires_at);
+ 
+ -- =====================================================
+ -- CLIENT RECORDS
+ -- =====================================================
+ CREATE TABLE IF NOT EXISTS client_records (
+   id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+   client_id   UUID NOT NULL REFERENCES clients(id) ON DELETE CASCADE,
+   tenant_id   UUID NOT NULL REFERENCES tenants(id) ON DELETE CASCADE,
+   description TEXT NOT NULL,
+   type        TEXT,
+   created_by  UUID REFERENCES users(id) ON DELETE SET NULL,
+   created_at  TIMESTAMPTZ NOT NULL DEFAULT now()
+ );
+ 
+ CREATE INDEX IF NOT EXISTS idx_records_client_created ON client_records (client_id, created_at DESC);
+ CREATE INDEX IF NOT EXISTS idx_records_tenant ON client_records (tenant_id);
+ `;
 
 export async function runMigrations() {
   console.log('🛠  Rodando migrations...');

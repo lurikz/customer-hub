@@ -48,13 +48,16 @@ const schema = z.object({
     .min(1, "Informe o nome")
     .max(120, "Máximo 120 caracteres"),
   company: z.string().trim().max(120).optional(),
-  birth_date: z
-    .string()
-    .trim()
-    .regex(/^\d{4}-\d{2}-\d{2}$|^$/, "Use o formato AAAA-MM-DD")
-    .optional(),
-  source: z.string().trim().max(100).optional(),
-  notes: z.string().trim().max(2000, "Máximo 2000 caracteres").optional(),
+   birth_date: z
+     .string()
+     .trim()
+     .regex(/^\d{4}-\d{2}-\d{2}$|^$/, "Use o formato AAAA-MM-DD")
+     .optional(),
+   email: z.string().trim().max(120).optional().or(z.literal("")),
+   phone: z.string().trim().max(20).optional(),
+   cpf_cnpj: z.string().trim().max(20).optional(),
+   source: z.string().trim().max(100).optional(),
+   notes: z.string().trim().max(2000, "Máximo 2000 caracteres").optional(),
 });
 
 type FormValues = z.infer<typeof schema>;
@@ -72,12 +75,15 @@ export function ClientFormDialog({ open, onOpenChange, client }: Props) {
   const form = useForm<FormValues>({
     resolver: zodResolver(schema),
     defaultValues: {
-      name: "",
-      company: "",
-      birth_date: "",
-      source: "",
-      notes: "",
-    },
+       name: "",
+       company: "",
+       birth_date: "",
+       email: "",
+       phone: "",
+       cpf_cnpj: "",
+       source: "",
+       notes: "",
+     },
   });
 
    const [newSearchSource, setNewSearchSource] = useState("");
@@ -93,12 +99,15 @@ export function ClientFormDialog({ open, onOpenChange, client }: Props) {
    useEffect(() => {
      if (open) {
        form.reset({
-         name: client?.name ?? "",
-         company: client?.company ?? "",
-         birth_date: client?.birth_date ?? "",
-         source: client?.source ?? "",
-         notes: client?.notes ?? "",
-       });
+          name: client?.name ?? "",
+          company: client?.company ?? "",
+          birth_date: client?.birth_date ?? "",
+          email: client?.email ?? "",
+          phone: client?.phone ?? "",
+          cpf_cnpj: client?.cpf_cnpj ?? "",
+          source: client?.source ?? "",
+          notes: client?.notes ?? "",
+        });
      }
    }, [open, client, form]);
  
@@ -133,18 +142,24 @@ export function ClientFormDialog({ open, onOpenChange, client }: Props) {
   const mutation = useMutation({
     mutationFn: async (values: FormValues) => {
       const payload = {
-        name: values.name,
-        company: values.company?.trim() ? values.company.trim() : null,
-        birth_date: values.birth_date?.trim() ? values.birth_date.trim() : null,
-        source: values.source?.trim() ? values.source.trim() : null,
-        notes: values.notes?.trim() ? values.notes.trim() : null,
-      };
+         name: values.name,
+         company: values.company?.trim() ? values.company.trim() : null,
+         birth_date: values.birth_date?.trim() ? values.birth_date.trim() : null,
+         email: values.email?.trim() ? values.email.trim() : null,
+         phone: values.phone?.trim() ? values.phone.trim() : null,
+         cpf_cnpj: values.cpf_cnpj?.trim() ? values.cpf_cnpj.trim() : null,
+         source: values.source?.trim() ? values.source.trim() : null,
+         notes: values.notes?.trim() ? values.notes.trim() : null,
+       };
       return isEditing && client
         ? clientsApi.update(client.id, payload)
         : clientsApi.create(payload);
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["clients"] });
+     onSuccess: () => {
+       queryClient.invalidateQueries({ queryKey: ["clients"] });
+       if (isEditing && client) {
+         queryClient.invalidateQueries({ queryKey: ["client", client.id] });
+       }
       toast({
         title: isEditing ? "Cliente atualizado" : "Cliente criado",
         description: isEditing
@@ -208,110 +223,152 @@ export function ClientFormDialog({ open, onOpenChange, client }: Props) {
               )}
             />
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="birth_date"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Data de nascimento</FormLabel>
-                    <FormControl>
-                      <Input type="date" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="source"
-                render={({ field }) => (
-                  <FormItem className="flex flex-col">
-                    <FormLabel className="mb-2">Origem</FormLabel>
-                    <Popover
-                      open={popoverOpen}
-                        onOpenChange={(open) => {
-                          setPopoverOpen(open);
-                          if (!open) setNewSearchSource("");
-                        }}
-                    >
-                      <PopoverTrigger asChild>
-                        <FormControl>
-                           <Button
-                             type="button"
-                             variant="outline"
-                             role="combobox"
-                            className={cn(
-                              "w-full justify-between font-normal",
-                              !field.value && "text-muted-foreground"
-                            )}
-                          >
-                            {field.value || "Selecione a origem"}
-                            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                          </Button>
-                        </FormControl>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-[200px] p-0" align="start">
-                        <Command>
-                             <CommandInput 
-                               placeholder="Buscar ou criar nova..." 
-                               value={newSearchSource}
-                               onValueChange={setNewSearchSource}
-                             />
-                             <CommandList className="max-h-[300px] overflow-y-auto">
-                               <CommandEmpty>Nenhuma origem encontrada.</CommandEmpty>
-                                <CommandGroup>
-                                   <CommandItem onSelect={() => setOriginDialogOpen(true)}>
-                                    <Plus className="mr-2 h-4 w-4" />
-                                    Novo
-                                  </CommandItem>
-                                </CommandGroup>
-
-                                {newSearchSource &&
-                                  !sources.some(
-                                    (s) => s.toLowerCase() === newSearchSource.toLowerCase()
-                                  ) && (
-                                    <CommandGroup>
-                                      <CommandItem
-                                        value={newSearchSource}
-                                        onSelect={() => originMutation.mutate(newSearchSource)}
-                                      >
-                                        <Plus className="mr-2 h-4 w-4" />
-                                        Criar "{newSearchSource}"
-                                      </CommandItem>
-                                    </CommandGroup>
-                                  )}
-
-                               <CommandGroup heading="Sugestões">
-                                {sources.map((s) => (
-                                  <CommandItem
-                                    key={s}
-                                    value={s}
-                                    onSelect={() => {
-                                      form.setValue("source", s);
-                                      setPopoverOpen(false);
-                                    }}
-                                  >
-                                    <Check
-                                      className={cn(
-                                        "mr-2 h-4 w-4",
-                                        s === field.value ? "opacity-100" : "opacity-0"
-                                      )}
-                                    />
-                                    {s}
-                                  </CommandItem>
-                                ))}
-                              </CommandGroup>
-                            </CommandList>
-                        </Command>
-                      </PopoverContent>
-                    </Popover>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
+             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+               <FormField
+                 control={form.control}
+                 name="email"
+                 render={({ field }) => (
+                   <FormItem>
+                     <FormLabel>Email</FormLabel>
+                     <FormControl>
+                       <Input placeholder="email@exemplo.com" {...field} />
+                     </FormControl>
+                     <FormMessage />
+                   </FormItem>
+                 )}
+               />
+ 
+               <FormField
+                 control={form.control}
+                 name="phone"
+                 render={({ field }) => (
+                   <FormItem>
+                     <FormLabel>Telefone</FormLabel>
+                     <FormControl>
+                       <Input placeholder="(00) 00000-0000" {...field} />
+                     </FormControl>
+                     <FormMessage />
+                   </FormItem>
+                 )}
+               />
+ 
+               <FormField
+                 control={form.control}
+                 name="cpf_cnpj"
+                 render={({ field }) => (
+                   <FormItem>
+                     <FormLabel>CPF / CNPJ</FormLabel>
+                     <FormControl>
+                       <Input placeholder="000.000.000-00" {...field} />
+                     </FormControl>
+                     <FormMessage />
+                   </FormItem>
+                 )}
+               />
+ 
+               <FormField
+                 control={form.control}
+                 name="birth_date"
+                 render={({ field }) => (
+                   <FormItem>
+                     <FormLabel>Data de nascimento</FormLabel>
+                     <FormControl>
+                       <Input type="date" {...field} />
+                     </FormControl>
+                     <FormMessage />
+                   </FormItem>
+                 )}
+                />
+ 
+               <FormField
+                 control={form.control}
+                 name="source"
+                 render={({ field }) => (
+                   <FormItem className="flex flex-col">
+                     <FormLabel className="mb-2">Origem</FormLabel>
+                     <Popover
+                       open={popoverOpen}
+                         onOpenChange={(open) => {
+                           setPopoverOpen(open);
+                           if (!open) setNewSearchSource("");
+                         }}
+                     >
+                       <PopoverTrigger asChild>
+                         <FormControl>
+                            <Button
+                              type="button"
+                              variant="outline"
+                              role="combobox"
+                             className={cn(
+                               "w-full justify-between font-normal",
+                               !field.value && "text-muted-foreground"
+                             )}
+                           >
+                             {field.value || "Selecione a origem"}
+                             <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                           </Button>
+                         </FormControl>
+                       </PopoverTrigger>
+                       <PopoverContent className="w-[200px] p-0" align="start">
+                         <Command>
+                              <CommandInput 
+                                placeholder="Buscar ou criar nova..." 
+                                value={newSearchSource}
+                                onValueChange={setNewSearchSource}
+                              />
+                              <CommandList className="max-h-[300px] overflow-y-auto">
+                                <CommandEmpty>Nenhuma origem encontrada.</CommandEmpty>
+                                 <CommandGroup>
+                                    <CommandItem onSelect={() => setOriginDialogOpen(true)}>
+                                     <Plus className="mr-2 h-4 w-4" />
+                                     Novo
+                                   </CommandItem>
+                                 </CommandGroup>
+ 
+                                 {newSearchSource &&
+                                   !sources.some(
+                                     (s) => s.toLowerCase() === newSearchSource.toLowerCase()
+                                   ) && (
+                                     <CommandGroup>
+                                       <CommandItem
+                                         value={newSearchSource}
+                                         onSelect={() => originMutation.mutate(newSearchSource)}
+                                       >
+                                         <Plus className="mr-2 h-4 w-4" />
+                                         Criar "{newSearchSource}"
+                                       </CommandItem>
+                                     </CommandGroup>
+                                   )}
+ 
+                                <CommandGroup heading="Sugestões">
+                                 {sources.map((s) => (
+                                   <CommandItem
+                                     key={s}
+                                     value={s}
+                                     onSelect={() => {
+                                       form.setValue("source", s);
+                                       setPopoverOpen(false);
+                                     }}
+                                   >
+                                     <Check
+                                       className={cn(
+                                         "mr-2 h-4 w-4",
+                                         s === field.value ? "opacity-100" : "opacity-0"
+                                       )}
+                                     />
+                                     {s}
+                                   </CommandItem>
+                                 ))}
+                               </CommandGroup>
+                             </CommandList>
+                         </Command>
+                       </PopoverContent>
+                     </Popover>
+                     <FormMessage />
+                   </FormItem>
+                 )}
+               />
+             </div>
 
             <FormField
               control={form.control}
