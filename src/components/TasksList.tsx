@@ -50,10 +50,16 @@ export function TasksList({ tasks, onEdit, onToggleStatus }: Props) {
         <TableBody>
           {tasks.map((task) => {
             const date = new Date(task.datetime);
-            const isOverdue = isPast(date) && !isToday(date) && task.status === "pendente";
+            const isOverdue = isPast(date) && task.status === "pendente";
 
             return (
-              <TableRow key={task.id} className={cn(isOverdue && "bg-destructive/5")}>
+              <TableRow 
+                key={task.id} 
+                className={cn(
+                  isOverdue && "bg-destructive/10 text-destructive hover:bg-destructive/15",
+                  task.status === "concluído" && "opacity-60"
+                )}
+              >
                 <TableCell>
                   <Button
                     variant="ghost"
@@ -62,32 +68,25 @@ export function TasksList({ tasks, onEdit, onToggleStatus }: Props) {
                       e.stopPropagation();
                       onToggleStatus(task);
                     }}
-                    className={cn(
-                      "h-8 w-8 rounded-full",
-                      task.status === "concluído" ? "text-green-500" : "text-muted-foreground"
-                    )}
+                    className={cn("h-8 w-8 rounded-full")}
                   >
                     {task.status === "concluído" ? (
-                      <CheckCircle2 className="h-5 w-5" />
+                      <CheckCircle2 className="h-5 w-5 text-green-600 fill-green-50" />
                     ) : (
-                      <Circle className="h-5 w-5" />
+                      <Circle className={cn("h-5 w-5", isOverdue ? "text-destructive" : "text-muted-foreground")} />
                     )}
                   </Button>
                 </TableCell>
                 <TableCell className="font-medium">
                   <div className="flex flex-col">
                     <span>{task.title}</span>
-                    {task.description && (
-                      <span className="text-xs text-muted-foreground line-clamp-1">
-                        {task.description}
-                      </span>
-                    )}
+                    {task.description && <span className={cn("text-xs line-clamp-1", !isOverdue && "text-muted-foreground")}>{task.description}</span>}
                   </div>
                 </TableCell>
                 <TableCell>
                   <div className="flex items-center gap-1.5 text-sm">
-                    <Clock className="h-3.5 w-3.5 text-muted-foreground" />
-                    <span className={cn(isOverdue && "font-semibold text-destructive")}>
+                    <Clock className={cn("h-3.5 w-3.5", !isOverdue && "text-muted-foreground")} />
+                    <span className={cn(isOverdue && "font-bold text-destructive")}>
                       {format(date, "dd/MM/yyyy HH:mm", { locale: ptBR })}
                     </span>
                   </div>
@@ -101,7 +100,7 @@ export function TasksList({ tasks, onEdit, onToggleStatus }: Props) {
                 </TableCell>
                 <TableCell>
                   <div className="flex items-center gap-1.5 text-sm">
-                    <User className="h-3.5 w-3.5 text-muted-foreground" />
+                    <User className={cn("h-3.5 w-3.5", !isOverdue && "text-muted-foreground")} />
                     {task.user_name}
                   </div>
                 </TableCell>
