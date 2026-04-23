@@ -10,6 +10,7 @@ const DEMO_FLAG = "crm.demo";
 export type Role = "user" | "admin" | "super_admin";
 
 export interface Client {
+  type: 'PF' | 'PJ' | null;
   id: string;
   tenant_id: string;
   name: string;
@@ -28,6 +29,7 @@ export interface Client {
 }
 
  export interface ClientInput {
+  type: 'PF' | 'PJ' | null;
    name: string;
    company?: string | null;
    birth_date?: string | null;
@@ -299,6 +301,7 @@ export const clientsApi = {
       const c: Client = {
         id: uid(),
         tenant_id: DEMO_USER.tenantId ?? "demo-tenant",
+        type: data.type,
         name: data.name,
         company: data.company ?? null,
          birth_date: data.birth_date ?? null,
@@ -326,6 +329,7 @@ export const clientsApi = {
       if (i < 0) throw new ApiError("Cliente não encontrado", 404);
       all[i] = {
         ...all[i],
+        type: data.type,
         name: data.name,
         company: data.company ?? null,
          birth_date: data.birth_date ?? null,
@@ -418,6 +422,7 @@ export const adminApi = {
         if (i < 0) throw new ApiError("Registro não encontrado", 404);
         all[i] = {
           ...all[i],
+        type: data.type,
           description: data.description,
           type: data.type ?? null,
         };

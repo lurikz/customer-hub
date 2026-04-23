@@ -6,6 +6,8 @@ import { z } from "zod";
 
  import { Plus, Check, ChevronsUpDown, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Label } from "@/components/ui/label";
 import {
   Dialog,
   DialogContent,
@@ -42,6 +44,7 @@ import { toast } from "@/hooks/use-toast";
  import { clientsApi, originsApi, type Client } from "@/lib/api";
 
 const schema = z.object({
+  type: z.enum(["PF", "PJ"]),
   name: z
     .string()
     .trim()
@@ -59,6 +62,14 @@ const schema = z.object({
    source: z.string().trim().max(100).optional(),
    address: z.string().trim().max(255, "Máximo 255 caracteres").optional(),
    notes: z.string().trim().max(2000, "Máximo 2000 caracteres").optional(),
+}).superRefine((data, ctx) => {
+  if (data.type === "PJ" && (!data.company || data.company.trim().length === 0)) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: "O nome da empresa é obrigatório para pessoa jurídica",
+      path: ["company"],
+    });
+  }
 });
 
 type FormValues = z.infer<typeof schema>;
@@ -76,6 +87,7 @@ export function ClientFormDialog({ open, onOpenChange, client }: Props) {
   const form = useForm<FormValues>({
     resolver: zodResolver(schema),
     defaultValues: {
+        type: "PF",
        name: "",
        company: "",
        birth_date: "",
@@ -101,6 +113,7 @@ export function ClientFormDialog({ open, onOpenChange, client }: Props) {
    useEffect(() => {
      if (open) {
        form.reset({
+          type: (client as any)?.type ?? "PF",
           name: client?.name ?? "",
           company: client?.company ?? "",
           birth_date: client?.birth_date ?? "",
@@ -145,6 +158,7 @@ export function ClientFormDialog({ open, onOpenChange, client }: Props) {
   const mutation = useMutation({
     mutationFn: async (values: FormValues) => {
       const payload = {
+          type: values.type,
          name: values.name,
          company: values.company?.trim() ? values.company.trim() : null,
          birth_date: values.birth_date?.trim() ? values.birth_date.trim() : null,
@@ -201,6 +215,33 @@ export function ClientFormDialog({ open, onOpenChange, client }: Props) {
           >
             <FormField
               control={form.control}
+              name="type"
+              render={({ field }) => (
+                <FormItem className="space-y-2">
+                  <FormLabel>Tipo de Cliente</FormLabel>
+                  <FormControl>
+                    <RadioGroup
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                      className="flex gap-4"
+                    >
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="PF" id="pf" />
+                        <Label htmlFor="pf" className="font-normal cursor-pointer">Pessoa Física</Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="PJ" id="pj" />
+                        <Label htmlFor="pj" className="font-normal cursor-pointer">Pessoa Jurídica</Label>
+                      </div>
+                    </RadioGroup>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
               name="name"
               render={({ field }) => (
                 <FormItem>
@@ -218,7 +259,7 @@ export function ClientFormDialog({ open, onOpenChange, client }: Props) {
               name="company"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Empresa</FormLabel>
+                  <FormLabel>Empresa{form.watch("type") === "PJ" ? " *" : ""}</FormLabel>
                   <FormControl>
                     <Input placeholder="Nome da empresa" {...field} />
                   </FormControl>
