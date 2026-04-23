@@ -110,8 +110,8 @@ const Index = () => {
         </div>
       </header>
 
-      <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
-        <Tabs defaultValue="clients" className="space-y-6">
+      <main className="mx-auto flex w-full max-w-7xl flex-1 flex-col overflow-hidden px-4 py-4 sm:px-6">
+        <Tabs defaultValue="clients" className="flex flex-1 flex-col gap-4 overflow-hidden">
           <TabsList>
             <TabsTrigger value="clients" className="gap-2">
               <LayoutDashboard className="h-4 w-4" />
@@ -123,7 +123,7 @@ const Index = () => {
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="clients" className="space-y-6">
+          <TabsContent value="clients" className="flex-1 space-y-4 overflow-auto pb-4">
             {error && (
               <Alert variant="destructive">
                 <AlertTitle>Erro ao carregar clientes</AlertTitle>
@@ -155,7 +155,7 @@ const Index = () => {
             )}
           </TabsContent>
 
-          <TabsContent value="agenda" className="space-y-6">
+          <TabsContent value="agenda" className="m-0 flex-1 overflow-hidden p-0">
             <Agenda />
           </TabsContent>
 
