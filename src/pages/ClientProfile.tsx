@@ -43,8 +43,10 @@
  import { Badge } from "@/components/ui/badge";
   import { Skeleton } from "@/components/ui/skeleton";
   import { toast } from "@/hooks/use-toast";
-  import { clientsApi, recordsApi, type ClientRecord } from "@/lib/api";
+   import { clientsApi, recordsApi, tasksApi, type ClientRecord, type Task } from "@/lib/api";
   import { ClientFormDialog } from "@/components/ClientFormDialog";
+   import { TaskFormDialog } from "@/components/TaskFormDialog";
+   import { TasksList } from "@/components/TasksList";
   
   function formatDate(value: string | null) {
    if (!value) return "—";
@@ -70,6 +72,8 @@
     const [editDialogOpen, setEditDialogOpen] = useState(false);
     const [editingRecord, setEditingRecord] = useState<ClientRecord | null>(null);
     const [recordForm, setRecordForm] = useState({ description: "", type: "atendimento" });
+    const [taskDialogOpen, setTaskDialogOpen] = useState(false);
+    const [editingTask, setEditingTask] = useState<Task | null>(null);
  
    const { data: client, isLoading: loadingClient, error: clientError } = useQuery({
      queryKey: ["client", id],
@@ -79,9 +83,15 @@
  
    const { data: records, isLoading: loadingRecords } = useQuery({
      queryKey: ["client-records", id],
-     queryFn: () => recordsApi.list(id!),
-     enabled: !!id,
-   });
+      queryFn: () => recordsApi.list(id!),
+      enabled: !!id,
+    });
+
+    const { data: tasks, isLoading: loadingTasks } = useQuery({
+      queryKey: ["client-tasks", id],
+      queryFn: () => tasksApi.listByClient(id!),
+      enabled: !!id,
+    });
  
     const createRecordMutation = useMutation({
       mutationFn: (data: typeof recordForm) => recordsApi.create(id!, data),
@@ -137,6 +147,28 @@
       if (confirm("Tem certeza que deseja excluir este registro?")) {
         deleteRecordMutation.mutate(recordId);
       }
+    };
+
+    const toggleTaskStatusMutation = useMutation({
+      mutationFn: (task: Task) => 
+        tasksApi.update(task.id, { status: task.status === "pendente" ? "concluído" : "pendente" }),
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ["client-tasks", id] });
+        queryClient.invalidateQueries({ queryKey: ["tasks"] });
+      },
+      onError: (e: Error) => {
+        toast({ title: "Erro ao atualizar tarefa", description: e.message, variant: "destructive" });
+      },
+    });
+
+    const handleAddTask = () => {
+      setEditingTask(null);
+      setTaskDialogOpen(true);
+    };
+
+    const handleEditTask = (task: Task) => {
+      setEditingTask(task);
+      setTaskDialogOpen(true);
     };
  
    if (loadingClient) {
@@ -276,14 +308,46 @@
          </div>
  
          {/* Main Content: History/Records */}
-         <div className="md:col-span-2 space-y-6">
-           <div className="flex items-center justify-between">
-             <h2 className="text-lg font-semibold">Histórico de Atendimento</h2>
-              <Button onClick={handleAddRecord} size="sm" className="gap-2">
-               <Plus className="h-4 w-4" />
-               Adicionar Registro
-             </Button>
-           </div>
+          <div className="md:col-span-2 space-y-8">
+            {/* Agenda/Tasks Section */}
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <h2 className="text-lg font-semibold flex items-center gap-2">
+                  <Calendar className="h-5 w-5" />
+                  Agenda e Compromissos
+                </h2>
+                <Button onClick={handleAddTask} size="sm" variant="outline" className="gap-2">
+                  <Plus className="h-4 w-4" />
+                  Nova Tarefa
+                </Button>
+              </div>
+
+              {loadingTasks ? (
+                <Skeleton className="h-32 w-full" />
+              ) : tasks && tasks.length > 0 ? (
+                <TasksList 
+                  tasks={tasks} 
+                  onEdit={handleEditTask} 
+                  onToggleStatus={(t) => toggleTaskStatusMutation.mutate(t)} 
+                />
+              ) : (
+                <div className="rounded-lg border border-dashed p-8 text-center text-muted-foreground">
+                  <p className="text-sm">Nenhuma tarefa agendada para este cliente.</p>
+                </div>
+              )}
+            </div>
+
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <h2 className="text-lg font-semibold flex items-center gap-2">
+                  <MessageSquare className="h-5 w-5" />
+                  Histórico de Atendimento
+                </h2>
+                 <Button onClick={handleAddRecord} size="sm" className="gap-2">
+                  <Plus className="h-4 w-4" />
+                  Adicionar Registro
+                </Button>
+              </div>
  
            <div className="space-y-4">
              {loadingRecords ? (
@@ -343,12 +407,19 @@
          </div>
        </div>
  
-       {/* Modals */}
-       <ClientFormDialog 
-         open={editDialogOpen} 
-         onOpenChange={setEditDialogOpen} 
-         client={client} 
-       />
+        {/* Modals */}
+        <ClientFormDialog 
+          open={editDialogOpen} 
+          onOpenChange={setEditDialogOpen} 
+          client={client} 
+        />
+
+        <TaskFormDialog
+          open={taskDialogOpen}
+          onOpenChange={setTaskDialogOpen}
+          task={editingTask}
+          defaultClientId={id}
+        />
  
         <Dialog open={recordDialogOpen} onOpenChange={setRecordDialogOpen}>
           <DialogContent>
