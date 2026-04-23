@@ -1,6 +1,6 @@
 import { format, parseISO } from "date-fns";
 import { ptBR } from "date-fns/locale";
- import { Pencil, Trash2, User, ExternalLink } from "lucide-react";
+ import { Pencil, Trash2, User, ExternalLink, Building2 } from "lucide-react";
  import { useMutation, useQueryClient } from "@tanstack/react-query";
  import { Link, useNavigate } from "react-router-dom";
 
@@ -92,10 +92,17 @@ function formatDate(value: string | null) {
              >
                <TableCell className="font-medium">
                  <div className="flex items-center gap-2">
-                   <User className="h-4 w-4 text-muted-foreground" />
+                   {(c as any).type === "PJ" ? (
+                      <Building2 className="h-4 w-4 text-primary" />
+                    ) : (
+                      <User className="h-4 w-4 text-muted-foreground" />
+                    )}
                    <div className="flex flex-col">
                      <span className="group-hover:text-primary transition-colors">{c.name}</span>
-                     {c.company && (
+                     {(c.company || (c as any).type === "PJ") && (
+                        <span className="text-xs text-muted-foreground font-normal">{c.company || "Empresa"}</span>
+                      )}
+                      {false && c.company && (
                        <span className="text-xs text-muted-foreground font-normal">{c.company}</span>
                      )}
                    </div>
