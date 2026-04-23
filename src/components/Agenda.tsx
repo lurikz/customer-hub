@@ -253,41 +253,30 @@ export function Agenda() {
                        )}
                      </div>
  
-                     <div className="flex-1 overflow-hidden px-0.5">
-                       {STATUS_GROUPS.map((group) => {
-                         const groupTasks = dayTasks.filter(t => getTaskStatusGroup(t) === group.id);
-                         if (groupTasks.length === 0) return null;
- 
-                         return (
-                           <div key={group.id} className="mb-0.5">
-                             <div className={cn("px-0.5 text-[7px] font-bold uppercase tracking-tighter opacity-80 leading-tight", group.color)}>
-                               {group.label}
-                             </div>
-                             <div className="flex flex-col">
-                               {groupTasks.slice(0, 2).map((task) => (
-                                 <div
-                                   key={task.id}
-                                   className={cn(
-                                     "truncate rounded-sm px-1 py-0.5 text-[8px] font-medium leading-[1.1] mb-[1px]",
-                                     group.bg,
-                                     group.color,
-                                     "border border-transparent",
-                                     group.id === "atrasada" && "border-red-200 shadow-[0_0_2px_rgba(239,68,68,0.2)] font-bold"
-                                   )}
-                                 >
-                                   {task.title}
-                                 </div>
-                               ))}
-                               {groupTasks.length > 2 && (
-                                 <div className="px-0.5 text-[7px] text-muted-foreground/70 font-semibold leading-none mb-0.5">
-                                   +{groupTasks.length - 2}
-                                 </div>
-                               )}
-                             </div>
-                           </div>
-                         );
-                       })}
-                     </div>
+                      <div className="flex-1 overflow-hidden px-0.5 flex flex-col gap-0.5">
+                        {STATUS_GROUPS.filter(g => ["pendente", "concluído", "atrasada", "cancelada"].includes(g.id)).map((group) => {
+                          const groupTasks = dayTasks.filter(t => {
+                            const status = getTaskStatusGroup(t);
+                            // Se o status for "em_andamento", contamos como "pendente" para atender ao pedido do usuário
+                            if (group.id === "pendente" && status === "em_andamento") return true;
+                            return status === group.id;
+                          });
+                          if (groupTasks.length === 0) return null;
+                          return (
+                            <div 
+                              key={group.id} 
+                              className={cn(
+                                "flex items-center justify-between px-1 py-0.5 rounded-sm text-[8px] font-bold leading-none",
+                                group.bg,
+                                group.color
+                              )}
+                            >
+                              <span className="truncate opacity-90">{group.label}</span>
+                              <span>{groupTasks.length}</span>
+                            </div>
+                          );
+                        })}
+                      </div>
                    </div>
                 );
               })}
