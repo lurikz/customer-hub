@@ -135,12 +135,14 @@ const DEMO_CREDENTIALS = {
        return [];
      }
    },
-   saveRecord: (r: ClientRecord) => {
-     const allRaw = localStorage.getItem(DEMO_RECORDS_KEY) || "[]";
-     const all: ClientRecord[] = JSON.parse(allRaw);
-     all.push(r);
-     localStorage.setItem(DEMO_RECORDS_KEY, JSON.stringify(all));
-   },
+    saveRecords: (rs: ClientRecord[]) =>
+      localStorage.setItem(DEMO_RECORDS_KEY, JSON.stringify(rs)),
+    addRecord: (r: ClientRecord) => {
+      const allRaw = localStorage.getItem(DEMO_RECORDS_KEY) || "[]";
+      const all: ClientRecord[] = JSON.parse(allRaw);
+      all.push(r);
+      localStorage.setItem(DEMO_RECORDS_KEY, JSON.stringify(all));
+    },
  };
 
 function uid() {
@@ -396,7 +398,37 @@ export const adminApi = {
          created_by_name: "Padilha Master",
          created_at: now,
        };
-       demoStore.saveRecord(r);
+        demoStore.addRecord(r);
+    async update(clientId: string, recordId: string, data: RecordInput): Promise<ClientRecord> {
+      if (demoStore.isOn()) {
+        const allRaw = localStorage.getItem(DEMO_RECORDS_KEY) || "[]";
+        const all: ClientRecord[] = JSON.parse(allRaw);
+        const i = all.findIndex((x) => x.id === recordId);
+        if (i < 0) throw new ApiError("Registro não encontrado", 404);
+        all[i] = {
+          ...all[i],
+          description: data.description,
+          type: data.type ?? null,
+        };
+        demoStore.saveRecords(all);
+        return all[i];
+      }
+      return request<ClientRecord>(`/clients/${clientId}/records/${recordId}`, {
+        method: "PUT",
+        body: JSON.stringify(data),
+      });
+    },
+    async remove(clientId: string, recordId: string): Promise<void> {
+      if (demoStore.isOn()) {
+        const allRaw = localStorage.getItem(DEMO_RECORDS_KEY) || "[]";
+        const all: ClientRecord[] = JSON.parse(allRaw);
+        demoStore.saveRecords(all.filter((x) => x.id !== recordId));
+        return;
+      }
+      return request<void>(`/clients/${clientId}/records/${recordId}`, {
+        method: "DELETE",
+      });
+    },
        return r;
      }
      return request<ClientRecord>(`/clients/${clientId}/records`, {
