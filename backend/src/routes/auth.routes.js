@@ -110,4 +110,13 @@ router.get('/me', jwtAuth, async (req, res, next) => {
   }
 });
 
+router.get('/team', jwtAuth, async (req, res, next) => {
+  try {
+    const team = await users.listByTenant(req.auth.tenantId);
+    res.json(team);
+  } catch (e) {
+    next(e);
+  }
+});
+
 export default router;
