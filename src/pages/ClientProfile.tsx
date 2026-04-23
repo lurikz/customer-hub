@@ -1,23 +1,24 @@
  import { useState } from "react";
  import { useParams, Link } from "react-router-dom";
  import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
- import { 
-   ArrowLeft, 
-   Calendar, 
-   Clock, 
-    Edit,
-    Trash2,
-   MessageSquare, 
-   Plus, 
-   User, 
-   Building2, 
-    MapPin,
-    Share2,
-    StickyNote,
-    Mail,
-    Phone,
-    FileText
- } from "lucide-react";
+   import { 
+     ArrowLeft, 
+     Calendar, 
+     Clock, 
+     Edit,
+     Trash2,
+     MessageSquare, 
+     Plus, 
+     User, 
+     Building2, 
+     MapPin,
+     Share2,
+     StickyNote,
+     Mail,
+     Phone,
+     FileText,
+     CheckCircle2
+   } from "lucide-react";
  import { format, parseISO } from "date-fns";
  import { ptBR } from "date-fns/locale";
  
@@ -307,103 +308,133 @@
            )}
          </div>
  
-         {/* Main Content: History/Records */}
-          <div className="md:col-span-2 space-y-8">
-            {/* Agenda/Tasks Section */}
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <h2 className="text-lg font-semibold flex items-center gap-2">
-                  <Calendar className="h-5 w-5" />
-                  Agenda e Compromissos
-                </h2>
+         {/* Main Content: History/Timeline */}
+          <div className="md:col-span-2 space-y-4">
+            <div className="flex items-center justify-between">
+              <h2 className="text-lg font-semibold flex items-center gap-2">
+                <MessageSquare className="h-5 w-5" />
+                Histórico de Atendimento
+              </h2>
+              <div className="flex gap-2">
                 <Button onClick={handleAddTask} size="sm" variant="outline" className="gap-2">
                   <Plus className="h-4 w-4" />
-                  Nova Tarefa
+                  Tarefa
+                </Button>
+                <Button onClick={handleAddRecord} size="sm" className="gap-2">
+                  <Plus className="h-4 w-4" />
+                  Registro
                 </Button>
               </div>
-
-              {loadingTasks ? (
-                <Skeleton className="h-32 w-full" />
-              ) : tasks && tasks.length > 0 ? (
-                <TasksList 
-                  tasks={tasks} 
-                  onEdit={handleEditTask} 
-                  onToggleStatus={(t) => toggleTaskStatusMutation.mutate(t)} 
-                />
-              ) : (
-                <div className="rounded-lg border border-dashed p-8 text-center text-muted-foreground">
-                  <p className="text-sm">Nenhuma tarefa agendada para este cliente.</p>
-                </div>
-              )}
             </div>
 
             <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <h2 className="text-lg font-semibold flex items-center gap-2">
-                  <MessageSquare className="h-5 w-5" />
-                  Histórico de Atendimento
-                </h2>
-                <Button onClick={handleAddRecord} size="sm" className="gap-2">
-                  <Plus className="h-4 w-4" />
-                  Adicionar Registro
-                </Button>
-              </div>
+              {loadingRecords || loadingTasks ? (
+                Array(3).fill(0).map((_, i) => (
+                  <Skeleton key={i} className="h-24 w-full" />
+                ))
+              ) : (
+                (() => {
+                  const timeline = [
+                    ...(records || []).map(r => ({ ...r, timelineType: 'record' as const })),
+                    ...(tasks || []).map(t => ({ ...t, timelineType: 'task' as const, created_at: t.datetime }))
+                  ].sort((a, b) => b.created_at.localeCompare(a.created_at));
 
-              <div className="space-y-4">
-                {loadingRecords ? (
-                  Array(3).fill(0).map((_, i) => (
-                    <Skeleton key={i} className="h-24 w-full" />
-                  ))
-                ) : records && records.length > 0 ? (
-                  records.map((record: ClientRecord) => (
-                    <Card key={record.id} className="border-l-4 border-l-primary/50">
-                      <CardHeader className="py-3 px-4">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-2">
-                            <Badge variant="outline" className="capitalize">
-                              {record.type || "Geral"}
-                            </Badge>
-                            <span className="text-xs text-muted-foreground flex items-center gap-1">
-                              <Clock className="h-3 w-3" />
-                              {formatDateTime(record.created_at)}
-                            </span>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <span className="text-xs text-muted-foreground mr-2">
-                              Por: {record.created_by_name || "Sistema"}
-                            </span>
-                            <Button 
-                              variant="ghost" 
-                              size="icon" 
-                              className="h-7 w-7" 
-                              onClick={() => handleEditRecord(record)}
-                            >
-                              <Edit className="h-3.5 w-3.5" />
-                            </Button>
-                            <Button 
-                              variant="ghost" 
-                              size="icon" 
-                              className="h-7 w-7 text-destructive hover:text-destructive hover:bg-destructive/10" 
-                              onClick={() => handleDeleteRecord(record.id)}
-                            >
-                              <Trash2 className="h-3.5 w-3.5" />
-                            </Button>
-                          </div>
-                        </div>
-                      </CardHeader>
-                      <CardContent className="py-3 px-4 pt-0">
-                        <p className="text-sm text-foreground whitespace-pre-wrap">{record.description}</p>
-                      </CardContent>
-                    </Card>
-                  ))
-                ) : (
-                  <div className="rounded-lg border border-dashed p-12 text-center text-muted-foreground">
-                    <MessageSquare className="h-12 w-12 mx-auto mb-4 opacity-20" />
-                    <p>Nenhum registro encontrado para este cliente.</p>
-                    <p className="text-sm">Comece adicionando um novo atendimento ou observação.</p>
-                  </div>
-                )}
-              </div>
+                  if (timeline.length === 0) {
+                    return (
+                      <div className="rounded-lg border border-dashed p-12 text-center text-muted-foreground">
+                        <MessageSquare className="h-12 w-12 mx-auto mb-4 opacity-20" />
+                        <p>Nenhum registro encontrado para este cliente.</p>
+                        <p className="text-sm">Comece adicionando um novo atendimento ou tarefa.</p>
+                      </div>
+                    );
+                  }
+
+                  return timeline.map((item) => {
+                    if (item.timelineType === 'record') {
+                      const record = item as any;
+                      return (
+                        <Card key={record.id} className="border-l-4 border-l-primary/50">
+                          <CardHeader className="py-3 px-4">
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-2">
+                                <Badge variant="outline" className="capitalize">
+                                  {record.type || "Geral"}
+                                </Badge>
+                                <span className="text-xs text-muted-foreground flex items-center gap-1">
+                                  <Clock className="h-3 w-3" />
+                                  {formatDateTime(record.created_at)}
+                                </span>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <span className="text-xs text-muted-foreground mr-2">
+                                  Por: {record.created_by_name || "Sistema"}
+                                </span>
+                                <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleEditRecord(record)}>
+                                  <Edit className="h-3.5 w-3.5" />
+                                </Button>
+                                <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive hover:text-destructive hover:bg-destructive/10" onClick={() => handleDeleteRecord(record.id)}>
+                                  <Trash2 className="h-3.5 w-3.5" />
+                                </Button>
+                              </div>
+                            </div>
+                          </CardHeader>
+                          <CardContent className="py-3 px-4 pt-0">
+                            <p className="text-sm text-foreground whitespace-pre-wrap">{record.description}</p>
+                          </CardContent>
+                        </Card>
+                      );
+                    } else {
+                      const task = item as any;
+                      return (
+                        <Card key={task.id} className="border-l-4 border-l-amber-500 bg-amber-50/30 dark:bg-amber-900/10">
+                          <CardHeader className="py-3 px-4">
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-2">
+                                <Badge variant="secondary" className="gap-1.5">
+                                  <Calendar className="h-3 w-3" />
+                                  Atividade
+                                </Badge>
+                                <Badge 
+                                  variant={task.status === "concluído" ? "default" : "outline"} 
+                                  className={`capitalize ${task.status === "concluído" ? "bg-green-600 hover:bg-green-600 text-white" : ""}`}
+                                >
+                                  {task.status === "pendente" ? "Pendente" : 
+                                   task.status === "em_andamento" ? "Em Andamento" : 
+                                   task.status === "concluído" ? "Concluído" : "Cancelada"}
+                                </Badge>
+                                <span className="text-xs text-muted-foreground flex items-center gap-1">
+                                  <Clock className="h-3 w-3" />
+                                  Agendado: {formatDateTime(task.datetime)}
+                                </span>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <Button 
+                                  variant="ghost" 
+                                  size="icon" 
+                                  className={`h-7 w-7 ${task.status === "concluído" ? "text-green-600" : "text-muted-foreground"}`}
+                                  onClick={() => toggleTaskStatusMutation.mutate(task)}
+                                  title={task.status === "concluído" ? "Desmarcar como concluído" : "Marcar como concluído"}
+                                >
+                                  <CheckCircle2 className="h-4 w-4" />
+                                </Button>
+                                <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleEditTask(task)}>
+                                  <Edit className="h-3.5 w-3.5" />
+                                </Button>
+                              </div>
+                            </div>
+                          </CardHeader>
+                          <CardContent className="py-3 px-4 pt-0">
+                            <h4 className="text-sm font-semibold mb-1">{task.title}</h4>
+                            {task.description && (
+                              <p className="text-sm text-muted-foreground whitespace-pre-wrap">{task.description}</p>
+                            )}
+                          </CardContent>
+                        </Card>
+                      );
+                    }
+                  });
+                })()
+              )}
             </div>
           </div>
         </div>
