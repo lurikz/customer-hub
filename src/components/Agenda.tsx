@@ -315,14 +315,14 @@ export function Agenda() {
             </DialogTitle>
           </DialogHeader>
           
-          <div className="flex-1 overflow-y-auto p-6 pt-2 space-y-6">
+          <div className="flex-1 overflow-y-auto p-4 pt-0 space-y-4">
             {selectedDay && (() => {
               const dayTasks = tasks.filter((t) => isSameDay(new Date(t.datetime), selectedDay));
               
               if (dayTasks.length === 0) {
                 return (
-                  <div className="py-12 text-center text-muted-foreground">
-                    <p>Nenhuma tarefa agendada para este dia.</p>
+                  <div className="py-10 text-center text-muted-foreground border border-dashed rounded-lg m-4">
+                    <p className="text-sm">Nenhuma tarefa agendada.</p>
                   </div>
                 );
               }
@@ -332,21 +332,21 @@ export function Agenda() {
                 if (groupTasks.length === 0) return null;
 
                 return (
-                  <div key={group.id} className="space-y-3">
-                    <h3 className={cn("text-xs font-bold uppercase tracking-widest flex items-center gap-2", group.color)}>
-                      <span className={cn("h-1.5 w-1.5 rounded-full", group.bg.replace('bg-', 'bg-').replace('50', '500'))}></span>
+                  <div key={group.id} className="space-y-2">
+                    <h3 className={cn("text-[10px] font-bold uppercase tracking-widest flex items-center gap-2 sticky top-0 bg-background/95 backdrop-blur py-2 z-10", group.color)}>
+                      <span className={cn("h-1.5 w-1.5 rounded-full", group.id === "atrasada" ? "bg-red-500 animate-pulse" : group.bg.replace('bg-', 'bg-').split('/')[0])}></span>
                       {group.label}
-                      <span className="ml-auto text-[10px] bg-muted px-1.5 py-0.5 rounded-full text-muted-foreground">
+                      <span className="ml-auto text-[9px] bg-muted px-1.5 py-0.5 rounded-full text-muted-foreground font-medium">
                         {groupTasks.length}
                       </span>
                     </h3>
-                    <div className="grid gap-2">
+                    <div className="grid gap-1.5">
                       {groupTasks.map((task) => (
                         <div 
                           key={task.id} 
                           className={cn(
-                            "flex items-center justify-between gap-4 p-3 rounded-lg border bg-card transition-all hover:shadow-md cursor-pointer",
-                            group.border
+                            "group relative flex items-center justify-between gap-3 p-2.5 rounded-md border bg-card transition-all hover:border-primary/30 cursor-pointer shadow-sm",
+                            group.id === "atrasada" && "border-red-200 bg-red-50/10"
                           )}
                           onClick={() => {
                             setDayModalOpen(false);
@@ -355,21 +355,21 @@ export function Agenda() {
                         >
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2 mb-1">
-                              <span className="font-semibold text-sm truncate">{task.title}</span>
-                              <Badge variant="outline" className="text-[10px] h-4 py-0 flex gap-1 items-center font-mono">
+                              <span className={cn("font-medium text-sm truncate", group.id === "atrasada" && "text-red-700")}>{task.title}</span>
+                              <span className="text-[10px] font-mono text-muted-foreground bg-muted/50 px-1 rounded flex items-center gap-1 shrink-0">
                                 <Clock className="h-2.5 w-2.5" />
                                 {format(new Date(task.datetime), "HH:mm")}
-                              </Badge>
+                              </span>
                             </div>
-                            <div className="flex flex-wrap gap-x-4 gap-y-1">
+                            <div className="flex flex-wrap gap-x-3 gap-y-0.5 items-center">
                               {task.client_name && (
-                                <span className="text-xs text-muted-foreground flex items-center gap-1">
-                                  <User className="h-3 w-3" />
+                                <span className="text-[10px] text-muted-foreground flex items-center gap-1 bg-secondary/30 px-1.5 rounded-sm">
+                                  <User className="h-2.5 w-2.5" />
                                   {task.client_name}
                                 </span>
                               )}
-                              <span className="text-xs text-muted-foreground flex items-center gap-1">
-                                <div className="h-3 w-3 rounded-full bg-primary/20 flex items-center justify-center">
+                              <span className="text-[10px] text-muted-foreground flex items-center gap-1">
+                                <div className="h-3 w-3 rounded-full bg-primary/10 flex items-center justify-center">
                                   <User className="h-2 w-2 text-primary" />
                                 </div>
                                 {task.user_name}
@@ -377,20 +377,20 @@ export function Agenda() {
                             </div>
                           </div>
                           
-                          <div className="flex items-center gap-2 shrink-0">
+                          <div className="flex items-center gap-1 shrink-0">
                             <Button
                               variant="ghost"
                               size="icon"
-                              className="h-8 w-8 rounded-full"
+                              className="h-7 w-7 rounded-full opacity-60 hover:opacity-100 hover:bg-emerald-50"
                               onClick={(e) => {
                                 e.stopPropagation();
                                 toggleStatusMutation.mutate(task);
                               }}
                             >
                               {task.status === "concluído" ? (
-                                <CheckCircle2 className="h-5 w-5 text-emerald-500" />
+                                <CheckCircle2 className="h-4.5 w-4.5 text-emerald-500" />
                               ) : (
-                                <Circle className="h-5 w-5 text-muted-foreground" />
+                                <Circle className="h-4.5 w-4.5 text-muted-foreground group-hover:text-emerald-500 transition-colors" />
                               )}
                             </Button>
                           </div>
