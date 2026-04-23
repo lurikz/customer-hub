@@ -1,7 +1,6 @@
 import { format, parseISO } from "date-fns";
 import { ptBR } from "date-fns/locale";
-  import { Pencil, Trash2, User, ExternalLink, Building2, Phone } from "lucide-react";
- import { getWhatsAppLink } from "@/lib/utils";
+  import { Pencil, Trash2, User, ExternalLink, Building2 } from "lucide-react";
  import { useMutation, useQueryClient } from "@tanstack/react-query";
  import { Link, useNavigate } from "react-router-dom";
 
@@ -113,24 +112,7 @@ function formatDate(value: string | null) {
               <TableCell>{c.source || "—"}</TableCell>
               <TableCell>{c.created_by_name || c.created_by || "—"}</TableCell>
                <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>
-                  <div className="flex justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity items-center">
-                    {c.phone && (
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        asChild
-                        aria-label="WhatsApp"
-                        className="text-[#25D366] hover:text-[#25D366] hover:bg-[#25D366]/10"
-                      >
-                        <a
-                          href={getWhatsAppLink(c.phone)}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                        >
-                          <Phone className="h-4 w-4" />
-                        </a>
-                      </Button>
-                    )}
+                   <div className="flex justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity items-center">
                    <Button
                      variant="ghost"
                      size="icon"
