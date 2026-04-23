@@ -74,20 +74,25 @@ export function ClientsTable({ clients, onEdit }: Props) {
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Nome</TableHead>
-            <TableHead>Empresa</TableHead>
-            <TableHead>Nascimento</TableHead>
+            <TableHead>Cliente</TableHead>
+            <TableHead>Data Cadastro</TableHead>
             <TableHead>Origem</TableHead>
+            <TableHead>Usuário</TableHead>
             <TableHead className="w-[120px] text-right">Ações</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {clients.map((c) => (
             <TableRow key={c.id}>
-              <TableCell className="font-medium">{c.name}</TableCell>
-              <TableCell>{c.company || "—"}</TableCell>
-              <TableCell>{formatDate(c.birth_date)}</TableCell>
+              <TableCell className="font-medium">
+                <div>{c.name}</div>
+                {c.company && (
+                  <div className="text-xs text-muted-foreground">{c.company}</div>
+                )}
+              </TableCell>
+              <TableCell>{formatDate(c.created_at)}</TableCell>
               <TableCell>{c.source || "—"}</TableCell>
+              <TableCell>{c.created_by_name || c.created_by || "—"}</TableCell>
               <TableCell className="text-right">
                 <div className="flex justify-end gap-1">
                   <Button
