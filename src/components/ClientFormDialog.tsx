@@ -257,10 +257,7 @@ export function ClientFormDialog({ open, onOpenChange, client }: Props) {
                              <CommandList className="max-h-[300px] overflow-y-auto">
                                <CommandEmpty>Nenhuma origem encontrada.</CommandEmpty>
                                 <CommandGroup>
-                                  <CommandItem
-                                    type="button"
-                                    onSelect={() => setOriginDialogOpen(true)}
-                                  >
+                                   <CommandItem onSelect={() => setOriginDialogOpen(true)}>
                                     <Plus className="mr-2 h-4 w-4" />
                                     Novo
                                   </CommandItem>
@@ -349,6 +346,54 @@ export function ClientFormDialog({ open, onOpenChange, client }: Props) {
           </form>
         </Form>
       </DialogContent>
-    </Dialog>
-  );
-}
+     </Dialog>
+ 
+     <Dialog open={originDialogOpen} onOpenChange={setOriginDialogOpen}>
+       <DialogContent className="sm:max-w-[425px]">
+         <DialogHeader>
+           <DialogTitle>Nova Origem</DialogTitle>
+           <DialogDescription>
+             Cadastre uma nova origem para os clientes.
+           </DialogDescription>
+         </DialogHeader>
+         <div className="grid gap-4 py-4">
+           <div className="grid gap-2">
+             <label htmlFor="origin-name" className="text-sm font-medium">
+               Nome da origem
+             </label>
+             <Input
+               id="origin-name"
+               value={newOriginName}
+               onChange={(e) => setNewOriginName(e.target.value)}
+               placeholder="Ex: Instagram, WhatsApp..."
+               autoFocus
+               onKeyDown={(e) => {
+                 if (e.key === "Enter") {
+                   e.preventDefault();
+                   handleSaveOrigin();
+                 }
+               }}
+             />
+           </div>
+         </div>
+         <DialogFooter className="gap-2 sm:gap-0">
+           <Button
+             type="button"
+             variant="ghost"
+             onClick={() => setOriginDialogOpen(false)}
+           >
+             Cancelar
+           </Button>
+           <Button 
+             type="button" 
+             onClick={handleSaveOrigin}
+             disabled={originMutation.isPending}
+           >
+             {originMutation.isPending ? "Salvando..." : "Salvar"}
+           </Button>
+         </DialogFooter>
+       </DialogContent>
+     </Dialog>
+     </>
+   );
+ }
