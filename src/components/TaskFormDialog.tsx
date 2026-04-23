@@ -3,7 +3,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
- import { Check, ChevronsUpDown, Pencil } from "lucide-react";
+ import { Check, ChevronsUpDown, Pencil, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -37,7 +37,18 @@ import {
 } from "@/components/ui/command";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
-import { Textarea } from "@/components/ui/textarea";
+ import { Textarea } from "@/components/ui/textarea";
+ import {
+   AlertDialog,
+   AlertDialogAction,
+   AlertDialogCancel,
+   AlertDialogContent,
+   AlertDialogDescription,
+   AlertDialogFooter,
+   AlertDialogHeader,
+   AlertDialogTitle,
+   AlertDialogTrigger,
+ } from "@/components/ui/alert-dialog";
 import { toast } from "@/hooks/use-toast";
 import { tasksApi, clientsApi, authApi, type Task, type TaskInput } from "@/lib/api";
 import { useAuth } from "@/contexts/AuthContext";
@@ -141,18 +152,43 @@ export function TaskFormDialog({ open, onOpenChange, task, defaultDate, defaultC
         title: isEditing ? "Tarefa atualizada" : "Tarefa criada",
         description: isEditing ? "As alterações foram salvas." : "A tarefa foi adicionada à agenda.",
       });
-      onOpenChange(false);
-    },
-    onError: (err: Error) => {
-      toast({
-        title: "Erro ao salvar",
-        description: err.message,
-        variant: "destructive",
-      });
-    },
-  });
-
-  return (
+       onOpenChange(false);
+     },
+     onError: (err: Error) => {
+       toast({
+         title: "Erro ao salvar",
+         description: err.message,
+         variant: "destructive",
+       });
+     },
+   });
+ 
+   const deleteMutation = useMutation({
+     mutationFn: async () => {
+       if (!task) return;
+       return tasksApi.remove(task.id);
+     },
+     onSuccess: () => {
+       queryClient.invalidateQueries({ queryKey: ["tasks"] });
+       if (task?.client_id) {
+         queryClient.invalidateQueries({ queryKey: ["client-tasks", task.client_id] });
+       }
+       toast({
+         title: "Tarefa excluída",
+         description: "A tarefa foi removida com sucesso.",
+       });
+       onOpenChange(false);
+     },
+     onError: (err: Error) => {
+       toast({
+         title: "Erro ao excluir",
+         description: err.message,
+         variant: "destructive",
+       });
+     },
+   });
+ 
+   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
@@ -342,19 +378,53 @@ export function TaskFormDialog({ open, onOpenChange, task, defaultDate, defaultC
                    Editar
                  </Button>
                ) : (
-                 <>
-                   <Button
-                     type="button"
-                     variant="outline"
-                     onClick={() => isEditing ? setIsLocked(true) : onOpenChange(false)}
-                     disabled={mutation.isPending}
-                   >
-                     {isEditing ? "Voltar" : "Cancelar"}
-                   </Button>
-                   <Button type="submit" disabled={mutation.isPending}>
-                     {mutation.isPending ? "Salvando..." : isEditing ? "Salvar" : "Criar"}
-                   </Button>
-                 </>
+                 <div className="flex w-full justify-between items-center gap-2">
+                   {isEditing && (
+                     <AlertDialog>
+                       <AlertDialogTrigger asChild>
+                         <Button
+                           type="button"
+                           variant="destructive"
+                           className="gap-2 mr-auto"
+                           disabled={deleteMutation.isPending}
+                         >
+                           <Trash2 className="h-4 w-4" />
+                           Excluir
+                         </Button>
+                       </AlertDialogTrigger>
+                       <AlertDialogContent>
+                         <AlertDialogHeader>
+                           <AlertDialogTitle>Excluir tarefa?</AlertDialogTitle>
+                           <AlertDialogDescription>
+                             Esta ação não pode ser desfeita. A tarefa será removida permanentemente da agenda.
+                           </AlertDialogDescription>
+                         </AlertDialogHeader>
+                         <AlertDialogFooter>
+                           <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                           <AlertDialogAction
+                             onClick={() => deleteMutation.mutate()}
+                             className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                           >
+                             {deleteMutation.isPending ? "Excluindo..." : "Excluir"}
+                           </AlertDialogAction>
+                         </AlertDialogFooter>
+                       </AlertDialogContent>
+                     </AlertDialog>
+                   )}
+                   <div className="flex gap-2 ml-auto">
+                     <Button
+                       type="button"
+                       variant="outline"
+                       onClick={() => (isEditing ? setIsLocked(true) : onOpenChange(false))}
+                       disabled={mutation.isPending}
+                     >
+                       {isEditing ? "Voltar" : "Cancelar"}
+                     </Button>
+                     <Button type="submit" disabled={mutation.isPending}>
+                       {mutation.isPending ? "Salvando..." : isEditing ? "Salvar" : "Criar"}
+                     </Button>
+                   </div>
+                 </div>
                )}
              </DialogFooter>
           </form>
