@@ -262,7 +262,7 @@ export function Agenda() {
                         }}
                       >
                         <div className="flex items-start justify-between gap-1 mb-1">
-                          <span className={cn("font-bold truncate", task.status === "concluído" && "line-through opacity-70")}>
+                          <span className={cn("font-bold truncate", (task.status === "concluído" || task.status === "cancelada") && "line-through opacity-70")}>
                             {task.title}
                           </span>
                           <span className="shrink-0 opacity-70 font-medium tabular-nums">
@@ -272,7 +272,7 @@ export function Agenda() {
                         {task.description && (
                           <p className={cn(
                             "line-clamp-2 text-[9px] leading-[1.2] opacity-80",
-                            task.status === "concluído" && "opacity-50"
+                            (task.status === "concluído" || task.status === "cancelada") && "opacity-50"
                           )}>
                             {task.description}
                           </p>
