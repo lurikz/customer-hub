@@ -59,7 +59,7 @@ const schema = z.object({
    email: z.string().trim().max(120).optional().or(z.literal("")),
    phone: z.string().trim().max(20).optional(),
    cpf_cnpj: z.string().trim().max(20).optional(),
-   source: z.string().trim().max(100).optional(),
+    source: z.string().trim().min(1, "Selecione a origem").max(100),
    address: z.string().trim().max(255, "Máximo 255 caracteres").optional(),
    notes: z.string().trim().max(2000, "Máximo 2000 caracteres").optional(),
 }).superRefine((data, ctx) => {
@@ -204,7 +204,7 @@ export function ClientFormDialog({ open, onOpenChange, client }: Props) {
             {isEditing ? "Editar cliente" : "Novo cliente"}
           </DialogTitle>
           <DialogDescription>
-            Preencha os dados abaixo. Apenas o nome é obrigatório.
+            Preencha os dados abaixo. Campos marcados com * são obrigatórios.
           </DialogDescription>
         </DialogHeader>
 
@@ -330,7 +330,7 @@ export function ClientFormDialog({ open, onOpenChange, client }: Props) {
                  name="source"
                  render={({ field }) => (
                    <FormItem className="flex flex-col">
-                     <FormLabel className="mb-2">Origem</FormLabel>
+                      <FormLabel className="mb-2">Origem *</FormLabel>
                      <Popover
                        open={popoverOpen}
                          onOpenChange={(open) => {
