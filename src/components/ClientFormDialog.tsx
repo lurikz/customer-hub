@@ -103,21 +103,25 @@ export function ClientFormDialog({ open, onOpenChange, client }: Props) {
     }
   }, []);
 
-   const addSource = (value: string) => {
-     const trimmed = value.trim();
-     if (trimmed && !sources.includes(trimmed)) {
-       const updated = [...sources, trimmed];
-       setSources(updated);
-       localStorage.setItem("crm.sources", JSON.stringify(updated));
-       form.setValue("source", trimmed);
-       setNewSource("");
-       setPopoverOpen(false);
-     } else if (trimmed) {
-       form.setValue("source", trimmed);
-       setNewSource("");
-       setPopoverOpen(false);
-     }
-   };
+  const addSource = (value: string) => {
+    const trimmed = value.trim();
+    if (!trimmed) return;
+
+    const existingSource = sources.find(
+      (s) => s.toLowerCase() === trimmed.toLowerCase()
+    );
+
+    if (existingSource) {
+      form.setValue("source", existingSource);
+    } else {
+      const updated = [...sources, trimmed];
+      setSources(updated);
+      localStorage.setItem("crm.sources", JSON.stringify(updated));
+      form.setValue("source", trimmed);
+    }
+    setNewSource("");
+    setPopoverOpen(false);
+  };
 
   const mutation = useMutation({
     mutationFn: async (values: FormValues) => {
@@ -217,7 +221,13 @@ export function ClientFormDialog({ open, onOpenChange, client }: Props) {
                 render={({ field }) => (
                   <FormItem className="flex flex-col">
                     <FormLabel className="mb-2">Origem</FormLabel>
-                    <Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
+                    <Popover
+                      open={popoverOpen}
+                      onOpenChange={(open) => {
+                        setPopoverOpen(open);
+                        if (!open) setNewSource("");
+                      }}
+                    >
                       <PopoverTrigger asChild>
                         <FormControl>
                           <Button
@@ -235,28 +245,27 @@ export function ClientFormDialog({ open, onOpenChange, client }: Props) {
                       </PopoverTrigger>
                       <PopoverContent className="w-[200px] p-0" align="start">
                         <Command>
-                            <div className="relative">
-                              <CommandInput
-                                placeholder="Buscar ou criar nova..."
-                                value={newSource}
-                                onValueChange={setNewSource}
-                              />
-                              {newSource && !sources.includes(newSource) && (
-                                <div className="absolute right-2 top-1/2 -translate-y-1/2">
-                                  <Button
-                                    type="button"
-                                    variant="secondary"
-                                    size="sm"
-                                    className="h-7"
-                                    onClick={() => addSource(newSource)}
-                                  >
-                                    Criar
-                                  </Button>
-                                </div>
-                              )}
-                            </div>
+                            <CommandInput
+                              placeholder="Buscar ou criar nova..."
+                              value={newSource}
+                              onValueChange={setNewSource}
+                            />
                             <CommandList>
-                              <CommandEmpty>Nenhuma origem encontrada.</CommandEmpty>
+                               <CommandEmpty>Nenhuma origem encontrada.</CommandEmpty>
+                               {newSource &&
+                                 !sources.some(
+                                   (s) => s.toLowerCase() === newSource.toLowerCase()
+                                 ) && (
+                                 <CommandGroup>
+                                   <CommandItem
+                                     value={newSource}
+                                     onSelect={() => addSource(newSource)}
+                                   >
+                                     <Plus className="mr-2 h-4 w-4" />
+                                     Criar "{newSource}"
+                                   </CommandItem>
+                                 </CommandGroup>
+                               )}
                               <CommandGroup heading="Sugestões">
                                 {sources.map((s) => (
                                   <CommandItem
