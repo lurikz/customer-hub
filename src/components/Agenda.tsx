@@ -243,9 +243,10 @@ export function Agenda() {
                           task.status === "concluído" 
                             ? "bg-muted/40 border-transparent text-muted-foreground" 
                             : isTaskOverdue 
-                              ? "bg-destructive/10 border-destructive/30 text-destructive" 
-                              : "bg-primary/5 border-primary/20 text-primary"
+                              ? "bg-destructive/10 border-destructive/30 text-destructive font-medium" 
+                              : "bg-primary/5 border-primary/20 text-primary font-medium"
                         )}
+                        title={`${task.title}${task.description ? ': ' + task.description : ''}`}
                         onClick={(e) => {
                           e.stopPropagation();
                           handleEditTask(task);
