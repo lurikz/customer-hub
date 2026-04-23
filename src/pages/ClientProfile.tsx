@@ -313,7 +313,7 @@
                     if (item.timelineType === 'record') {
                       const record = item as any;
                       return (
-                        <Card key={record.id} className="border-l-4 border-l-primary/50">
+                        <Card key={record.id} className="border-white/5 bg-black/20 backdrop-blur-sm border-l-4 border-l-primary/50">
                           <CardHeader className="py-3 px-4">
                             <div className="flex items-center justify-between">
                               <div className="flex items-center gap-2">
@@ -346,7 +346,7 @@
                     } else {
                       const task = item as any;
                       return (
-                        <Card key={task.id} className="border-l-4 border-l-amber-500 bg-amber-50/30 dark:bg-amber-900/10">
+                        <Card key={task.id} className="border-white/5 bg-black/20 backdrop-blur-sm border-l-4 border-l-amber-500/50">
                           <CardHeader className="py-3 px-4">
                             <div className="flex items-center justify-between">
                               <div className="flex items-center gap-2">
