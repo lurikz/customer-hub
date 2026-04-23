@@ -140,8 +140,33 @@ CREATE TABLE IF NOT EXISTS invites (
  );
  
  CREATE INDEX IF NOT EXISTS idx_records_client_created ON client_records (client_id, created_at DESC);
- CREATE INDEX IF NOT EXISTS idx_records_tenant ON client_records (tenant_id);
- `;
+    CREATE INDEX IF NOT EXISTS idx_records_tenant ON client_records (tenant_id);
+
+    -- =====================================================
+    -- TASKS (Agenda)
+    -- =====================================================
+    CREATE TABLE IF NOT EXISTS tasks (
+      id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+      tenant_id     UUID NOT NULL REFERENCES tenants(id) ON DELETE CASCADE,
+      client_id     UUID REFERENCES clients(id) ON DELETE CASCADE,
+      user_id       UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      title         TEXT NOT NULL,
+      description   TEXT,
+      datetime      TIMESTAMPTZ NOT NULL,
+      status        TEXT NOT NULL DEFAULT 'pendente' CHECK (status IN ('pendente', 'concluído')),
+      created_at    TIMESTAMPTZ NOT NULL DEFAULT now(),
+      updated_at    TIMESTAMPTZ NOT NULL DEFAULT now()
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_tasks_tenant_datetime ON tasks (tenant_id, datetime);
+    CREATE INDEX IF NOT EXISTS idx_tasks_user ON tasks (user_id);
+    CREATE INDEX IF NOT EXISTS idx_tasks_client ON tasks (client_id);
+
+    DROP TRIGGER IF EXISTS trg_tasks_updated_at ON tasks;
+    CREATE TRIGGER trg_tasks_updated_at
+    BEFORE UPDATE ON tasks
+    FOR EACH ROW EXECUTE FUNCTION set_updated_at();
+    `;
 
 export async function runMigrations() {
   console.log('🛠  Rodando migrations...');
