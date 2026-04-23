@@ -234,27 +234,25 @@ export function ClientFormDialog({ open, onOpenChange, client }: Props) {
                         </FormControl>
                       </PopoverTrigger>
                       <PopoverContent className="w-[200px] p-0" align="start">
-                        <Command manualFiltering={false}>
+                        <Command>
                             <CommandInput
                               placeholder="Buscar ou criar nova..."
                               value={newSource}
                               onValueChange={setNewSource}
                             />
                             <CommandList>
-                               <CommandEmpty>
-                                 {newSource ? (
-                                   <button
-                                     type="button"
-                                     className="flex w-full items-center py-2 px-3 text-sm hover:bg-accent hover:text-accent-foreground outline-none transition-colors"
-                                     onClick={() => addSource(newSource)}
+                               <CommandEmpty>Nenhuma origem encontrada.</CommandEmpty>
+                               {newSource && !sources.includes(newSource) && (
+                                 <CommandGroup>
+                                   <CommandItem
+                                     value={newSource}
+                                     onSelect={() => addSource(newSource)}
                                    >
                                      <Plus className="mr-2 h-4 w-4" />
                                      Criar "{newSource}"
-                                   </button>
-                                 ) : (
-                                   "Nenhuma origem encontrada."
-                                 )}
-                               </CommandEmpty>
+                                   </CommandItem>
+                                 </CommandGroup>
+                               )}
                               <CommandGroup heading="Sugestões">
                                 {sources.map((s) => (
                                   <CommandItem
