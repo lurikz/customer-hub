@@ -41,12 +41,13 @@
    SelectValue,
  } from "@/components/ui/select";
  import { Badge } from "@/components/ui/badge";
- import { Skeleton } from "@/components/ui/skeleton";
- import { toast } from "@/hooks/use-toast";
- import { clientsApi, recordsApi, type ClientRecord } from "@/lib/api";
- import { ClientFormDialog } from "@/components/ClientFormDialog";
- 
- function formatDate(value: string | null) {
+  import { Skeleton } from "@/components/ui/skeleton";
+  import { toast } from "@/hooks/use-toast";
+  import { clientsApi, recordsApi, type ClientRecord } from "@/lib/api";
+  import { ClientFormDialog } from "@/components/ClientFormDialog";
+  import { getWhatsAppLink } from "@/lib/utils";
+  
+  function formatDate(value: string | null) {
    if (!value) return "—";
    try {
      return format(parseISO(value), "dd/MM/yyyy", { locale: ptBR });
@@ -63,13 +64,6 @@
    }
  }
  
-  const getWhatsAppLink = (phone: string) => {
-    const cleaned = phone.replace(/\D/g, "");
-    // If it's a Brazilian number and doesn't have the country code, add 55
-    const formatted = (cleaned.length === 10 || cleaned.length === 11) ? `55${cleaned}` : cleaned;
-    return `https://wa.me/${formatted}`;
-  };
-
  export default function ClientProfile() {
    const { id } = useParams<{ id: string }>();
    const queryClient = useQueryClient();
@@ -225,7 +219,18 @@
                   <div className="flex-1">
                     <p className="text-xs text-muted-foreground uppercase font-semibold">Telefone</p>
                     <div className="flex items-center gap-2">
-                      <p className="text-sm">{client.phone || "Não informado"}</p>
+                       {client.phone ? (
+                         <a
+                           href={getWhatsAppLink(client.phone)}
+                           target="_blank"
+                           rel="noopener noreferrer"
+                           className="text-sm hover:underline text-primary transition-colors"
+                         >
+                           {client.phone}
+                         </a>
+                       ) : (
+                         <p className="text-sm">Não informado</p>
+                       )}
                       {client.phone && (
                         <a
                           href={getWhatsAppLink(client.phone)}
