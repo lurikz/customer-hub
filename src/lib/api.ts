@@ -422,9 +422,8 @@ export const adminApi = {
         if (i < 0) throw new ApiError("Registro não encontrado", 404);
         all[i] = {
           ...all[i],
-        type: data.type,
-          description: data.description,
-          type: data.type ?? null,
+         type: data.type ?? "NOTE",
+         description: data.description,
         };
         demoStore.saveRecords(all);
         return all[i];
