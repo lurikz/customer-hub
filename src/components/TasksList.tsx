@@ -105,13 +105,14 @@ export function TasksList({ tasks, onEdit, onToggleStatus }: Props) {
                   </div>
                 </TableCell>
                 <TableCell>
-                  <Badge 
+                  <Badge
                     variant={
-                      task.status === "concluído" ? "secondary" : 
+                      task.status === "concluído" ? "secondary" :
                       task.status === "cancelada" ? "outline" :
                       task.status === "em_andamento" ? "default" :
                       isOverdue ? "destructive" : "outline"
                     }
+                    className="text-sm font-bold px-3 py-0.5"
                   >
                     {
                       task.status === "concluído" ? "Concluído" : 

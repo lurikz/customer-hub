@@ -153,11 +153,11 @@ export function Agenda() {
   return (
     <div className="flex h-full flex-col gap-2 overflow-hidden">
        <div className="flex flex-col gap-2 shrink-0 px-1">
-        <div className="flex flex-wrap items-center gap-2 mb-1">
+        <div className="flex flex-wrap items-center gap-2 mb-3">
           {STATUS_GROUPS.map((group) => (
-            <div key={group.id} className={cn("flex items-center gap-1.5 px-2 py-1 rounded-full border text-[10px] font-medium transition-colors bg-card")}>
-              <span className={cn("h-1.5 w-1.5 rounded-full", group.id === "atrasada" ? "bg-red-500 animate-pulse" : group.bg.replace('bg-', 'bg-').split('/')[0])}></span>
-              <span className="text-muted-foreground">{group.label}:</span>
+            <div key={group.id} className={cn("flex items-center gap-2 px-3 py-1.5 rounded-full border text-xs sm:text-sm font-bold transition-colors bg-card shadow-sm")}>
+              <span className={cn("h-2 w-2 rounded-full", group.id === "atrasada" ? "bg-red-500 animate-pulse" : group.bg.replace('bg-', 'bg-').split('/')[0])}></span>
+              <span className="text-foreground">{group.label}:</span>
               <span className={cn("font-bold", group.color)}>{stats[group.id as keyof typeof stats]}</span>
             </div>
           ))}
@@ -291,15 +291,15 @@ export function Agenda() {
                           const groupTasks = dayTasks.filter(t => getTaskStatusGroup(t) === group.id);
                           if (groupTasks.length === 0) return null;
                           return (
-                            <div 
-                              key={group.id} 
+                            <div
+                              key={group.id}
                               className={cn(
-                                "flex items-center justify-between px-1 py-0.5 rounded-sm text-[8px] font-bold leading-none",
+                                "flex items-center justify-between px-1.5 py-0.5 rounded-sm text-[10px] font-black leading-none",
                                 group.bg,
                                 group.color
                               )}
                             >
-                              <span className="truncate opacity-90">{group.label}</span>
+                              <span className="truncate opacity-95">{group.label}</span>
                               <span>{groupTasks.length}</span>
                             </div>
                           );
@@ -355,7 +355,7 @@ export function Agenda() {
 
                 return (
                   <div key={group.id} className="space-y-2">
-                    <h3 className={cn("text-[10px] font-bold uppercase tracking-widest flex items-center gap-2 sticky top-0 bg-background/95 backdrop-blur py-2 z-10", group.color)}>
+                    <h3 className={cn("text-xs font-black uppercase tracking-widest flex items-center gap-2 sticky top-0 bg-background/95 backdrop-blur py-2 z-10", group.color)}>
                       <span className={cn("h-1.5 w-1.5 rounded-full", group.id === "atrasada" ? "bg-red-500 animate-pulse" : group.bg.replace('bg-', 'bg-').split('/')[0])}></span>
                       {group.label}
                       <span className="ml-auto text-[9px] bg-muted px-1.5 py-0.5 rounded-full text-muted-foreground font-medium">
