@@ -35,8 +35,9 @@
                 <span className="text-sm font-bold tracking-tight uppercase">TECH CRM</span>
              </div>
            </header>
-           <main className="flex-1 overflow-auto bg-background p-4 sm:p-6 lg:p-8">
-             <div className="mx-auto max-w-7xl space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+           <main className="flex h-screen flex-col overflow-hidden bg-background">
+             <div className="flex-1 overflow-auto p-4 sm:p-6 lg:p-8">
+               <div className="mx-auto flex h-full max-w-7xl flex-col space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
                {children}
              </div>
            </main>
