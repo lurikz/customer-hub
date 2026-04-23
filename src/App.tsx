@@ -8,6 +8,7 @@ import { ProtectedRoute } from "@/components/ProtectedRoute";
 import Index from "./pages/Index.tsx";
 import Login from "./pages/Login.tsx";
 import Admin from "./pages/Admin.tsx";
+ import ClientProfile from "./pages/ClientProfile.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
@@ -27,10 +28,18 @@ const App = () => (
                 <ProtectedRoute>
                   <Index />
                 </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/admin"
+               }
+             />
+             <Route
+               path="/clientes/:id"
+               element={
+                 <ProtectedRoute>
+                   <ClientProfile />
+                 </ProtectedRoute>
+               }
+             />
+             <Route
+               path="/admin"
               element={
                 <ProtectedRoute roles={["super_admin"]}>
                   <Admin />
