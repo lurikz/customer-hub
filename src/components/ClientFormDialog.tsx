@@ -201,7 +201,7 @@ export function ClientFormDialog({ open, onOpenChange, client }: Props) {
                 <FormItem>
                   <FormLabel>Empresa</FormLabel>
                   <FormControl>
-                    <Input placeholder="nome da empresa" {...field} />
+                    <Input placeholder="Nome da empresa" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
