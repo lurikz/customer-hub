@@ -117,9 +117,25 @@ CREATE TABLE IF NOT EXISTS invites (
   created_at    TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
-CREATE INDEX IF NOT EXISTS idx_invites_tenant_created ON invites (tenant_id, created_at DESC);
-CREATE INDEX IF NOT EXISTS idx_invites_expires ON invites (expires_at);
-`;
+ CREATE INDEX IF NOT EXISTS idx_invites_tenant_created ON invites (tenant_id, created_at DESC);
+ CREATE INDEX IF NOT EXISTS idx_invites_expires ON invites (expires_at);
+ 
+ -- =====================================================
+ -- CLIENT RECORDS
+ -- =====================================================
+ CREATE TABLE IF NOT EXISTS client_records (
+   id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+   client_id   UUID NOT NULL REFERENCES clients(id) ON DELETE CASCADE,
+   tenant_id   UUID NOT NULL REFERENCES tenants(id) ON DELETE CASCADE,
+   description TEXT NOT NULL,
+   type        TEXT,
+   created_by  UUID REFERENCES users(id) ON DELETE SET NULL,
+   created_at  TIMESTAMPTZ NOT NULL DEFAULT now()
+ );
+ 
+ CREATE INDEX IF NOT EXISTS idx_records_client_created ON client_records (client_id, created_at DESC);
+ CREATE INDEX IF NOT EXISTS idx_records_tenant ON client_records (tenant_id);
+ `;
 
 export async function runMigrations() {
   console.log('🛠  Rodando migrations...');
