@@ -234,29 +234,27 @@ export function ClientFormDialog({ open, onOpenChange, client }: Props) {
                         </FormControl>
                       </PopoverTrigger>
                       <PopoverContent className="w-[200px] p-0" align="start">
-                        <Command>
-                            <div className="relative">
-                              <CommandInput
-                                placeholder="Buscar ou criar nova..."
-                                value={newSource}
-                                onValueChange={setNewSource}
-                              />
-                              {newSource && !sources.includes(newSource) && (
-                                <div className="absolute right-2 top-1/2 -translate-y-1/2">
-                                  <Button
-                                    type="button"
-                                    variant="secondary"
-                                    size="sm"
-                                    className="h-7"
-                                    onClick={() => addSource(newSource)}
-                                  >
-                                    Criar
-                                  </Button>
-                                </div>
-                              )}
-                            </div>
+                        <Command manualFiltering={false}>
+                            <CommandInput
+                              placeholder="Buscar ou criar nova..."
+                              value={newSource}
+                              onValueChange={setNewSource}
+                            />
                             <CommandList>
-                              <CommandEmpty>Nenhuma origem encontrada.</CommandEmpty>
+                               <CommandEmpty>
+                                 {newSource ? (
+                                   <button
+                                     type="button"
+                                     className="flex w-full items-center py-2 px-3 text-sm hover:bg-accent hover:text-accent-foreground outline-none transition-colors"
+                                     onClick={() => addSource(newSource)}
+                                   >
+                                     <Plus className="mr-2 h-4 w-4" />
+                                     Criar "{newSource}"
+                                   </button>
+                                 ) : (
+                                   "Nenhuma origem encontrada."
+                                 )}
+                               </CommandEmpty>
                               <CommandGroup heading="Sugestões">
                                 {sources.map((s) => (
                                   <CommandItem
