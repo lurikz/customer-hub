@@ -136,7 +136,7 @@ export default function Admin() {
                          variant={roleVariant[u.role] ?? "secondary"}
                          className={cn(
                            "rounded-md px-2 py-0.5",
-                           u.role === "super_admin" ? "bg-purple-600 text-white" : ""
+                           u.role === "super_admin" ? "bg-primary text-white hover:bg-primary/90" : ""
                          )}
                        >
                          {roleLabel[u.role] ?? u.role}
