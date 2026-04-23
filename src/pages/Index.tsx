@@ -122,7 +122,7 @@ import { useAuth } from "@/contexts/AuthContext";
            )}
          </TabsContent>
  
-           <TabsContent value="agenda" className="mt-6 flex flex-1 flex-col overflow-hidden outline-none">
+           <TabsContent value="agenda" className="flex flex-1 flex-col overflow-hidden pt-6 outline-none">
              <div className="flex-1 overflow-hidden rounded-2xl border border-border/50 bg-card/50 shadow-xl backdrop-blur-sm">
                <Agenda />
              </div>
