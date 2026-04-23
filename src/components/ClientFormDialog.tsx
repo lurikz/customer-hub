@@ -57,6 +57,7 @@ const schema = z.object({
    phone: z.string().trim().max(20).optional(),
    cpf_cnpj: z.string().trim().max(20).optional(),
    source: z.string().trim().max(100).optional(),
+   address: z.string().trim().max(255, "Máximo 255 caracteres").optional(),
    notes: z.string().trim().max(2000, "Máximo 2000 caracteres").optional(),
 });
 
@@ -82,6 +83,7 @@ export function ClientFormDialog({ open, onOpenChange, client }: Props) {
        phone: "",
        cpf_cnpj: "",
        source: "",
+       address: "",
        notes: "",
      },
   });
@@ -106,6 +108,7 @@ export function ClientFormDialog({ open, onOpenChange, client }: Props) {
           phone: client?.phone ?? "",
           cpf_cnpj: client?.cpf_cnpj ?? "",
           source: client?.source ?? "",
+          address: client?.address ?? "",
           notes: client?.notes ?? "",
         });
      }
@@ -149,6 +152,7 @@ export function ClientFormDialog({ open, onOpenChange, client }: Props) {
          phone: values.phone?.trim() ? values.phone.trim() : null,
          cpf_cnpj: values.cpf_cnpj?.trim() ? values.cpf_cnpj.trim() : null,
          source: values.source?.trim() ? values.source.trim() : null,
+         address: values.address?.trim() ? values.address.trim() : null,
          notes: values.notes?.trim() ? values.notes.trim() : null,
        };
       return isEditing && client
@@ -369,6 +373,20 @@ export function ClientFormDialog({ open, onOpenChange, client }: Props) {
                  )}
                />
              </div>
+
+            <FormField
+              control={form.control}
+              name="address"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Endereço</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Rua, número, bairro, cidade..." {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
             <FormField
               control={form.control}
