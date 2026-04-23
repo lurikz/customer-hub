@@ -225,7 +225,18 @@
                   <div className="flex-1">
                     <p className="text-xs text-muted-foreground uppercase font-semibold">Telefone</p>
                     <div className="flex items-center gap-2">
-                      <p className="text-sm">{client.phone || "Não informado"}</p>
+                       {client.phone ? (
+                         <a
+                           href={getWhatsAppLink(client.phone)}
+                           target="_blank"
+                           rel="noopener noreferrer"
+                           className="text-sm hover:underline text-primary transition-colors"
+                         >
+                           {client.phone}
+                         </a>
+                       ) : (
+                         <p className="text-sm">Não informado</p>
+                       )}
                       {client.phone && (
                         <a
                           href={getWhatsAppLink(client.phone)}
