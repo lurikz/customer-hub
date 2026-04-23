@@ -220,7 +220,12 @@ export function Agenda() {
                 </div>
               ))}
             </div>
-            <div className="grid grid-cols-7 flex-1 overflow-hidden divide-x divide-y">
+             <div 
+               className="grid grid-cols-7 flex-1 overflow-hidden divide-x divide-y bg-muted/20"
+               style={{ 
+                 gridTemplateRows: `repeat(${Math.ceil(days.length / 7)}, 1fr)` 
+               }}
+             >
               {days.map((day, idx) => {
                 const dayTasks = tasks.filter((t) => isSameDay(new Date(t.datetime), day));
                 const isMonthDay = day.getMonth() === currentDate.getMonth();
