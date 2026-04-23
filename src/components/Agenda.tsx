@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { 
   format, 
@@ -10,8 +10,6 @@ import {
   isSameDay, 
   addMonths, 
   subMonths,
-  addWeeks,
-  subWeeks,
   isToday,
   isPast
 } from "date-fns";
@@ -27,12 +25,10 @@ import {
   User,
   Clock,
   CheckCircle2,
-  Circle,
-  MoreHorizontal
+  Circle
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import {
   DropdownMenu,
@@ -82,7 +78,7 @@ export function Agenda() {
   const [selectedDay, setSelectedDay] = useState<Date | null>(null);
   const [dayModalOpen, setDayModalOpen] = useState(false);
 
-  const { data: tasks = [], isLoading } = useQuery({
+  const { data: tasks = [] } = useQuery({
     queryKey: ["tasks", filterMyTasks ? user?.id : null],
     queryFn: () => tasksApi.list(filterMyTasks ? { userId: user?.id } : undefined),
   });
@@ -113,7 +109,6 @@ export function Agenda() {
   const handleNewTask = (date?: Date) => {
     setEditingTask(null);
     if (date) {
-      // Set the date in the local timezone for the datetime-local input
       const localDate = new Date(date);
       localDate.setHours(9, 0, 0, 0);
       setCurrentDate(localDate);
@@ -122,25 +117,13 @@ export function Agenda() {
   };
 
   const days = useMemo(() => {
-    if (view === "month") {
-      const start = startOfWeek(startOfMonth(currentDate), { weekStartsOn: 0 });
-      const end = endOfWeek(endOfMonth(currentDate), { weekStartsOn: 0 });
-      return eachDayOfInterval({ start, end });
-    } else {
-      const start = startOfWeek(currentDate, { weekStartsOn: 0 });
-      const end = endOfWeek(currentDate, { weekStartsOn: 0 });
-      return eachDayOfInterval({ start, end });
-    }
-  }, [currentDate, view]);
+    const start = startOfWeek(startOfMonth(currentDate), { weekStartsOn: 0 });
+    const end = endOfWeek(endOfMonth(currentDate), { weekStartsOn: 0 });
+    return eachDayOfInterval({ start, end });
+  }, [currentDate]);
 
-  const nextDate = () => {
-    if (view === "month") setCurrentDate(addMonths(currentDate, 1));
-  };
-
-  const prevDate = () => {
-    if (view === "month") setCurrentDate(subMonths(currentDate, 1));
-  };
-
+  const nextDate = () => setCurrentDate(addMonths(currentDate, 1));
+  const prevDate = () => setCurrentDate(subMonths(currentDate, 1));
   const resetToToday = () => setCurrentDate(new Date());
 
   const handleDayClick = (day: Date) => {
@@ -185,7 +168,7 @@ export function Agenda() {
                 <ChevronRight className="h-4 w-4" />
               </Button>
               <h2 className="ml-2 font-semibold capitalize">
-                {format(currentDate, view === "month" ? "MMMM yyyy" : "'Semana de' d 'de' MMMM", { locale: ptBR })}
+                {format(currentDate, "MMMM yyyy", { locale: ptBR })}
               </h2>
             </div>
           )}
@@ -217,6 +200,7 @@ export function Agenda() {
             Nova tarefa
           </Button>
         </div>
+      </div>
 
       <div className="flex-1 overflow-hidden">
         {view === "list" ? (
@@ -309,7 +293,6 @@ export function Agenda() {
         )}
       </div>
 
-      {/* Day Modal */}
       <Dialog open={dayModalOpen} onOpenChange={setDayModalOpen}>
         <DialogContent className="max-w-2xl max-h-[85vh] overflow-hidden flex flex-col p-0">
           <DialogHeader className="p-6 pb-2 shrink-0">
