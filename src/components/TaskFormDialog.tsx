@@ -39,7 +39,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { cn } from "@/lib/utils";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/hooks/use-toast";
-import { tasksApi, clientsApi, adminApi, type Task, type TaskInput } from "@/lib/api";
+import { tasksApi, clientsApi, authApi, type Task, type TaskInput } from "@/lib/api";
 import { useAuth } from "@/contexts/AuthContext";
 
 const schema = z.object({
@@ -84,8 +84,8 @@ export function TaskFormDialog({ open, onOpenChange, task, defaultDate, defaultC
   });
 
   const { data: users = [] } = useQuery({
-    queryKey: ["admin", "users"],
-    queryFn: adminApi.listUsers,
+    queryKey: ["team"],
+    queryFn: authApi.listTeam,
   });
 
   useEffect(() => {
