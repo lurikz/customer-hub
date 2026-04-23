@@ -143,8 +143,11 @@ export function ClientFormDialog({ open, onOpenChange, client }: Props) {
         ? clientsApi.update(client.id, payload)
         : clientsApi.create(payload);
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["clients"] });
+     onSuccess: () => {
+       queryClient.invalidateQueries({ queryKey: ["clients"] });
+       if (isEditing && client) {
+         queryClient.invalidateQueries({ queryKey: ["client", client.id] });
+       }
       toast({
         title: isEditing ? "Cliente atualizado" : "Cliente criado",
         description: isEditing
