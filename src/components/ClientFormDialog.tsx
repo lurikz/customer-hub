@@ -278,97 +278,97 @@ export function ClientFormDialog({ open, onOpenChange, client }: Props) {
                      <FormMessage />
                    </FormItem>
                  )}
+                />
+ 
+               <FormField
+                 control={form.control}
+                 name="source"
+                 render={({ field }) => (
+                   <FormItem className="flex flex-col">
+                     <FormLabel className="mb-2">Origem</FormLabel>
+                     <Popover
+                       open={popoverOpen}
+                         onOpenChange={(open) => {
+                           setPopoverOpen(open);
+                           if (!open) setNewSearchSource("");
+                         }}
+                     >
+                       <PopoverTrigger asChild>
+                         <FormControl>
+                            <Button
+                              type="button"
+                              variant="outline"
+                              role="combobox"
+                             className={cn(
+                               "w-full justify-between font-normal",
+                               !field.value && "text-muted-foreground"
+                             )}
+                           >
+                             {field.value || "Selecione a origem"}
+                             <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                           </Button>
+                         </FormControl>
+                       </PopoverTrigger>
+                       <PopoverContent className="w-[200px] p-0" align="start">
+                         <Command>
+                              <CommandInput 
+                                placeholder="Buscar ou criar nova..." 
+                                value={newSearchSource}
+                                onValueChange={setNewSearchSource}
+                              />
+                              <CommandList className="max-h-[300px] overflow-y-auto">
+                                <CommandEmpty>Nenhuma origem encontrada.</CommandEmpty>
+                                 <CommandGroup>
+                                    <CommandItem onSelect={() => setOriginDialogOpen(true)}>
+                                     <Plus className="mr-2 h-4 w-4" />
+                                     Novo
+                                   </CommandItem>
+                                 </CommandGroup>
+ 
+                                 {newSearchSource &&
+                                   !sources.some(
+                                     (s) => s.toLowerCase() === newSearchSource.toLowerCase()
+                                   ) && (
+                                     <CommandGroup>
+                                       <CommandItem
+                                         value={newSearchSource}
+                                         onSelect={() => originMutation.mutate(newSearchSource)}
+                                       >
+                                         <Plus className="mr-2 h-4 w-4" />
+                                         Criar "{newSearchSource}"
+                                       </CommandItem>
+                                     </CommandGroup>
+                                   )}
+ 
+                                <CommandGroup heading="Sugestões">
+                                 {sources.map((s) => (
+                                   <CommandItem
+                                     key={s}
+                                     value={s}
+                                     onSelect={() => {
+                                       form.setValue("source", s);
+                                       setPopoverOpen(false);
+                                     }}
+                                   >
+                                     <Check
+                                       className={cn(
+                                         "mr-2 h-4 w-4",
+                                         s === field.value ? "opacity-100" : "opacity-0"
+                                       )}
+                                     />
+                                     {s}
+                                   </CommandItem>
+                                 ))}
+                               </CommandGroup>
+                             </CommandList>
+                         </Command>
+                       </PopoverContent>
+                     </Popover>
+                     <FormMessage />
+                   </FormItem>
+                 )}
                />
-
-              <FormField
-                control={form.control}
-                name="source"
-                render={({ field }) => (
-                  <FormItem className="flex flex-col">
-                    <FormLabel className="mb-2">Origem</FormLabel>
-                    <Popover
-                      open={popoverOpen}
-                        onOpenChange={(open) => {
-                          setPopoverOpen(open);
-                          if (!open) setNewSearchSource("");
-                        }}
-                    >
-                      <PopoverTrigger asChild>
-                        <FormControl>
-                           <Button
-                             type="button"
-                             variant="outline"
-                             role="combobox"
-                            className={cn(
-                              "w-full justify-between font-normal",
-                              !field.value && "text-muted-foreground"
-                            )}
-                          >
-                            {field.value || "Selecione a origem"}
-                            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                          </Button>
-                        </FormControl>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-[200px] p-0" align="start">
-                        <Command>
-                             <CommandInput 
-                               placeholder="Buscar ou criar nova..." 
-                               value={newSearchSource}
-                               onValueChange={setNewSearchSource}
-                             />
-                             <CommandList className="max-h-[300px] overflow-y-auto">
-                               <CommandEmpty>Nenhuma origem encontrada.</CommandEmpty>
-                                <CommandGroup>
-                                   <CommandItem onSelect={() => setOriginDialogOpen(true)}>
-                                    <Plus className="mr-2 h-4 w-4" />
-                                    Novo
-                                  </CommandItem>
-                                </CommandGroup>
-
-                                {newSearchSource &&
-                                  !sources.some(
-                                    (s) => s.toLowerCase() === newSearchSource.toLowerCase()
-                                  ) && (
-                                    <CommandGroup>
-                                      <CommandItem
-                                        value={newSearchSource}
-                                        onSelect={() => originMutation.mutate(newSearchSource)}
-                                      >
-                                        <Plus className="mr-2 h-4 w-4" />
-                                        Criar "{newSearchSource}"
-                                      </CommandItem>
-                                    </CommandGroup>
-                                  )}
-
-                               <CommandGroup heading="Sugestões">
-                                {sources.map((s) => (
-                                  <CommandItem
-                                    key={s}
-                                    value={s}
-                                    onSelect={() => {
-                                      form.setValue("source", s);
-                                      setPopoverOpen(false);
-                                    }}
-                                  >
-                                    <Check
-                                      className={cn(
-                                        "mr-2 h-4 w-4",
-                                        s === field.value ? "opacity-100" : "opacity-0"
-                                      )}
-                                    />
-                                    {s}
-                                  </CommandItem>
-                                ))}
-                              </CommandGroup>
-                            </CommandList>
-                        </Command>
-                      </PopoverContent>
-                    </Popover>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
+             </div>
 
             <FormField
               control={form.control}
