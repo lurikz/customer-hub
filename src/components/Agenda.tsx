@@ -52,11 +52,11 @@ import { TasksList } from "./TasksList";
 import { cn } from "@/lib/utils";
 
 const STATUS_GROUPS = [
-  { id: "em_andamento", label: "Em andamento", color: "text-blue-600", bg: "bg-blue-50", border: "border-blue-100" },
-  { id: "pendente", label: "Pendentes", color: "text-amber-600", bg: "bg-amber-50", border: "border-amber-100" },
-  { id: "atrasada", label: "Atrasadas", color: "text-red-600", bg: "bg-red-50", border: "border-red-100" },
-  { id: "concluído", label: "Concluídas", color: "text-emerald-600", bg: "bg-emerald-50", border: "border-emerald-100" },
-  { id: "cancelada", label: "Canceladas", color: "text-slate-500", bg: "bg-slate-50", border: "border-slate-100" },
+   { id: "em_andamento", label: "Em andamento", color: "text-blue-600", bg: "bg-blue-50/50", border: "border-blue-200" },
+   { id: "pendente", label: "Pendentes", color: "text-amber-600", bg: "bg-amber-50/50", border: "border-amber-200" },
+   { id: "atrasada", label: "Atrasadas", color: "text-red-700", bg: "bg-red-50", border: "border-red-200", isCritical: true },
+   { id: "concluído", label: "Concluídas", color: "text-emerald-600", bg: "bg-emerald-50/50", border: "border-emerald-200" },
+   { id: "cancelada", label: "Canceladas", color: "text-slate-500", bg: "bg-slate-50/50", border: "border-slate-200" },
 ] as const;
 
 type StatusGroupId = typeof STATUS_GROUPS[number]["id"];
@@ -227,65 +227,63 @@ export function Agenda() {
                 const isTodayDay = isToday(day);
 
                 return (
-                  <div
-                    key={idx}
-                    className={cn(
-                      "flex flex-col min-h-0 bg-card p-1 transition-colors hover:bg-muted/10 cursor-pointer",
-                      !isMonthDay && "bg-muted/5 opacity-40",
-                      isTodayDay && "bg-accent/5"
-                    )}
-                    onClick={() => handleDayClick(day)}
-                  >
-                    <div className="flex items-center justify-between mb-0.5 px-1">
-                      <span className={cn(
-                        "flex h-5 w-5 items-center justify-center rounded-full text-[11px] font-medium",
-                        isTodayDay ? "bg-primary text-primary-foreground" : "text-muted-foreground"
-                      )}>
-                        {format(day, "d")}
-                      </span>
-                      {dayTasks.length > 0 && (
-                        <span className="text-[10px] text-muted-foreground font-semibold">
-                          {dayTasks.length}
-                        </span>
-                      )}
-                    </div>
-
-                    <div className="flex-1 space-y-1 overflow-hidden px-0.5 pb-1">
-                      {STATUS_GROUPS.map((group) => {
-                        const groupTasks = dayTasks.filter(t => getTaskStatusGroup(t) === group.id);
-                        if (groupTasks.length === 0) return null;
-
-                        return (
-                          <div key={group.id} className="space-y-0.5">
-                            <div className={cn("px-1 text-[8px] font-bold uppercase tracking-tight opacity-70", group.color)}>
-                              {group.label}
-                            </div>
-                            <div className="space-y-0.5">
-                              {groupTasks.slice(0, 2).map((task) => (
-                                <div
-                                  key={task.id}
-                                  className={cn(
-                                    "truncate rounded px-1 py-0.5 text-[9px] font-medium leading-none",
-                                    group.bg,
-                                    group.color,
-                                    group.border,
-                                    "border"
-                                  )}
-                                >
-                                  {task.title}
-                                </div>
-                              ))}
-                              {groupTasks.length > 2 && (
-                                <div className="px-1 text-[8px] text-muted-foreground italic">
-                                  +{groupTasks.length - 2}
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
+                   <div
+                     key={idx}
+                     className={cn(
+                       "flex flex-col min-h-0 bg-card p-0.5 transition-colors hover:bg-muted/10 cursor-pointer relative",
+                       !isMonthDay && "bg-muted/5 opacity-40",
+                       isTodayDay && "bg-accent/10 shadow-inner"
+                     )}
+                     onClick={() => handleDayClick(day)}
+                   >
+                     <div className="flex items-center justify-between px-1 border-b border-border/10 mb-0.5">
+                       <span className={cn(
+                         "flex h-4 w-4 items-center justify-center rounded-full text-[10px] font-medium",
+                         isTodayDay ? "bg-primary text-primary-foreground" : "text-muted-foreground"
+                       )}>
+                         {format(day, "d")}
+                       </span>
+                       {dayTasks.some(t => getTaskStatusGroup(t) === "atrasada") && (
+                         <span className="absolute top-1 right-1 h-1.5 w-1.5 rounded-full bg-red-500 animate-pulse" />
+                       )}
+                     </div>
+ 
+                     <div className="flex-1 overflow-hidden px-0.5">
+                       {STATUS_GROUPS.map((group) => {
+                         const groupTasks = dayTasks.filter(t => getTaskStatusGroup(t) === group.id);
+                         if (groupTasks.length === 0) return null;
+ 
+                         return (
+                           <div key={group.id} className="mb-0.5">
+                             <div className={cn("px-0.5 text-[7px] font-bold uppercase tracking-tighter opacity-80 leading-tight", group.color)}>
+                               {group.label}
+                             </div>
+                             <div className="flex flex-col">
+                               {groupTasks.slice(0, 2).map((task) => (
+                                 <div
+                                   key={task.id}
+                                   className={cn(
+                                     "truncate rounded-sm px-1 py-0.5 text-[8px] font-medium leading-[1.1] mb-[1px]",
+                                     group.bg,
+                                     group.color,
+                                     "border border-transparent",
+                                     group.id === "atrasada" && "border-red-200 shadow-[0_0_2px_rgba(239,68,68,0.2)] font-bold"
+                                   )}
+                                 >
+                                   {task.title}
+                                 </div>
+                               ))}
+                               {groupTasks.length > 2 && (
+                                 <div className="px-0.5 text-[7px] text-muted-foreground/70 font-semibold leading-none mb-0.5">
+                                   +{groupTasks.length - 2}
+                                 </div>
+                               )}
+                             </div>
+                           </div>
+                         );
+                       })}
+                     </div>
+                   </div>
                 );
               })}
             </div>
