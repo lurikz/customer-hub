@@ -235,31 +235,25 @@ export function ClientFormDialog({ open, onOpenChange, client }: Props) {
                       </PopoverTrigger>
                       <PopoverContent className="w-[200px] p-0" align="start">
                         <Command>
-                            <div className="p-3 border-b">
-                              <div className="flex gap-2">
-                                <Input
-                                  placeholder="Nova origem..."
-                                  value={newSource}
-                                  onChange={(e) => setNewSource(e.target.value)}
-                                  className="h-9"
-                                  onKeyDown={(e) => {
-                                    if (e.key === "Enter") {
-                                      e.preventDefault();
-                                      addSource(newSource);
-                                    }
-                                  }}
-                                />
+                            <div className="flex items-center border-b px-3">
+                              <Plus className="mr-2 h-4 w-4 shrink-0 opacity-50" />
+                              <CommandInput
+                                placeholder="Buscar ou criar nova..."
+                                value={newSource}
+                                onValueChange={setNewSource}
+                                className="border-none focus-visible:ring-0 h-10 px-0"
+                              />
+                              {newSource && !sources.includes(newSource) && (
                                 <Button
                                   type="button"
-                                  size="icon"
                                   variant="secondary"
-                                  className="shrink-0 h-9 w-9"
+                                  size="sm"
+                                  className="h-7 ml-2"
                                   onClick={() => addSource(newSource)}
-                                  disabled={!newSource.trim()}
                                 >
-                                  <Plus className="h-4 w-4" />
+                                  Criar
                                 </Button>
-                              </div>
+                              )}
                             </div>
                             <CommandList>
                               <CommandEmpty>Nenhuma origem encontrada.</CommandEmpty>
