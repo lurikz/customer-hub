@@ -2,9 +2,9 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
-import { Plus, Check, ChevronsUpDown } from "lucide-react";
+ import { Plus, Check, ChevronsUpDown, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -39,7 +39,7 @@ import {
 import { cn } from "@/lib/utils";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/hooks/use-toast";
-import { clientsApi, type Client } from "@/lib/api";
+ import { clientsApi, originsApi, type Client } from "@/lib/api";
 
 const schema = z.object({
   name: z
@@ -80,48 +80,55 @@ export function ClientFormDialog({ open, onOpenChange, client }: Props) {
     },
   });
 
-   const [sources, setSources] = useState<string[]>(["Indicação", "Lead"]);
-  const [newSource, setNewSource] = useState("");
-  const [popoverOpen, setPopoverOpen] = useState(false);
-
-  useEffect(() => {
-    if (open) {
-      form.reset({
-        name: client?.name ?? "",
-        company: client?.company ?? "",
-        birth_date: client?.birth_date ?? "",
-        source: client?.source ?? "",
-        notes: client?.notes ?? "",
-      });
-    }
-  }, [open, client, form]);
-
-  useEffect(() => {
-    const savedSources = localStorage.getItem("crm.sources");
-    if (savedSources) {
-      setSources(JSON.parse(savedSources));
-    }
-  }, []);
-
-  const addSource = (value: string) => {
-    const trimmed = value.trim();
-    if (!trimmed) return;
-
-    const existingSource = sources.find(
-      (s) => s.toLowerCase() === trimmed.toLowerCase()
-    );
-
-    if (existingSource) {
-      form.setValue("source", existingSource);
-    } else {
-      const updated = [...sources, trimmed];
-      setSources(updated);
-      localStorage.setItem("crm.sources", JSON.stringify(updated));
-      form.setValue("source", trimmed);
-    }
-    setNewSource("");
-    setPopoverOpen(false);
-  };
+   const [newSearchSource, setNewSearchSource] = useState("");
+   const [popoverOpen, setPopoverOpen] = useState(false);
+   const [originDialogOpen, setOriginDialogOpen] = useState(false);
+   const [newOriginName, setNewOriginName] = useState("");
+ 
+   const { data: sources = ["Indicação", "Lead"], refetch: refetchSources } = useQuery({
+     queryKey: ["origins"],
+     queryFn: originsApi.list,
+   });
+ 
+   useEffect(() => {
+     if (open) {
+       form.reset({
+         name: client?.name ?? "",
+         company: client?.company ?? "",
+         birth_date: client?.birth_date ?? "",
+         source: client?.source ?? "",
+         notes: client?.notes ?? "",
+       });
+     }
+   }, [open, client, form]);
+ 
+   const originMutation = useMutation({
+     mutationFn: (name: string) => originsApi.create({ name }),
+     onSuccess: (name) => {
+       refetchSources();
+       form.setValue("source", name);
+       setOriginDialogOpen(false);
+       setNewOriginName("");
+       setPopoverOpen(false);
+       toast({ title: "Origem salva", description: `A origem "${name}" foi cadastrada.` });
+     },
+     onError: (err: Error) => {
+       toast({
+         variant: "destructive",
+         title: "Erro ao salvar origem",
+         description: err.message,
+       });
+     },
+   });
+ 
+   const handleSaveOrigin = () => {
+     const trimmed = newOriginName.trim();
+     if (!trimmed) {
+       toast({ variant: "destructive", title: "Campo obrigatório", description: "Informe o nome da origem." });
+       return;
+     }
+     originMutation.mutate(trimmed);
+   };
 
   const mutation = useMutation({
     mutationFn: async (values: FormValues) => {
@@ -155,8 +162,9 @@ export function ClientFormDialog({ open, onOpenChange, client }: Props) {
     },
   });
 
-  return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+   return (
+     <>
+       <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>
@@ -223,16 +231,17 @@ export function ClientFormDialog({ open, onOpenChange, client }: Props) {
                     <FormLabel className="mb-2">Origem</FormLabel>
                     <Popover
                       open={popoverOpen}
-                      onOpenChange={(open) => {
-                        setPopoverOpen(open);
-                        if (!open) setNewSource("");
-                      }}
+                        onOpenChange={(open) => {
+                          setPopoverOpen(open);
+                          if (!open) setNewSearchSource("");
+                        }}
                     >
                       <PopoverTrigger asChild>
                         <FormControl>
-                          <Button
-                            variant="outline"
-                            role="combobox"
+                           <Button
+                             type="button"
+                             variant="outline"
+                             role="combobox"
                             className={cn(
                               "w-full justify-between font-normal",
                               !field.value && "text-muted-foreground"
@@ -245,39 +254,34 @@ export function ClientFormDialog({ open, onOpenChange, client }: Props) {
                       </PopoverTrigger>
                       <PopoverContent className="w-[200px] p-0" align="start">
                         <Command>
-                            <CommandInput
-                              placeholder="Buscar ou criar nova..."
-                              value={newSource}
-                              onValueChange={setNewSource}
-                            />
+                             <CommandInput 
+                               placeholder="Buscar ou criar nova..." 
+                               value={newSearchSource}
+                               onValueChange={setNewSearchSource}
+                             />
                              <CommandList className="max-h-[300px] overflow-y-auto">
                                <CommandEmpty>Nenhuma origem encontrada.</CommandEmpty>
-                               <CommandGroup>
-                                 <CommandItem
-                                   onSelect={() => {
-                                     const name = window.prompt("Nome da nova origem:");
-                                     if (name?.trim()) addSource(name);
-                                   }}
-                                 >
-                                   <Plus className="mr-2 h-4 w-4" />
-                                   Novo
-                                 </CommandItem>
-                               </CommandGroup>
+                                <CommandGroup>
+                                   <CommandItem onSelect={() => setOriginDialogOpen(true)}>
+                                    <Plus className="mr-2 h-4 w-4" />
+                                    Novo
+                                  </CommandItem>
+                                </CommandGroup>
 
-                               {newSource &&
-                                 !sources.some(
-                                   (s) => s.toLowerCase() === newSource.toLowerCase()
-                                 ) && (
-                                   <CommandGroup>
-                                     <CommandItem
-                                       value={newSource}
-                                       onSelect={() => addSource(newSource)}
-                                     >
-                                       <Plus className="mr-2 h-4 w-4" />
-                                       Criar "{newSource}"
-                                     </CommandItem>
-                                   </CommandGroup>
-                                 )}
+                                {newSearchSource &&
+                                  !sources.some(
+                                    (s) => s.toLowerCase() === newSearchSource.toLowerCase()
+                                  ) && (
+                                    <CommandGroup>
+                                      <CommandItem
+                                        value={newSearchSource}
+                                        onSelect={() => originMutation.mutate(newSearchSource)}
+                                      >
+                                        <Plus className="mr-2 h-4 w-4" />
+                                        Criar "{newSearchSource}"
+                                      </CommandItem>
+                                    </CommandGroup>
+                                  )}
 
                                <CommandGroup heading="Sugestões">
                                 {sources.map((s) => (
@@ -347,6 +351,54 @@ export function ClientFormDialog({ open, onOpenChange, client }: Props) {
           </form>
         </Form>
       </DialogContent>
-    </Dialog>
-  );
-}
+       </Dialog>
+ 
+       <Dialog open={originDialogOpen} onOpenChange={setOriginDialogOpen}>
+       <DialogContent className="sm:max-w-[425px]">
+         <DialogHeader>
+           <DialogTitle>Nova Origem</DialogTitle>
+           <DialogDescription>
+             Cadastre uma nova origem para os clientes.
+           </DialogDescription>
+         </DialogHeader>
+         <div className="grid gap-4 py-4">
+           <div className="grid gap-2">
+             <label htmlFor="origin-name" className="text-sm font-medium">
+               Nome da origem
+             </label>
+             <Input
+               id="origin-name"
+               value={newOriginName}
+               onChange={(e) => setNewOriginName(e.target.value)}
+               placeholder="Ex: Instagram, WhatsApp..."
+               autoFocus
+               onKeyDown={(e) => {
+                 if (e.key === "Enter") {
+                   e.preventDefault();
+                   handleSaveOrigin();
+                 }
+               }}
+             />
+           </div>
+         </div>
+         <DialogFooter className="gap-2 sm:gap-0">
+           <Button
+             type="button"
+             variant="ghost"
+             onClick={() => setOriginDialogOpen(false)}
+           >
+             Cancelar
+           </Button>
+           <Button 
+             type="button" 
+             onClick={handleSaveOrigin}
+             disabled={originMutation.isPending}
+           >
+             {originMutation.isPending ? "Salvando..." : "Salvar"}
+           </Button>
+         </DialogFooter>
+       </DialogContent>
+     </Dialog>
+     </>
+   );
+ }
