@@ -57,6 +57,30 @@ export interface Client {
    type?: string | null;
  }
  
+ export interface Task {
+   id: string;
+   tenant_id: string;
+   client_id: string | null;
+   user_id: string;
+   title: string;
+   description: string | null;
+   datetime: string;
+   status: "pendente" | "concluído";
+   created_at: string;
+   updated_at: string;
+   client_name?: string | null;
+   user_name?: string | null;
+ }
+ 
+ export interface TaskInput {
+   title: string;
+   description?: string | null;
+   datetime: string;
+   status?: "pendente" | "concluído";
+   client_id?: string | null;
+   user_id: string;
+ }
+ 
 export interface AuthUser {
   id: string;
   tenantId: string | null;
@@ -112,10 +136,11 @@ const DEMO_CREDENTIALS = {
   email: "padilha.ctt@gmail.com",
   password: "mp469535",
 };
- const DEMO_CLIENTS_KEY = "crm.demo.clients";
- const DEMO_RECORDS_KEY = "crm.demo.records";
- 
- const demoStore = {
+  const DEMO_CLIENTS_KEY = "crm.demo.clients";
+  const DEMO_RECORDS_KEY = "crm.demo.records";
+  const DEMO_TASKS_KEY = "crm.demo.tasks";
+
+  const demoStore = {
   isOn: () => localStorage.getItem(DEMO_FLAG) === "1",
   enable: () => localStorage.setItem(DEMO_FLAG, "1"),
   disable: () => localStorage.removeItem(DEMO_FLAG),
@@ -147,6 +172,15 @@ const DEMO_CREDENTIALS = {
       all.push(r);
       localStorage.setItem(DEMO_RECORDS_KEY, JSON.stringify(all));
     },
+    loadTasks: (): Task[] => {
+      try {
+        return JSON.parse(localStorage.getItem(DEMO_TASKS_KEY) || "[]");
+      } catch {
+        return [];
+      }
+    },
+    saveTasks: (ts: Task[]) =>
+      localStorage.setItem(DEMO_TASKS_KEY, JSON.stringify(ts)),
  };
 
 function uid() {
@@ -440,11 +474,89 @@ export const adminApi = {
         demoStore.saveRecords(all.filter((x) => x.id !== recordId));
         return;
       }
-      return request<void>(`/clients/${clientId}/records/${recordId}`, {
-        method: "DELETE",
-      });
-    },
-  };
+        return request<void>(`/clients/${clientId}/records/${recordId}`, {
+          method: "DELETE",
+        });
+      },
+    };
+
+    // =====================================================
+    // Tasks API
+    // =====================================================
+    export const tasksApi = {
+      async list(filters?: { userId?: string; clientId?: string }): Promise<Task[]> {
+        if (demoStore.isOn()) {
+          let all = demoStore.loadTasks();
+          if (filters?.userId) all = all.filter((t) => t.user_id === filters.userId);
+          if (filters?.clientId) all = all.filter((t) => t.client_id === filters.clientId);
+          return all.sort((a, b) => a.datetime.localeCompare(b.datetime));
+        }
+        const query = filters ? "?" + new URLSearchParams(filters as any).toString() : "";
+        return request<Task[]>(`/tasks${query}`);
+      },
+      async get(id: string): Promise<Task> {
+        if (demoStore.isOn()) {
+          const t = demoStore.loadTasks().find((x) => x.id === id);
+          if (!t) throw new ApiError("Tarefa não encontrada", 404);
+          return t;
+        }
+        return request<Task>(`/tasks/${id}`);
+      },
+      async create(data: TaskInput): Promise<Task> {
+        if (demoStore.isOn()) {
+          const now = new Date().toISOString();
+          const clients = demoStore.loadClients();
+          const client = clients.find(c => c.id === data.client_id);
+          const t: Task = {
+            id: uid(),
+            tenant_id: DEMO_USER.tenantId ?? "demo-tenant",
+            ...data,
+            description: data.description ?? null,
+            client_id: data.client_id ?? null,
+            status: data.status ?? "pendente",
+            created_at: now,
+            updated_at: now,
+            client_name: client?.name ?? null,
+            user_name: DEMO_USER.name,
+          };
+          const all = [...demoStore.loadTasks(), t];
+          demoStore.saveTasks(all);
+          return t;
+        }
+        return request<Task>("/tasks", { method: "POST", body: JSON.stringify(data) });
+      },
+      async update(id: string, data: Partial<TaskInput>): Promise<Task> {
+        if (demoStore.isOn()) {
+          const all = demoStore.loadTasks();
+          const i = all.findIndex((x) => x.id === id);
+          if (i < 0) throw new ApiError("Tarefa não encontrada", 404);
+          const clients = demoStore.loadClients();
+          const client = clients.find(c => c.id === data.client_id);
+          all[i] = {
+            ...all[i],
+            ...data,
+            updated_at: new Date().toISOString(),
+            client_name: data.client_id ? (client?.name ?? all[i].client_name) : all[i].client_name,
+          } as Task;
+          demoStore.saveTasks(all);
+          return all[i];
+        }
+        return request<Task>(`/tasks/${id}`, { method: "PATCH", body: JSON.stringify(data) });
+      },
+      async remove(id: string): Promise<void> {
+        if (demoStore.isOn()) {
+          demoStore.saveTasks(demoStore.loadTasks().filter((x) => x.id !== id));
+          return;
+        }
+        return request<void>(`/tasks/${id}`, { method: "DELETE" });
+      },
+      async listByClient(clientId: string): Promise<Task[]> {
+        if (demoStore.isOn()) {
+          return demoStore.loadTasks().filter((t) => t.client_id === clientId);
+        }
+        return request<Task[]>(`/tasks/client/${clientId}`);
+      },
+    };
 
 // Limpa flag demo no logout (chamado pelo AuthContext indiretamente via tokenStore.clear()).
 const _origClear = tokenStore.clear;
