@@ -236,6 +236,13 @@
                <div className="flex items-start gap-3">
                  <MapPin className="h-4 w-4 mt-1 text-muted-foreground" />
                  <div>
+                   <p className="text-xs text-muted-foreground uppercase font-semibold">Endereço</p>
+                   <p className="text-sm">{client.address || "Não informado"}</p>
+                 </div>
+               </div>
+               <div className="flex items-start gap-3">
+                 <User className="h-4 w-4 mt-1 text-muted-foreground" />
+                 <div>
                    <p className="text-xs text-muted-foreground uppercase font-semibold">Origem</p>
                    <Badge variant="secondary" className="mt-1 font-normal">
                      {client.source || "Não informada"}
