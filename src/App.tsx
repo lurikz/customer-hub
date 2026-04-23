@@ -6,6 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/contexts/AuthContext";
  import { ProtectedRoute } from "@/components/ProtectedRoute";
  import { DashboardLayout } from "@/components/DashboardLayout";
+import { ThemeProvider } from "@/components/ThemeProvider";
 import Index from "./pages/Index.tsx";
 import Login from "./pages/Login.tsx";
 import Admin from "./pages/Admin.tsx";
@@ -16,49 +17,51 @@ const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <AuthProvider>
-          <Routes>
-            <Route path="/login" element={<Login />} />
-             <Route
-               path="/"
-               element={
-                 <ProtectedRoute>
-                   <DashboardLayout>
-                     <Index />
-                   </DashboardLayout>
-                 </ProtectedRoute>
-               }
-             />
-             <Route
-               path="/clientes/:id"
-               element={
-                 <ProtectedRoute>
-                   <DashboardLayout>
-                     <ClientProfile />
-                   </DashboardLayout>
-                 </ProtectedRoute>
-               }
-             />
-             <Route
-               path="/admin"
-               element={
-                 <ProtectedRoute roles={["super_admin"]}>
-                   <DashboardLayout>
-                     <Admin />
-                   </DashboardLayout>
-                 </ProtectedRoute>
-               }
-             />
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </AuthProvider>
-      </BrowserRouter>
-    </TooltipProvider>
+    <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <AuthProvider>
+            <Routes>
+              <Route path="/login" element={<Login />} />
+               <Route
+                 path="/"
+                 element={
+                   <ProtectedRoute>
+                     <DashboardLayout>
+                       <Index />
+                     </DashboardLayout>
+                   </ProtectedRoute>
+                 }
+               />
+               <Route
+                 path="/clientes/:id"
+                 element={
+                   <ProtectedRoute>
+                     <DashboardLayout>
+                       <ClientProfile />
+                     </DashboardLayout>
+                   </ProtectedRoute>
+                 }
+               />
+               <Route
+                 path="/admin"
+                 element={
+                   <ProtectedRoute roles={["super_admin"]}>
+                     <DashboardLayout>
+                       <Admin />
+                     </DashboardLayout>
+                   </ProtectedRoute>
+                 }
+               />
+              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </AuthProvider>
+        </BrowserRouter>
+      </TooltipProvider>
+    </ThemeProvider>
   </QueryClientProvider>
 );
 
