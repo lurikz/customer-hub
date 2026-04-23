@@ -29,7 +29,9 @@ interface LocationState {
   from?: { pathname?: string };
 }
 
-export default function Login() {
+ import { cn } from "@/lib/utils";
+ 
+ export default function Login() {
   const { user, loading, login } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -58,77 +60,91 @@ export default function Login() {
     }
   };
 
-  return (
-    <div className="flex min-h-screen items-center justify-center bg-background px-4 py-12">
-      <div className="w-full max-w-md space-y-6 rounded-xl border bg-card p-8 shadow-sm">
-        <div className="flex flex-col items-center gap-2 text-center">
-          <div
-            className="flex h-12 w-12 items-center justify-center rounded-lg text-primary-foreground"
-            style={{ background: "var(--gradient-primary)" }}
-          >
-            <Users className="h-6 w-6" />
-          </div>
-          <h1 className="text-2xl font-semibold tracking-tight">Acessar o CRM</h1>
-          <p className="text-sm text-muted-foreground">
-            Entre com seu e-mail e senha
-          </p>
-        </div>
-
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <FormField
-              control={form.control}
-              name="email"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>E-mail</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="email"
-                      autoComplete="username"
-                      placeholder="voce@empresa.com"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="password"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Senha</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="password"
-                      autoComplete="current-password"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            {error && (
-              <Alert variant="destructive">
-                <AlertDescription>{error}</AlertDescription>
-              </Alert>
-            )}
-
-            <Button
-              type="submit"
-              className="w-full gap-2"
-              disabled={form.formState.isSubmitting}
-            >
-              <ShieldCheck className="h-4 w-4" />
-              {form.formState.isSubmitting ? "Entrando..." : "Entrar"}
-            </Button>
-          </form>
-        </Form>
-      </div>
-    </div>
-  );
+   return (
+     <div className="relative flex min-h-screen w-full items-center justify-center overflow-hidden bg-[#0A0A0A] px-4 py-12">
+       {/* Background Decor */}
+       <div className="absolute -left-1/4 -top-1/4 h-[1000px] w-[1000px] rounded-full bg-primary/5 blur-[120px]" />
+       <div className="absolute -bottom-1/4 -right-1/4 h-[800px] w-[800px] rounded-full bg-primary/10 blur-[100px]" />
+       
+       <div className="relative w-full max-w-md animate-in fade-in zoom-in duration-500">
+         <div className="flex flex-col items-center gap-6 rounded-3xl border border-white/5 bg-black/40 p-8 shadow-2xl backdrop-blur-2xl sm:p-12">
+           <div className="flex flex-col items-center gap-4 text-center">
+             <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-primary shadow-[0_0_30px_rgba(124,58,237,0.4)]">
+               <Users className="h-8 w-8 text-white" />
+             </div>
+             <div className="space-y-1">
+               <h1 className="text-3xl font-bold tracking-tight text-white">Bem-vindo</h1>
+               <p className="text-sm text-muted-foreground">
+                 Acesse sua plataforma CRM tecnológica
+               </p>
+             </div>
+           </div>
+ 
+           <Form {...form}>
+             <form onSubmit={form.handleSubmit(onSubmit)} className="w-full space-y-6">
+               <FormField
+                 control={form.control}
+                 name="email"
+                 render={({ field }) => (
+                   <FormItem>
+                     <FormLabel className="text-white/70">E-mail</FormLabel>
+                     <FormControl>
+                       <Input
+                         type="email"
+                         autoComplete="username"
+                         placeholder="exemplo@empresa.com"
+                         className="h-12 rounded-xl border-white/10 bg-white/5 text-white placeholder:text-white/20 focus:border-primary/50 focus:ring-primary/20"
+                         {...field}
+                       />
+                     </FormControl>
+                     <FormMessage />
+                   </FormItem>
+                 )}
+               />
+               <FormField
+                 control={form.control}
+                 name="password"
+                 render={({ field }) => (
+                   <FormItem>
+                     <FormLabel className="text-white/70">Senha</FormLabel>
+                     <FormControl>
+                       <Input
+                         type="password"
+                         autoComplete="current-password"
+                         placeholder="••••••••"
+                         className="h-12 rounded-xl border-white/10 bg-white/5 text-white placeholder:text-white/20 focus:border-primary/50 focus:ring-primary/20"
+                         {...field}
+                       />
+                     </FormControl>
+                     <FormMessage />
+                   </FormItem>
+                 )}
+               />
+ 
+               {error && (
+                 <Alert variant="destructive" className="rounded-xl border-destructive/20 bg-destructive/10 animate-in shake duration-300">
+                   <AlertDescription>{error}</AlertDescription>
+                 </Alert>
+               )}
+ 
+               <Button
+                 type="submit"
+                 className="group h-12 w-full gap-3 rounded-xl bg-primary text-base font-bold shadow-[0_0_20px_rgba(124,58,237,0.4)] transition-all hover:scale-[1.02] hover:bg-primary/90 active:scale-[0.98]"
+                 disabled={form.formState.isSubmitting}
+               >
+                 <ShieldCheck className="h-5 w-5 transition-transform group-hover:rotate-12" />
+                 {form.formState.isSubmitting ? "Autenticando..." : "Entrar no Sistema"}
+               </Button>
+             </form>
+           </Form>
+           
+           <div className="mt-4 text-center">
+             <p className="text-[10px] uppercase tracking-widest text-muted-foreground/50">
+               Tecnologia & Gestão • v1.0.0
+             </p>
+           </div>
+         </div>
+       </div>
+     </div>
+   );
 }

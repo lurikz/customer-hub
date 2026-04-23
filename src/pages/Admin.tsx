@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowLeft, Building2, LogOut, Shield, Users as UsersIcon } from "lucide-react";
+ import { ArrowLeft, Building2, LogOut, Shield, Users as UsersIcon } from "lucide-react";
+ import { cn } from "@/lib/utils";
 
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
