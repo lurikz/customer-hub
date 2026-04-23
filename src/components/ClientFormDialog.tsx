@@ -235,45 +235,49 @@ export function ClientFormDialog({ open, onOpenChange, client }: Props) {
                       </PopoverTrigger>
                       <PopoverContent className="w-[200px] p-0" align="start">
                         <Command>
-                           <CommandInput
-                             placeholder="Buscar ou criar..."
-                             value={newSource}
-                             onValueChange={setNewSource}
-                           />
-                           <CommandList>
-                             <CommandEmpty>Nenhuma origem encontrada.</CommandEmpty>
-                             {newSource && !sources.includes(newSource) && (
-                               <CommandGroup heading="Nova Origem">
-                                 <CommandItem
-                                   value={newSource}
-                                   onSelect={() => addSource(newSource)}
-                                 >
-                                   <Plus className="mr-2 h-4 w-4" />
-                                   Criar "{newSource}"
-                                 </CommandItem>
-                               </CommandGroup>
-                             )}
-                             <CommandGroup heading="Sugestões">
-                               {sources.map((s) => (
-                                 <CommandItem
-                                   key={s}
-                                   value={s}
-                                   onSelect={() => {
-                                     form.setValue("source", s);
-                                     setPopoverOpen(false);
-                                   }}
-                                 >
-                                   <Check
-                                     className={cn(
-                                       "mr-2 h-4 w-4",
-                                       s === field.value ? "opacity-100" : "opacity-0"
-                                     )}
-                                   />
-                                   {s}
-                                 </CommandItem>
-                               ))}
-                             </CommandGroup>
-                           </CommandList>
+                            <div className="relative">
+                              <CommandInput
+                                placeholder="Buscar ou criar nova..."
+                                value={newSource}
+                                onValueChange={setNewSource}
+                              />
+                              {newSource && !sources.includes(newSource) && (
+                                <div className="absolute right-2 top-1/2 -translate-y-1/2">
+                                  <Button
+                                    type="button"
+                                    variant="secondary"
+                                    size="sm"
+                                    className="h-7"
+                                    onClick={() => addSource(newSource)}
+                                  >
+                                    Criar
+                                  </Button>
+                                </div>
+                              )}
+                            </div>
+                            <CommandList>
+                              <CommandEmpty>Nenhuma origem encontrada.</CommandEmpty>
+                              <CommandGroup heading="Sugestões">
+                                {sources.map((s) => (
+                                  <CommandItem
+                                    key={s}
+                                    value={s}
+                                    onSelect={() => {
+                                      form.setValue("source", s);
+                                      setPopoverOpen(false);
+                                    }}
+                                  >
+                                    <Check
+                                      className={cn(
+                                        "mr-2 h-4 w-4",
+                                        s === field.value ? "opacity-100" : "opacity-0"
+                                      )}
+                                    />
+                                    {s}
+                                  </CommandItem>
+                                ))}
+                              </CommandGroup>
+                            </CommandList>
                         </Command>
                       </PopoverContent>
                     </Popover>
