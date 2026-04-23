@@ -103,21 +103,25 @@ export function ClientFormDialog({ open, onOpenChange, client }: Props) {
     }
   }, []);
 
-   const addSource = (value: string) => {
-     const trimmed = value.trim();
-     if (trimmed && !sources.includes(trimmed)) {
-       const updated = [...sources, trimmed];
-       setSources(updated);
-       localStorage.setItem("crm.sources", JSON.stringify(updated));
-       form.setValue("source", trimmed);
-       setNewSource("");
-       setPopoverOpen(false);
-     } else if (trimmed) {
-       form.setValue("source", trimmed);
-       setNewSource("");
-       setPopoverOpen(false);
-     }
-   };
+  const addSource = (value: string) => {
+    const trimmed = value.trim();
+    if (!trimmed) return;
+
+    const existingSource = sources.find(
+      (s) => s.toLowerCase() === trimmed.toLowerCase()
+    );
+
+    if (existingSource) {
+      form.setValue("source", existingSource);
+    } else {
+      const updated = [...sources, trimmed];
+      setSources(updated);
+      localStorage.setItem("crm.sources", JSON.stringify(updated));
+      form.setValue("source", trimmed);
+    }
+    setNewSource("");
+    setPopoverOpen(false);
+  };
 
   const mutation = useMutation({
     mutationFn: async (values: FormValues) => {
@@ -217,7 +221,13 @@ export function ClientFormDialog({ open, onOpenChange, client }: Props) {
                 render={({ field }) => (
                   <FormItem className="flex flex-col">
                     <FormLabel className="mb-2">Origem</FormLabel>
-                    <Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
+                    <Popover
+                      open={popoverOpen}
+                      onOpenChange={(open) => {
+                        setPopoverOpen(open);
+                        if (!open) setNewSource("");
+                      }}
+                    >
                       <PopoverTrigger asChild>
                         <FormControl>
                           <Button
@@ -242,7 +252,10 @@ export function ClientFormDialog({ open, onOpenChange, client }: Props) {
                             />
                             <CommandList>
                                <CommandEmpty>Nenhuma origem encontrada.</CommandEmpty>
-                               {newSource && !sources.includes(newSource) && (
+                               {newSource &&
+                                 !sources.some(
+                                   (s) => s.toLowerCase() === newSource.toLowerCase()
+                                 ) && (
                                  <CommandGroup>
                                    <CommandItem
                                      value={newSource}
