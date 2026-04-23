@@ -80,7 +80,7 @@ export function ClientFormDialog({ open, onOpenChange, client }: Props) {
     },
   });
 
-  const [sources, setSources] = useState<string[]>(["Indicações", "Lead"]);
+   const [sources, setSources] = useState<string[]>(["Indicação", "Lead"]);
   const [newSource, setNewSource] = useState("");
   const [popoverOpen, setPopoverOpen] = useState(false);
 
