@@ -11,12 +11,13 @@
    Plus, 
    User, 
    Building2, 
-   MapPin, 
-   Share2,
-   StickyNote,
-   Mail,
-   Phone,
-   FileText
+    MapPin,
+    Share2,
+    StickyNote,
+    Mail,
+    Phone,
+    FileText,
+    MessageCircle
  } from "lucide-react";
  import { format, parseISO } from "date-fns";
  import { ptBR } from "date-fns/locale";
@@ -63,6 +64,13 @@
    }
  }
  
+  const getWhatsAppLink = (phone: string) => {
+    const cleaned = phone.replace(/\D/g, "");
+    // If it's a Brazilian number and doesn't have the country code, add 55
+    const formatted = (cleaned.length === 10 || cleaned.length === 11) ? `55${cleaned}` : cleaned;
+    return `https://wa.me/${formatted}`;
+  };
+
  export default function ClientProfile() {
    const { id } = useParams<{ id: string }>();
    const queryClient = useQueryClient();
@@ -213,13 +221,26 @@
                    <p className="text-sm">{client.email || "Não informado"}</p>
                  </div>
                </div>
-               <div className="flex items-start gap-3">
-                 <Phone className="h-4 w-4 mt-1 text-muted-foreground" />
-                 <div>
-                   <p className="text-xs text-muted-foreground uppercase font-semibold">Telefone</p>
-                   <p className="text-sm">{client.phone || "Não informado"}</p>
-                 </div>
-               </div>
+                <div className="flex items-start gap-3">
+                  <Phone className="h-4 w-4 mt-1 text-muted-foreground" />
+                  <div className="flex-1">
+                    <p className="text-xs text-muted-foreground uppercase font-semibold">Telefone</p>
+                    <div className="flex items-center gap-2">
+                      <p className="text-sm">{client.phone || "Não informado"}</p>
+                      {client.phone && (
+                        <a
+                          href={getWhatsAppLink(client.phone)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-[#25D366] hover:opacity-80 transition-opacity"
+                          title="Conversar no WhatsApp"
+                        >
+                          <MessageCircle className="h-4 w-4 fill-[#25D366] text-[#25D366]" />
+                        </a>
+                      )}
+                    </div>
+                  </div>
+                </div>
                <div className="flex items-start gap-3">
                  <FileText className="h-4 w-4 mt-1 text-muted-foreground" />
                  <div>
