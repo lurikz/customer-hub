@@ -231,7 +231,10 @@ export function ClientFormDialog({ open, onOpenChange, client }: Props) {
                     <FormLabel className="mb-2">Origem</FormLabel>
                     <Popover
                       open={popoverOpen}
-                       onOpenChange={setPopoverOpen}
+                        onOpenChange={(open) => {
+                          setPopoverOpen(open);
+                          if (!open) setNewSearchSource("");
+                        }}
                     >
                       <PopoverTrigger asChild>
                         <FormControl>
