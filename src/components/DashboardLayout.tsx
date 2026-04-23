@@ -28,11 +28,11 @@
        <div className="flex min-h-screen w-full bg-background font-sans antialiased">
          <AppSidebar />
          <SidebarInset className="flex flex-col">
-           <header className="sticky top-0 z-30 flex h-16 items-center border-b border-white/5 bg-background/80 px-4 backdrop-blur-md lg:hidden">
-             <SidebarTrigger className="text-white" />
+            <header className="sticky top-0 z-30 flex h-16 items-center border-b border-border/50 bg-background/80 px-4 backdrop-blur-md lg:hidden">
+              <SidebarTrigger />
              <div className="ml-4 flex items-center gap-2">
                <div className="h-6 w-6 rounded bg-primary" />
-               <span className="text-sm font-bold tracking-tight text-white uppercase">TECH CRM</span>
+                <span className="text-sm font-bold tracking-tight uppercase">TECH CRM</span>
              </div>
            </header>
            <main className="flex-1 overflow-auto bg-background p-4 sm:p-6 lg:p-8">
