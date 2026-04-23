@@ -216,7 +216,8 @@ export function Agenda() {
               <div
                 key={idx}
                 className={cn(
-                  "min-h-[120px] bg-card p-2 transition-colors hover:bg-muted/30",
+                  "bg-card p-2 transition-colors hover:bg-muted/30",
+                  view === "month" ? "min-h-[140px]" : "min-h-[300px]",
                   !isMonthDay && "bg-muted/20 text-muted-foreground",
                   isTodayDay && "bg-accent/10"
                 )}
@@ -231,35 +232,48 @@ export function Agenda() {
                   </span>
                 </div>
 
-                <div className="space-y-1">
-                  {dayTasks.slice(0, 4).map((task) => {
+                <div className="space-y-1.5">
+                  {(view === "month" ? dayTasks.slice(0, 4) : dayTasks).map((task) => {
                     const isTaskOverdue = isPast(new Date(task.datetime)) && !isToday(new Date(task.datetime)) && task.status === "pendente";
                     return (
                       <div
                         key={task.id}
                         className={cn(
-                          "group flex flex-col rounded border px-1.5 py-1 text-[10px] leading-tight cursor-pointer",
+                          "group flex flex-col rounded border px-2 py-1.5 text-[10px] leading-tight cursor-pointer shadow-sm transition-all hover:ring-1 hover:ring-primary/20",
                           task.status === "concluído" 
-                            ? "bg-muted/50 border-transparent text-muted-foreground line-through" 
+                            ? "bg-muted/40 border-transparent text-muted-foreground" 
                             : isTaskOverdue 
-                              ? "bg-destructive/10 border-destructive/20 text-destructive font-medium" 
-                              : "bg-primary/5 border-primary/10 text-primary font-medium"
+                              ? "bg-destructive/10 border-destructive/30 text-destructive font-medium" 
+                              : "bg-primary/5 border-primary/20 text-primary font-medium"
                         )}
+                        title={`${task.title}${task.description ? ': ' + task.description : ''}`}
                         onClick={(e) => {
                           e.stopPropagation();
                           handleEditTask(task);
                         }}
                       >
-                        <div className="flex items-center justify-between gap-1">
-                          <span className="truncate">{task.title}</span>
-                          <span className="shrink-0 opacity-70">{format(new Date(task.datetime), "HH:mm")}</span>
+                        <div className="flex items-start justify-between gap-1 mb-1">
+                          <span className={cn("font-bold truncate", task.status === "concluído" && "line-through opacity-70")}>
+                            {task.title}
+                          </span>
+                          <span className="shrink-0 opacity-70 font-medium tabular-nums">
+                            {format(new Date(task.datetime), "HH:mm")}
+                          </span>
                         </div>
+                        {task.description && (
+                          <p className={cn(
+                            "line-clamp-2 text-[9px] leading-[1.2] opacity-80",
+                            task.status === "concluído" && "opacity-50"
+                          )}>
+                            {task.description}
+                          </p>
+                        )}
                       </div>
                     );
                   })}
-                  {dayTasks.length > 4 && (
-                    <p className="text-[10px] text-muted-foreground text-center font-medium">
-                      + {dayTasks.length - 4} mais
+                  {view === "month" && dayTasks.length > 4 && (
+                    <p className="text-[10px] text-muted-foreground text-center font-semibold bg-muted/30 rounded py-0.5">
+                      + {dayTasks.length - 4} atividades
                     </p>
                   )}
                 </div>
