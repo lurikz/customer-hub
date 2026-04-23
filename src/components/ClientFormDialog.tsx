@@ -142,12 +142,15 @@ export function ClientFormDialog({ open, onOpenChange, client }: Props) {
   const mutation = useMutation({
     mutationFn: async (values: FormValues) => {
       const payload = {
-        name: values.name,
-        company: values.company?.trim() ? values.company.trim() : null,
-        birth_date: values.birth_date?.trim() ? values.birth_date.trim() : null,
-        source: values.source?.trim() ? values.source.trim() : null,
-        notes: values.notes?.trim() ? values.notes.trim() : null,
-      };
+         name: values.name,
+         company: values.company?.trim() ? values.company.trim() : null,
+         birth_date: values.birth_date?.trim() ? values.birth_date.trim() : null,
+         email: values.email?.trim() ? values.email.trim() : null,
+         phone: values.phone?.trim() ? values.phone.trim() : null,
+         cpf_cnpj: values.cpf_cnpj?.trim() ? values.cpf_cnpj.trim() : null,
+         source: values.source?.trim() ? values.source.trim() : null,
+         notes: values.notes?.trim() ? values.notes.trim() : null,
+       };
       return isEditing && client
         ? clientsApi.update(client.id, payload)
         : clientsApi.create(payload);
