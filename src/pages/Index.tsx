@@ -56,8 +56,8 @@ import { useAuth } from "@/contexts/AuthContext";
    const activeTab = searchParams.get("tab") || "clients";
  
    return (
-      <div className="flex h-full flex-col space-y-8">
-       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex h-full flex-col">
+        <div className="flex shrink-0 flex-col gap-4 mb-8 sm:flex-row sm:items-center sm:justify-between">
          <div>
             <h2 className="text-3xl font-bold tracking-tight">Dashboard</h2>
            <p className="text-muted-foreground">Gerencie seus clientes e compromissos com facilidade.</p>
