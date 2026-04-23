@@ -133,14 +133,14 @@ export function Agenda() {
 
   return (
     <div className="flex h-full flex-col gap-4 overflow-hidden">
-      <div className="flex flex-col gap-3 shrink-0 sm:flex-row sm:items-center sm:justify-between">
+       <div className="flex flex-col gap-2 shrink-0 sm:flex-row sm:items-center sm:justify-between px-1">
         <div className="flex items-center gap-2">
           <div className="flex items-center bg-card rounded-md border p-1">
             <Button
               variant={view === "month" ? "secondary" : "ghost"}
               size="sm"
               onClick={() => setView("month")}
-              className="h-8 gap-1.5"
+               className="h-7 px-2 text-xs gap-1.5"
             >
               <LayoutGrid className="h-4 w-4" />
               Calendário
@@ -149,7 +149,7 @@ export function Agenda() {
               variant={view === "list" ? "secondary" : "ghost"}
               size="sm"
               onClick={() => setView("list")}
-              className="h-8 gap-1.5"
+               className="h-7 px-2 text-xs gap-1.5"
             >
               <List className="h-4 w-4" />
               Lista
@@ -158,16 +158,16 @@ export function Agenda() {
 
           {view !== "list" && (
             <div className="flex items-center gap-1 ml-2">
-              <Button variant="outline" size="icon" className="h-8 w-8" onClick={prevDate}>
-                <ChevronLeft className="h-4 w-4" />
+               <Button variant="outline" size="icon" className="h-7 w-7" onClick={prevDate}>
+                 <ChevronLeft className="h-3.5 w-3.5" />
               </Button>
-              <Button variant="outline" size="sm" className="h-8" onClick={resetToToday}>
+               <Button variant="outline" size="sm" className="h-7 px-2 text-xs" onClick={resetToToday}>
                 Hoje
               </Button>
-              <Button variant="outline" size="icon" className="h-8 w-8" onClick={nextDate}>
-                <ChevronRight className="h-4 w-4" />
+               <Button variant="outline" size="icon" className="h-7 w-7" onClick={nextDate}>
+                 <ChevronRight className="h-3.5 w-3.5" />
               </Button>
-              <h2 className="ml-2 font-semibold capitalize">
+               <h2 className="ml-1 font-bold text-sm capitalize">
                 {format(currentDate, "MMMM yyyy", { locale: ptBR })}
               </h2>
             </div>
@@ -177,7 +177,7 @@ export function Agenda() {
         <div className="flex items-center gap-2">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm" className="gap-2">
+               <Button variant="outline" size="sm" className="h-8 gap-2 text-xs">
                 <Filter className="h-4 w-4" />
                 Filtros
                 {filterMyTasks && <Badge className="ml-1 h-5 w-5 rounded-full p-0 flex items-center justify-center">1</Badge>}
@@ -195,7 +195,7 @@ export function Agenda() {
             </DropdownMenuContent>
           </DropdownMenu>
 
-          <Button onClick={() => handleNewTask()} size="sm" className="gap-2">
+           <Button onClick={() => handleNewTask()} size="sm" className="h-8 gap-2 text-xs">
             <Plus className="h-4 w-4" />
             Nova tarefa
           </Button>
@@ -213,9 +213,9 @@ export function Agenda() {
           </div>
         ) : (
           <div className="flex h-full flex-col border rounded-lg bg-background overflow-hidden">
-            <div className="grid grid-cols-7 border-b bg-muted/30">
+             <div className="grid grid-cols-7 border-b bg-muted/50 backdrop-blur-sm">
               {["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"].map((day) => (
-                <div key={day} className="p-2 text-center text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
+                 <div key={day} className="py-1.5 text-center text-[9px] font-bold text-muted-foreground uppercase tracking-widest">
                   {day}
                 </div>
               ))}
