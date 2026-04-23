@@ -41,12 +41,13 @@
    SelectValue,
  } from "@/components/ui/select";
  import { Badge } from "@/components/ui/badge";
- import { Skeleton } from "@/components/ui/skeleton";
- import { toast } from "@/hooks/use-toast";
- import { clientsApi, recordsApi, type ClientRecord } from "@/lib/api";
- import { ClientFormDialog } from "@/components/ClientFormDialog";
- 
- function formatDate(value: string | null) {
+  import { Skeleton } from "@/components/ui/skeleton";
+  import { toast } from "@/hooks/use-toast";
+  import { clientsApi, recordsApi, type ClientRecord } from "@/lib/api";
+  import { ClientFormDialog } from "@/components/ClientFormDialog";
+  import { getWhatsAppLink } from "@/lib/utils";
+  
+  function formatDate(value: string | null) {
    if (!value) return "—";
    try {
      return format(parseISO(value), "dd/MM/yyyy", { locale: ptBR });
@@ -63,8 +64,6 @@
    }
  }
  
- import { getWhatsAppLink } from "@/lib/utils";
-
  export default function ClientProfile() {
    const { id } = useParams<{ id: string }>();
    const queryClient = useQueryClient();
