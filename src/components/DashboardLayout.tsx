@@ -35,11 +35,13 @@
                 <span className="text-sm font-bold tracking-tight uppercase">TECH CRM</span>
              </div>
            </header>
-           <main className="flex-1 overflow-auto bg-background p-4 sm:p-6 lg:p-8">
-             <div className="mx-auto max-w-7xl space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
-               {children}
-             </div>
-           </main>
+             <main className="flex h-[calc(100vh-4rem)] flex-col overflow-hidden bg-background lg:h-screen">
+               <div className="flex flex-1 flex-col overflow-hidden p-4 sm:p-6 lg:p-8">
+                 <div className="mx-auto flex h-full w-full max-w-7xl flex-col animate-in fade-in slide-in-from-bottom-4 duration-700">
+                   {children}
+                 </div>
+               </div>
+             </main>
          </SidebarInset>
        </div>
      </SidebarProvider>

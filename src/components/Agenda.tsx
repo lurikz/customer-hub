@@ -151,8 +151,8 @@ export function Agenda() {
   };
 
   return (
-    <div className="flex h-full flex-col gap-4 overflow-hidden">
-       <div className="flex flex-col gap-3 shrink-0 px-1">
+    <div className="flex h-full flex-col gap-2 overflow-hidden">
+       <div className="flex flex-col gap-2 shrink-0 px-1">
         <div className="flex flex-wrap items-center gap-2 mb-1">
           {STATUS_GROUPS.map((group) => (
             <div key={group.id} className={cn("flex items-center gap-1.5 px-2 py-1 rounded-full border text-[10px] font-medium transition-colors bg-card")}>
