@@ -399,6 +399,13 @@ export const adminApi = {
          created_at: now,
        };
         demoStore.addRecord(r);
+        return r;
+     }
+     return request<ClientRecord>(`/clients/${clientId}/records`, {
+       method: "POST",
+       body: JSON.stringify(data),
+     });
+    },
     async update(clientId: string, recordId: string, data: RecordInput): Promise<ClientRecord> {
       if (demoStore.isOn()) {
         const allRaw = localStorage.getItem(DEMO_RECORDS_KEY) || "[]";
@@ -429,14 +436,7 @@ export const adminApi = {
         method: "DELETE",
       });
     },
-       return r;
-     }
-     return request<ClientRecord>(`/clients/${clientId}/records`, {
-       method: "POST",
-       body: JSON.stringify(data),
-     });
-   },
- };
+  };
 
 // Limpa flag demo no logout (chamado pelo AuthContext indiretamente via tokenStore.clear()).
 const _origClear = tokenStore.clear;
