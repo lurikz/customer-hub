@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { LayoutDashboard, LogOut, Plus, Search, Shield, User as UserIcon, Users } from "lucide-react";
+import { Calendar as CalendarIcon, LayoutDashboard, LogOut, Plus, Search, Shield, User as UserIcon, Users } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 import { Button } from "@/components/ui/button";
@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { ClientsTable } from "@/components/ClientsTable";
 import { ClientFormDialog } from "@/components/ClientFormDialog";
+import { Agenda } from "@/components/Agenda";
 import { clientsApi, type Client } from "@/lib/api";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -116,6 +117,10 @@ const Index = () => {
               <LayoutDashboard className="h-4 w-4" />
               Clientes
             </TabsTrigger>
+            <TabsTrigger value="agenda" className="gap-2">
+              <CalendarIcon className="h-4 w-4" />
+              Agenda
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="clients" className="space-y-6">
@@ -148,6 +153,10 @@ const Index = () => {
             ) : (
               <ClientsTable clients={filtered} onEdit={openEdit} />
             )}
+          </TabsContent>
+
+          <TabsContent value="agenda" className="space-y-6">
+            <Agenda />
           </TabsContent>
 
         </Tabs>
