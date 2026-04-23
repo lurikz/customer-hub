@@ -342,8 +342,7 @@
          client={client} 
        />
  
-       <Dialog open={recordDialogOpen} onOpenChange={setRecordDialogOpen}>
-         <DialogContent>
+        <Dialog open={recordDialogOpen} onOpenChange={setRecordDialogOpen}>
           <DialogContent>
             <DialogHeader>
               <DialogTitle>{editingRecord ? "Editar Registro" : "Novo Registro"}</DialogTitle>
