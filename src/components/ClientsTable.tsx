@@ -71,9 +71,9 @@ function formatDate(value: string | null) {
     );
   }
 
-  return (
-    <div className="rounded-lg border bg-card shadow-[var(--shadow-soft)]">
-      <Table>
+   return (
+     <div className="relative w-full overflow-x-auto rounded-2xl border border-white/5 bg-black/20 backdrop-blur-sm shadow-2xl">
+       <Table className="min-w-[800px]">
         <TableHeader>
           <TableRow>
             <TableHead>Cliente</TableHead>

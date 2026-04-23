@@ -66,6 +66,18 @@
    }
  }
  
+ function InfoItem({ icon: Icon, label, value }: { icon: any, label: string, value: string }) {
+   return (
+     <div className="flex items-start gap-4">
+       <Icon className="h-5 w-5 mt-1 text-primary/60" />
+       <div className="space-y-1">
+         <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/70">{label}</p>
+         <p className="text-sm font-medium text-white">{value}</p>
+       </div>
+     </div>
+   );
+ }
+ 
  export default function ClientProfile() {
    const { id } = useParams<{ id: string }>();
    const queryClient = useQueryClient();
@@ -195,118 +207,66 @@
      );
    }
  
-   return (
-     <div className="mx-auto max-w-6xl px-4 py-8 space-y-6 animate-in fade-in duration-500">
-       <div className="flex items-center justify-between">
-         <div className="flex items-center gap-4">
-           <Button asChild variant="ghost" size="icon">
-             <Link to="/"><ArrowLeft className="h-5 w-5" /></Link>
-           </Button>
-           <div>
-             <h1 className="text-2xl font-bold tracking-tight">{client.name}</h1>
-             <p className="text-sm text-muted-foreground">
-               {client.company || "Pessoa Física"}
-             </p>
-           </div>
-         </div>
-         <Button onClick={() => setEditDialogOpen(true)} variant="outline" className="gap-2">
-           <Edit className="h-4 w-4" />
-           Editar Cliente
-         </Button>
-       </div>
+    return (
+      <div className="space-y-8 pb-10">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-center gap-4">
+            <Button asChild variant="ghost" size="icon" className="rounded-full bg-white/5 transition-all hover:bg-white/10">
+              <Link to="/"><ArrowLeft className="h-5 w-5" /></Link>
+            </Button>
+            <div>
+              <h1 className="text-3xl font-bold tracking-tight text-white">{client.name}</h1>
+              <p className="text-sm text-muted-foreground">
+                {client.company || "Pessoa Física"} • Perfil do Cliente
+              </p>
+            </div>
+          </div>
+          <Button onClick={() => setEditDialogOpen(true)} variant="outline" className="h-11 gap-2 rounded-xl border-white/10 bg-white/5 px-6 backdrop-blur-sm transition-all hover:bg-white/10">
+            <Edit className="h-4 w-4" />
+            Editar Cliente
+          </Button>
+        </div>
  
-       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-         {/* Sidebar: Client Info */}
-         <div className="space-y-6">
-           <Card>
-             <CardHeader>
-               <CardTitle className="text-sm font-medium">Informações de Contato</CardTitle>
-             </CardHeader>
-             <CardContent className="space-y-4">
-               <div className="flex items-start gap-3">
-                 <User className="h-4 w-4 mt-1 text-muted-foreground" />
-                 <div>
-                    <p className="text-xs text-muted-foreground/90 uppercase font-semibold">Nome</p>
-                   <p className="text-sm">{client.name}</p>
-                 </div>
-               </div>
-               {client.company && (
-                 <div className="flex items-start gap-3">
-                   <Building2 className="h-4 w-4 mt-1 text-muted-foreground" />
-                   <div>
-                      <p className="text-xs text-muted-foreground/90 uppercase font-semibold">Empresa</p>
-                     <p className="text-sm">{client.company}</p>
-                   </div>
-                 </div>
-               )}
-               <div className="flex items-start gap-3">
-                 <Mail className="h-4 w-4 mt-1 text-muted-foreground" />
-                 <div>
-                    <p className="text-xs text-muted-foreground/90 uppercase font-semibold">Email</p>
-                   <p className="text-sm">{client.email || "Não informado"}</p>
-                 </div>
-               </div>
-                <div className="flex items-start gap-3">
-                  <Phone className="h-4 w-4 mt-1 text-muted-foreground" />
-                  <div className="flex-1">
-                    <p className="text-xs text-muted-foreground/90 uppercase font-semibold">Telefone</p>
-                     <p className="text-sm">{client.phone || "Não informado"}</p>
+        <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
+          {/* Sidebar: Client Info */}
+          <div className="space-y-6">
+            <Card className="overflow-hidden border-white/5 bg-black/20 shadow-xl backdrop-blur-sm">
+              <CardHeader className="bg-white/5 py-4">
+                <CardTitle className="text-xs font-bold uppercase tracking-widest text-primary">Informações de Contato</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-6 p-6">
+                <InfoItem icon={User} label="Nome" value={client.name} />
+                {client.company && <InfoItem icon={Building2} label="Empresa" value={client.company} />}
+                <InfoItem icon={Mail} label="Email" value={client.email || "Não informado"} />
+                <InfoItem icon={Phone} label="Telefone" value={client.phone || "Não informado"} />
+                <InfoItem icon={FileText} label="CPF / CNPJ" value={client.cpf_cnpj || "Não informado"} />
+                <InfoItem icon={Calendar} label="Nascimento" value={formatDate(client.birth_date)} />
+                <InfoItem icon={MapPin} label="Endereço" value={client.address || "Não informado"} />
+                <div className="flex items-start gap-4">
+                  <Share2 className="h-5 w-5 mt-1 text-primary/60" />
+                  <div className="space-y-1">
+                    <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/70">Origem</p>
+                    <Badge variant="outline" className="border-primary/20 bg-primary/10 text-primary">{client.source || "Não informada"}</Badge>
                   </div>
                 </div>
-               <div className="flex items-start gap-3">
-                 <FileText className="h-4 w-4 mt-1 text-muted-foreground" />
-                 <div>
-                    <p className="text-xs text-muted-foreground/90 uppercase font-semibold">CPF / CNPJ</p>
-                   <p className="text-sm">{client.cpf_cnpj || "Não informado"}</p>
-                 </div>
-               </div>
-               <div className="flex items-start gap-3">
-                 <Calendar className="h-4 w-4 mt-1 text-muted-foreground" />
-                 <div>
-                    <p className="text-xs text-muted-foreground/90 uppercase font-semibold">Nascimento</p>
-                   <p className="text-sm">{formatDate(client.birth_date)}</p>
-                 </div>
-               </div>
-               <div className="flex items-start gap-3">
-                 <MapPin className="h-4 w-4 mt-1 text-muted-foreground" />
-                 <div>
-                    <p className="text-xs text-muted-foreground/90 uppercase font-semibold">Endereço</p>
-                   <p className="text-sm">{client.address || "Não informado"}</p>
-                 </div>
-               </div>
-               <div className="flex items-start gap-3">
-                 <Share2 className="h-4 w-4 mt-1 text-muted-foreground" />
-                 <div>
-                    <p className="text-xs text-muted-foreground/90 uppercase font-semibold">Origem</p>
-                   <Badge variant="secondary" className="mt-1 font-normal">
-                     {client.source || "Não informada"}
-                   </Badge>
-                 </div>
-               </div>
-               <div className="flex items-start gap-3">
-                 <Clock className="h-4 w-4 mt-1 text-muted-foreground" />
-                 <div>
-                    <p className="text-xs text-muted-foreground/90 uppercase font-semibold">Cadastrado em</p>
-                   <p className="text-sm">{formatDateTime(client.created_at)}</p>
-                 </div>
-               </div>
-             </CardContent>
-           </Card>
+                <InfoItem icon={Clock} label="Cadastrado em" value={formatDateTime(client.created_at)} />
+              </CardContent>
+            </Card>
  
-           {client.notes && (
-             <Card>
-               <CardHeader>
-                 <CardTitle className="text-sm font-medium flex items-center gap-2">
-                   <StickyNote className="h-4 w-4" />
-                   Anotações
-                 </CardTitle>
-               </CardHeader>
-               <CardContent>
-                 <p className="text-sm whitespace-pre-wrap text-muted-foreground">{client.notes}</p>
-               </CardContent>
-             </Card>
-           )}
-         </div>
+            {client.notes && (
+              <Card className="border-white/5 bg-black/20 shadow-xl backdrop-blur-sm">
+                <CardHeader className="py-4">
+                  <CardTitle className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-primary">
+                    <StickyNote className="h-4 w-4" />
+                    Anotações
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="p-6 pt-0">
+                  <p className="text-sm leading-relaxed text-muted-foreground">{client.notes}</p>
+                </CardContent>
+              </Card>
+            )}
+          </div>
  
          {/* Main Content: History/Timeline */}
           <div className="md:col-span-2 space-y-4">
@@ -353,7 +313,7 @@
                     if (item.timelineType === 'record') {
                       const record = item as any;
                       return (
-                        <Card key={record.id} className="border-l-4 border-l-primary/50">
+                        <Card key={record.id} className="border-white/5 bg-black/20 backdrop-blur-sm border-l-4 border-l-primary/50">
                           <CardHeader className="py-3 px-4">
                             <div className="flex items-center justify-between">
                               <div className="flex items-center gap-2">
@@ -386,7 +346,7 @@
                     } else {
                       const task = item as any;
                       return (
-                        <Card key={task.id} className="border-l-4 border-l-amber-500 bg-amber-50/30 dark:bg-amber-900/10">
+                        <Card key={task.id} className="border-white/5 bg-black/20 backdrop-blur-sm border-l-4 border-l-amber-500/50">
                           <CardHeader className="py-3 px-4">
                             <div className="flex items-center justify-between">
                               <div className="flex items-center gap-2">

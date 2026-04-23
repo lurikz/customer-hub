@@ -1,5 +1,5 @@
-import { useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+ import { useMemo, useState, useEffect } from "react";
+ import { useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { Calendar as CalendarIcon, LayoutDashboard, LogOut, Plus, Search, Shield, User as UserIcon, Users } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -21,8 +21,9 @@ import { Agenda } from "@/components/Agenda";
 import { clientsApi, type Client } from "@/lib/api";
 import { useAuth } from "@/contexts/AuthContext";
 
-const Index = () => {
-  const { user, logout, hasRole } = useAuth();
+ const Index = () => {
+   const { user, hasRole } = useAuth();
+   const [searchParams, setSearchParams] = useSearchParams();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<Client | null>(null);
   const [search, setSearch] = useState("");
@@ -52,123 +53,89 @@ const Index = () => {
     setDialogOpen(true);
   };
 
-  return (
-    <div className="flex h-screen flex-col bg-background overflow-hidden">
-      <header className="border-b bg-card">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-5 sm:px-6">
-          <div className="flex items-center gap-3">
-            <div
-              className="flex h-10 w-10 items-center justify-center rounded-lg text-primary-foreground"
-              style={{ background: "var(--gradient-primary)" }}
-            >
-              <Users className="h-5 w-5" />
-            </div>
-            <div>
-              <h1 className="text-xl font-semibold tracking-tight">CRM</h1>
-              <p className="text-xs text-muted-foreground">
-                Gestão simples de clientes
-              </p>
-            </div>
-          </div>
-          <div className="flex items-center gap-2">
-            <Button onClick={openNew} className="gap-2">
-              <Plus className="h-4 w-4" />
-              Novo Cliente
-            </Button>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="icon" aria-label="Usuário">
-                  <UserIcon className="h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56">
-                <DropdownMenuLabel>
-                  <div className="flex flex-col">
-                    <span className="font-medium">{user?.name}</span>
-                    <span className="truncate text-xs font-normal text-muted-foreground">
-                      {user?.email}
-                    </span>
-                  </div>
-                </DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                {hasRole("super_admin") && (
-                  <DropdownMenuItem asChild>
-                    <Link to="/admin">
-                      <Shield className="mr-2 h-4 w-4" />
-                      Painel Master
-                    </Link>
-                  </DropdownMenuItem>
-                )}
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={logout}>
-                  <LogOut className="mr-2 h-4 w-4" />
-                  Sair
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-        </div>
-      </header>
-
-      <main className="mx-auto flex w-full max-w-7xl flex-1 flex-col overflow-hidden px-4 py-4 sm:px-6">
-        <Tabs defaultValue="clients" className="flex flex-1 flex-col gap-4 overflow-hidden">
-          <TabsList>
-            <TabsTrigger value="clients" className="gap-2">
-              <LayoutDashboard className="h-4 w-4" />
-              Clientes
-            </TabsTrigger>
-            <TabsTrigger value="agenda" className="gap-2">
-              <CalendarIcon className="h-4 w-4" />
-              Agenda
-            </TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="clients" className="flex-1 space-y-4 overflow-auto pb-4">
-            {error && (
-              <Alert variant="destructive">
-                <AlertTitle>Erro ao carregar clientes</AlertTitle>
-                <AlertDescription>{(error as Error).message}</AlertDescription>
-              </Alert>
-            )}
-
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-              <div className="relative w-full sm:max-w-sm">
-                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                <Input
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                  placeholder="Buscar por nome ou empresa..."
-                  className="pl-9"
-                />
-              </div>
-              <p className="text-sm text-muted-foreground">
-                {data ? `${filtered.length} de ${data.length} clientes` : "—"}
-              </p>
-            </div>
-
-            {isLoading ? (
-              <div className="rounded-lg border p-12 text-center text-muted-foreground">
-                Carregando clientes...
-              </div>
-            ) : (
-              <ClientsTable clients={filtered} onEdit={openEdit} />
-            )}
-          </TabsContent>
-
-          <TabsContent value="agenda" className="m-0 flex-1 overflow-hidden p-0">
-            <Agenda />
-          </TabsContent>
-
-        </Tabs>
-      </main>
-
-      <ClientFormDialog
-        open={dialogOpen}
-        onOpenChange={setDialogOpen}
-        client={editing}
-      />
-    </div>
-  );
+   const activeTab = searchParams.get("tab") || "clients";
+ 
+   return (
+     <div className="space-y-8 pb-10">
+       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+         <div>
+           <h2 className="text-3xl font-bold tracking-tight text-white">Dashboard</h2>
+           <p className="text-muted-foreground">Gerencie seus clientes e compromissos com facilidade.</p>
+         </div>
+         <div className="flex items-center gap-3">
+           <Button onClick={openNew} className="h-11 gap-2 rounded-xl bg-primary px-6 font-semibold shadow-[0_0_20px_rgba(124,58,237,0.4)] transition-all hover:scale-105 hover:bg-primary/90 active:scale-95">
+             <Plus className="h-5 w-5" />
+             Novo Cliente
+           </Button>
+         </div>
+       </div>
+ 
+       <Tabs value={activeTab} onValueChange={(v) => setSearchParams({ tab: v })} className="w-full">
+         <TabsList className="inline-flex h-12 w-full justify-start rounded-xl border border-white/5 bg-black/40 p-1 backdrop-blur-sm sm:w-auto">
+           <TabsTrigger value="clients" className="h-10 gap-2 rounded-lg px-6 data-[state=active]:bg-primary data-[state=active]:text-white">
+             <LayoutDashboard className="h-4 w-4" />
+             Clientes
+           </TabsTrigger>
+           <TabsTrigger value="agenda" className="h-10 gap-2 rounded-lg px-6 data-[state=active]:bg-primary data-[state=active]:text-white">
+             <CalendarIcon className="h-4 w-4" />
+             Agenda
+           </TabsTrigger>
+         </TabsList>
+ 
+         <TabsContent value="clients" className="mt-6 space-y-6 outline-none">
+           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+             <div className="relative w-full sm:max-w-md">
+               <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
+               <Input
+                 value={search}
+                 onChange={(e) => setSearch(e.target.value)}
+                 placeholder="Buscar por nome ou empresa..."
+                 className="h-12 rounded-xl border-white/5 bg-black/40 pl-11 text-white backdrop-blur-sm transition-all focus:border-primary/50 focus:ring-primary/20"
+               />
+             </div>
+             <p className="text-sm font-medium text-muted-foreground">
+               {data ? (
+                 <span className="flex items-center gap-2">
+                   <span className="h-2 w-2 rounded-full bg-primary animate-pulse" />
+                   {filtered.length} de {data.length} clientes
+                 </span>
+               ) : "—"}
+             </p>
+           </div>
+ 
+           {error ? (
+             <Alert variant="destructive" className="rounded-xl border-destructive/20 bg-destructive/10">
+               <AlertTitle>Erro ao carregar clientes</AlertTitle>
+               <AlertDescription>{(error as Error).message}</AlertDescription>
+             </Alert>
+           ) : isLoading ? (
+             <div className="flex h-[400px] w-full items-center justify-center rounded-2xl border border-white/5 bg-black/20 backdrop-blur-sm">
+               <div className="flex flex-col items-center gap-4">
+                 <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+                 <p className="text-sm text-muted-foreground">Carregando dados dos clientes...</p>
+               </div>
+             </div>
+           ) : (
+             <div className="overflow-hidden rounded-2xl border border-white/5 bg-black/20 shadow-2xl backdrop-blur-sm">
+               <ClientsTable clients={filtered} onEdit={openEdit} />
+             </div>
+           )}
+         </TabsContent>
+ 
+         <TabsContent value="agenda" className="mt-6 outline-none">
+           <div className="overflow-hidden rounded-2xl border border-white/5 bg-black/20 shadow-2xl backdrop-blur-sm">
+             <Agenda />
+           </div>
+         </TabsContent>
+       </Tabs>
+ 
+       <ClientFormDialog
+         open={dialogOpen}
+         onOpenChange={setDialogOpen}
+         client={editing}
+       />
+     </div>
+   );
 };
 
 export default Index;

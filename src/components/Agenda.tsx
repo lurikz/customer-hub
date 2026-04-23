@@ -52,11 +52,11 @@ import { TasksList } from "./TasksList";
 import { cn } from "@/lib/utils";
 
 const STATUS_GROUPS = [
-   { id: "em_andamento", label: "Em andamento", color: "text-blue-600", bg: "bg-blue-50/50", border: "border-blue-200" },
-   { id: "pendente", label: "Pendentes", color: "text-amber-600", bg: "bg-amber-50/50", border: "border-amber-200" },
-   { id: "atrasada", label: "Atrasadas", color: "text-red-700", bg: "bg-red-50", border: "border-red-200", isCritical: true },
-   { id: "concluído", label: "Concluídas", color: "text-emerald-600", bg: "bg-emerald-50/50", border: "border-emerald-200" },
-   { id: "cancelada", label: "Canceladas", color: "text-slate-500", bg: "bg-slate-50/50", border: "border-slate-200" },
+    { id: "em_andamento", label: "Em andamento", color: "text-blue-400", bg: "bg-blue-500/10", border: "border-blue-500/20" },
+    { id: "pendente", label: "Pendentes", color: "text-amber-400", bg: "bg-amber-500/10", border: "border-amber-500/20" },
+    { id: "atrasada", label: "Atrasadas", color: "text-red-400", bg: "bg-red-500/20", border: "border-red-500/30", isCritical: true },
+    { id: "concluído", label: "Concluídas", color: "text-emerald-400", bg: "bg-emerald-500/10", border: "border-emerald-500/20" },
+    { id: "cancelada", label: "Canceladas", color: "text-slate-400", bg: "bg-slate-500/10", border: "border-slate-500/20" },
 ] as const;
 
 type StatusGroupId = typeof STATUS_GROUPS[number]["id"];
