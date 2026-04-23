@@ -11,7 +11,10 @@
    User, 
    Building2, 
    MapPin, 
-   StickyNote 
+   StickyNote,
+   Mail,
+   Phone,
+   FileText
  } from "lucide-react";
  import { format, parseISO } from "date-fns";
  import { ptBR } from "date-fns/locale";
@@ -157,6 +160,27 @@
                    </div>
                  </div>
                )}
+               <div className="flex items-start gap-3">
+                 <Mail className="h-4 w-4 mt-1 text-muted-foreground" />
+                 <div>
+                   <p className="text-xs text-muted-foreground uppercase font-semibold">Email</p>
+                   <p className="text-sm">{client.email || "Não informado"}</p>
+                 </div>
+               </div>
+               <div className="flex items-start gap-3">
+                 <Phone className="h-4 w-4 mt-1 text-muted-foreground" />
+                 <div>
+                   <p className="text-xs text-muted-foreground uppercase font-semibold">Telefone</p>
+                   <p className="text-sm">{client.phone || "Não informado"}</p>
+                 </div>
+               </div>
+               <div className="flex items-start gap-3">
+                 <FileText className="h-4 w-4 mt-1 text-muted-foreground" />
+                 <div>
+                   <p className="text-xs text-muted-foreground uppercase font-semibold">CPF / CNPJ</p>
+                   <p className="text-sm">{client.cpf_cnpj || "Não informado"}</p>
+                 </div>
+               </div>
                <div className="flex items-start gap-3">
                  <Calendar className="h-4 w-4 mt-1 text-muted-foreground" />
                  <div>

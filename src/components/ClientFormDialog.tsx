@@ -223,20 +223,62 @@ export function ClientFormDialog({ open, onOpenChange, client }: Props) {
               )}
             />
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="birth_date"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Data de nascimento</FormLabel>
-                    <FormControl>
-                      <Input type="date" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+               <FormField
+                 control={form.control}
+                 name="email"
+                 render={({ field }) => (
+                   <FormItem>
+                     <FormLabel>Email</FormLabel>
+                     <FormControl>
+                       <Input placeholder="email@exemplo.com" {...field} />
+                     </FormControl>
+                     <FormMessage />
+                   </FormItem>
+                 )}
+               />
+ 
+               <FormField
+                 control={form.control}
+                 name="phone"
+                 render={({ field }) => (
+                   <FormItem>
+                     <FormLabel>Telefone</FormLabel>
+                     <FormControl>
+                       <Input placeholder="(00) 00000-0000" {...field} />
+                     </FormControl>
+                     <FormMessage />
+                   </FormItem>
+                 )}
+               />
+ 
+               <FormField
+                 control={form.control}
+                 name="cpf_cnpj"
+                 render={({ field }) => (
+                   <FormItem>
+                     <FormLabel>CPF / CNPJ</FormLabel>
+                     <FormControl>
+                       <Input placeholder="000.000.000-00" {...field} />
+                     </FormControl>
+                     <FormMessage />
+                   </FormItem>
+                 )}
+               />
+ 
+               <FormField
+                 control={form.control}
+                 name="birth_date"
+                 render={({ field }) => (
+                   <FormItem>
+                     <FormLabel>Data de nascimento</FormLabel>
+                     <FormControl>
+                       <Input type="date" {...field} />
+                     </FormControl>
+                     <FormMessage />
+                   </FormItem>
+                 )}
+               />
 
               <FormField
                 control={form.control}
