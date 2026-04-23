@@ -235,9 +235,10 @@ export function ClientFormDialog({ open, onOpenChange, client }: Props) {
                     >
                       <PopoverTrigger asChild>
                         <FormControl>
-                          <Button
-                            variant="outline"
-                            role="combobox"
+                           <Button
+                             type="button"
+                             variant="outline"
+                             role="combobox"
                             className={cn(
                               "w-full justify-between font-normal",
                               !field.value && "text-muted-foreground"
