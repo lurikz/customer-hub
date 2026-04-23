@@ -391,6 +391,7 @@
                 {createRecordMutation.isPending || updateRecordMutation.isPending ? "Salvando..." : "Salvar Registro"}
               </Button>
             </DialogFooter>
+          </DialogContent>
          </DialogContent>
        </Dialog>
      </div>
