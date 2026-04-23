@@ -235,24 +235,24 @@ export function ClientFormDialog({ open, onOpenChange, client }: Props) {
                       </PopoverTrigger>
                       <PopoverContent className="w-[200px] p-0" align="start">
                         <Command>
-                            <div className="flex items-center border-b px-3">
-                              <Plus className="mr-2 h-4 w-4 shrink-0 opacity-50" />
+                            <div className="relative">
                               <CommandInput
                                 placeholder="Buscar ou criar nova..."
                                 value={newSource}
                                 onValueChange={setNewSource}
-                                className="border-none focus-visible:ring-0 h-10 px-0"
                               />
                               {newSource && !sources.includes(newSource) && (
-                                <Button
-                                  type="button"
-                                  variant="secondary"
-                                  size="sm"
-                                  className="h-7 ml-2"
-                                  onClick={() => addSource(newSource)}
-                                >
-                                  Criar
-                                </Button>
+                                <div className="absolute right-2 top-1/2 -translate-y-1/2">
+                                  <Button
+                                    type="button"
+                                    variant="secondary"
+                                    size="sm"
+                                    className="h-7"
+                                    onClick={() => addSource(newSource)}
+                                  >
+                                    Criar
+                                  </Button>
+                                </div>
                               )}
                             </div>
                             <CommandList>
