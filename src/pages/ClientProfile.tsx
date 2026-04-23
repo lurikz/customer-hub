@@ -63,12 +63,7 @@
    }
  }
  
-  const getWhatsAppLink = (phone: string) => {
-    const cleaned = phone.replace(/\D/g, "");
-    // If it's a Brazilian number and doesn't have the country code, add 55
-    const formatted = (cleaned.length === 10 || cleaned.length === 11) ? `55${cleaned}` : cleaned;
-    return `https://wa.me/${formatted}`;
-  };
+ import { getWhatsAppLink } from "@/lib/utils";
 
  export default function ClientProfile() {
    const { id } = useParams<{ id: string }>();
