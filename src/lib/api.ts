@@ -286,6 +286,12 @@ export const authApi = {
     }
     return request<AuthUser>("/auth/me");
   },
+  async listTeam(): Promise<AuthUser[]> {
+    if (demoStore.isOn()) {
+      return [DEMO_USER];
+    }
+    return request<AuthUser[]>("/auth/team");
+  },
 };
 
  // =====================================================================
