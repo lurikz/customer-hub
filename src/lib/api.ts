@@ -14,9 +14,12 @@ export interface Client {
   tenant_id: string;
   name: string;
   company: string | null;
-  birth_date: string | null;
-  source: string | null;
-  notes: string | null;
+   birth_date: string | null;
+   email: string | null;
+   phone: string | null;
+   cpf_cnpj: string | null;
+   source: string | null;
+   notes: string | null;
   created_by: string | null;
   created_by_name?: string | null;
   created_at: string;
@@ -27,6 +30,9 @@ export interface Client {
    name: string;
    company?: string | null;
    birth_date?: string | null;
+   email?: string | null;
+   phone?: string | null;
+   cpf_cnpj?: string | null;
    source?: string | null;
    notes?: string | null;
  }
@@ -291,9 +297,12 @@ export const clientsApi = {
         tenant_id: DEMO_USER.tenantId ?? "demo-tenant",
         name: data.name,
         company: data.company ?? null,
-        birth_date: data.birth_date ?? null,
-        source: data.source ?? null,
-        notes: data.notes ?? null,
+         birth_date: data.birth_date ?? null,
+         email: data.email ?? null,
+         phone: data.phone ?? null,
+         cpf_cnpj: data.cpf_cnpj ?? null,
+         source: data.source ?? null,
+         notes: data.notes ?? null,
         created_by: DEMO_USER.id,
         created_by_name: DEMO_USER.name,
         created_at: now,
@@ -314,9 +323,12 @@ export const clientsApi = {
         ...all[i],
         name: data.name,
         company: data.company ?? null,
-        birth_date: data.birth_date ?? null,
-        source: data.source ?? null,
-        notes: data.notes ?? null,
+         birth_date: data.birth_date ?? null,
+         email: data.email ?? null,
+         phone: data.phone ?? null,
+         cpf_cnpj: data.cpf_cnpj ?? null,
+         source: data.source ?? null,
+         notes: data.notes ?? null,
         updated_at: new Date().toISOString(),
       };
       demoStore.saveClients(all);
