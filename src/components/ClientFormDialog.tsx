@@ -4,7 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
-import { Plus, Check, ChevronsUpDown } from "lucide-react";
+ import { Plus, Check, ChevronsUpDown, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -39,7 +39,7 @@ import {
 import { cn } from "@/lib/utils";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/hooks/use-toast";
-import { clientsApi, type Client } from "@/lib/api";
+ import { clientsApi, originsApi, type Client } from "@/lib/api";
 
 const schema = z.object({
   name: z
@@ -80,48 +80,55 @@ export function ClientFormDialog({ open, onOpenChange, client }: Props) {
     },
   });
 
-   const [sources, setSources] = useState<string[]>(["Indicação", "Lead"]);
-  const [newSource, setNewSource] = useState("");
-  const [popoverOpen, setPopoverOpen] = useState(false);
-
-  useEffect(() => {
-    if (open) {
-      form.reset({
-        name: client?.name ?? "",
-        company: client?.company ?? "",
-        birth_date: client?.birth_date ?? "",
-        source: client?.source ?? "",
-        notes: client?.notes ?? "",
-      });
-    }
-  }, [open, client, form]);
-
-  useEffect(() => {
-    const savedSources = localStorage.getItem("crm.sources");
-    if (savedSources) {
-      setSources(JSON.parse(savedSources));
-    }
-  }, []);
-
-  const addSource = (value: string) => {
-    const trimmed = value.trim();
-    if (!trimmed) return;
-
-    const existingSource = sources.find(
-      (s) => s.toLowerCase() === trimmed.toLowerCase()
-    );
-
-    if (existingSource) {
-      form.setValue("source", existingSource);
-    } else {
-      const updated = [...sources, trimmed];
-      setSources(updated);
-      localStorage.setItem("crm.sources", JSON.stringify(updated));
-      form.setValue("source", trimmed);
-    }
-    setNewSource("");
-    setPopoverOpen(false);
-  };
+   const [newSearchSource, setNewSearchSource] = useState("");
+   const [popoverOpen, setPopoverOpen] = useState(false);
+   const [originDialogOpen, setOriginDialogOpen] = useState(false);
+   const [newOriginName, setNewOriginName] = useState("");
+ 
+   const { data: sources = ["Indicação", "Lead"], refetch: refetchSources } = useQuery({
+     queryKey: ["origins"],
+     queryFn: originsApi.list,
+   });
+ 
+   useEffect(() => {
+     if (open) {
+       form.reset({
+         name: client?.name ?? "",
+         company: client?.company ?? "",
+         birth_date: client?.birth_date ?? "",
+         source: client?.source ?? "",
+         notes: client?.notes ?? "",
+       });
+     }
+   }, [open, client, form]);
+ 
+   const originMutation = useMutation({
+     mutationFn: (name: string) => originsApi.create({ name }),
+     onSuccess: (name) => {
+       refetchSources();
+       form.setValue("source", name);
+       setOriginDialogOpen(false);
+       setNewOriginName("");
+       setPopoverOpen(false);
+       toast({ title: "Origem salva", description: `A origem "${name}" foi cadastrada.` });
+     },
+     onError: (err: Error) => {
+       toast({
+         variant: "destructive",
+         title: "Erro ao salvar origem",
+         description: err.message,
+       });
+     },
+   });
+ 
+   const handleSaveOrigin = () => {
+     const trimmed = newOriginName.trim();
+     if (!trimmed) {
+       toast({ variant: "destructive", title: "Campo obrigatório", description: "Informe o nome da origem." });
+       return;
+     }
+     originMutation.mutate(trimmed);
+   };
 
   const mutation = useMutation({
     mutationFn: async (values: FormValues) => {
