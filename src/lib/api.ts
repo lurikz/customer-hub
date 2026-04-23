@@ -65,7 +65,7 @@ export interface Client {
    title: string;
    description: string | null;
    datetime: string;
-   status: "pendente" | "concluído";
+    status: "pendente" | "em_andamento" | "concluído" | "cancelada";
    created_at: string;
    updated_at: string;
    client_name?: string | null;
@@ -76,7 +76,7 @@ export interface Client {
    title: string;
    description?: string | null;
    datetime: string;
-   status?: "pendente" | "concluído";
+    status?: "pendente" | "em_andamento" | "concluído" | "cancelada";
    client_id?: string | null;
    user_id: string;
  }

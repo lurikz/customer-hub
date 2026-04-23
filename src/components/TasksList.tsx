@@ -50,14 +50,14 @@ export function TasksList({ tasks, onEdit, onToggleStatus }: Props) {
         <TableBody>
           {tasks.map((task) => {
             const date = new Date(task.datetime);
-            const isOverdue = isPast(date) && task.status === "pendente";
+            const isOverdue = isPast(date) && (task.status === "pendente" || task.status === "em_andamento");
 
             return (
               <TableRow 
                 key={task.id} 
                 className={cn(
-                  isOverdue && "bg-destructive/10 text-destructive hover:bg-destructive/15",
-                  task.status === "concluído" && "opacity-60"
+                  isOverdue && task.status !== "cancelada" && "bg-destructive/10 text-destructive hover:bg-destructive/15",
+                  (task.status === "concluído" || task.status === "cancelada") && "opacity-60"
                 )}
               >
                 <TableCell>
@@ -70,8 +70,8 @@ export function TasksList({ tasks, onEdit, onToggleStatus }: Props) {
                     }}
                     className={cn("h-8 w-8 rounded-full")}
                   >
-                    {task.status === "concluído" ? (
-                      <CheckCircle2 className="h-5 w-5 text-green-600 fill-green-50" />
+                    {task.status === "concluído" || task.status === "cancelada" ? (
+                      <CheckCircle2 className={cn("h-5 w-5", task.status === "cancelada" ? "text-muted-foreground" : "text-green-600 fill-green-50")} />
                     ) : (
                       <Circle className={cn("h-5 w-5", isOverdue ? "text-destructive" : "text-muted-foreground")} />
                     )}
@@ -105,10 +105,20 @@ export function TasksList({ tasks, onEdit, onToggleStatus }: Props) {
                   </div>
                 </TableCell>
                 <TableCell>
-                  <Badge
-                    variant={task.status === "concluído" ? "secondary" : isOverdue ? "destructive" : "outline"}
+                  <Badge 
+                    variant={
+                      task.status === "concluído" ? "secondary" : 
+                      task.status === "cancelada" ? "outline" :
+                      task.status === "em_andamento" ? "default" :
+                      isOverdue ? "destructive" : "outline"
+                    }
                   >
-                    {task.status === "concluído" ? "Concluído" : isOverdue ? "Atrasado" : "Pendente"}
+                    {
+                      task.status === "concluído" ? "Concluído" : 
+                      task.status === "cancelada" ? "Cancelada" :
+                      task.status === "em_andamento" ? "Em andamento" :
+                      isOverdue ? "Atrasado" : "Pendente"
+                    }
                   </Badge>
                 </TableCell>
                 <TableCell className="text-right">

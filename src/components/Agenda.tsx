@@ -61,8 +61,15 @@ export function Agenda() {
   });
 
   const toggleStatusMutation = useMutation({
-    mutationFn: (task: Task) => 
-      tasksApi.update(task.id, { status: task.status === "pendente" ? "concluído" : "pendente" }),
+    mutationFn: (task: Task) => {
+      let nextStatus: Task["status"] = "concluído";
+      if (task.status === "concluído") nextStatus = "pendente";
+      else if (task.status === "pendente") nextStatus = "em_andamento";
+      else if (task.status === "em_andamento") nextStatus = "concluído";
+      else if (task.status === "cancelada") nextStatus = "pendente";
+      
+      return tasksApi.update(task.id, { status: nextStatus });
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["tasks"] });
     },
@@ -234,17 +241,19 @@ export function Agenda() {
 
                 <div className="space-y-1.5">
                   {(view === "month" ? dayTasks.slice(0, 4) : dayTasks).map((task) => {
-                    const isTaskOverdue = isPast(new Date(task.datetime)) && task.status === "pendente";
+                    const isTaskOverdue = isPast(new Date(task.datetime)) && (task.status === "pendente" || task.status === "em_andamento");
                     return (
                       <div
                         key={task.id}
                         className={cn(
                           "group flex flex-col rounded border px-2 py-1.5 text-[10px] leading-tight cursor-pointer shadow-sm transition-all hover:ring-1 hover:ring-primary/20",
-                          task.status === "concluído" 
-                            ? "bg-muted/40 border-transparent text-muted-foreground" 
-                            : isTaskOverdue 
-                              ? "bg-destructive/10 border-destructive/30 text-destructive font-medium" 
-                              : "bg-primary/5 border-primary/20 text-primary font-medium"
+                          task.status === "concluído" || task.status === "cancelada"
+                            ? "bg-muted/40 border-transparent text-muted-foreground opacity-70" 
+                            : task.status === "em_andamento"
+                              ? "bg-blue-50 border-blue-200 text-blue-700 font-medium"
+                              : isTaskOverdue 
+                                ? "bg-destructive/10 border-destructive/30 text-destructive font-medium" 
+                                : "bg-primary/5 border-primary/20 text-primary font-medium"
                         )}
                         title={`${task.title}${task.description ? ': ' + task.description : ''}`}
                         onClick={(e) => {
@@ -253,7 +262,7 @@ export function Agenda() {
                         }}
                       >
                         <div className="flex items-start justify-between gap-1 mb-1">
-                          <span className={cn("font-bold truncate", task.status === "concluído" && "line-through opacity-70")}>
+                          <span className={cn("font-bold truncate", (task.status === "concluído" || task.status === "cancelada") && "line-through opacity-70")}>
                             {task.title}
                           </span>
                           <span className="shrink-0 opacity-70 font-medium tabular-nums">
@@ -263,7 +272,7 @@ export function Agenda() {
                         {task.description && (
                           <p className={cn(
                             "line-clamp-2 text-[9px] leading-[1.2] opacity-80",
-                            task.status === "concluído" && "opacity-50"
+                            (task.status === "concluído" || task.status === "cancelada") && "opacity-50"
                           )}>
                             {task.description}
                           </p>
