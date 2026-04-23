@@ -172,6 +172,15 @@ async function request<T>(path: string, init: RequestInit = {}, auth = true): Pr
 // =====================================================================
 // Auth API
 // =====================================================================
+ export interface Origin {
+   id: string;
+   name: string;
+ }
+ 
+ export interface OriginInput {
+   name: string;
+ }
+ 
 export const authApi = {
   async login(email: string, password: string): Promise<{ token: string; user: AuthUser }> {
     const ok = await probeBackend();
@@ -198,6 +207,31 @@ export const authApi = {
   },
 };
 
+ // =====================================================================
+ // Origins API
+ // =====================================================================
+ export const originsApi = {
+   async list(): Promise<string[]> {
+     if (demoStore.isOn()) {
+       const saved = localStorage.getItem("crm.sources");
+       return saved ? JSON.parse(saved) : ["Indicação", "Lead"];
+     }
+     return request<string[]>("/origins");
+   },
+   async create(data: OriginInput): Promise<string> {
+     if (demoStore.isOn()) {
+       const saved = localStorage.getItem("crm.sources");
+       const sources: string[] = saved ? JSON.parse(saved) : ["Indicação", "Lead"];
+       if (!sources.includes(data.name)) {
+         const updated = [...sources, data.name];
+         localStorage.setItem("crm.sources", JSON.stringify(updated));
+       }
+       return data.name;
+     }
+     return request<string>("/origins", { method: "POST", body: JSON.stringify(data) });
+   },
+ };
+ 
 // =====================================================================
 // Clients API
 // =====================================================================
