@@ -43,6 +43,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
 } from "@/components/ui/dialog";
 import { tasksApi, type Task } from "@/lib/api";
 import { useAuth } from "@/contexts/AuthContext";
@@ -321,11 +322,10 @@ export function Agenda() {
       </div>
 
       <Dialog open={dayModalOpen} onOpenChange={setDayModalOpen}>
-        <DialogContent className="max-w-2xl max-h-[85vh] overflow-hidden flex flex-col p-0" aria-describedby="agenda-day-description">
+        <DialogContent className="max-w-2xl max-h-[85vh] overflow-hidden flex flex-col p-0">
           <DialogHeader className="p-6 pb-2 shrink-0 border-b">
-            <p id="agenda-day-description" className="sr-only">Visualização detalhada das tarefas para o dia selecionado.</p>
             <div className="flex items-center justify-between pr-8">
-              <DialogTitle className="flex items-center gap-3 text-2xl font-bold" id="agenda-day-title">
+              <DialogTitle className="flex items-center gap-3 text-2xl font-bold">
                 <CalendarIcon className="h-6 w-6 text-primary" />
                 <span className="capitalize">
                   {selectedDay ? format(selectedDay, "EEEE, d 'de' MMMM", { locale: ptBR }) : "Tarefas do Dia"}
@@ -343,6 +343,9 @@ export function Agenda() {
                 Nova Tarefa
               </Button>
             </div>
+            <DialogDescription className="sr-only">
+              Visualização detalhada das tarefas para o dia selecionado.
+            </DialogDescription>
           </DialogHeader>
           
           <div className="flex-1 overflow-y-auto p-4 pt-0 space-y-4">
