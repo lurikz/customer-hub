@@ -156,7 +156,7 @@ function PlanRestrictionMessage({ feature }: { feature: string }) {
         Entre em contato com o administrador para realizar o upgrade.
       </p>
     </div>
-  );
+   );
  }
-
-export default Index;
+ 
+ export default Index;
