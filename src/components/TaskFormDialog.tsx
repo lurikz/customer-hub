@@ -190,10 +190,10 @@ export function TaskFormDialog({ open, onOpenChange, task, defaultDate, defaultC
  
    return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg">
+      <DialogContent className="sm:max-w-lg" aria-describedby="task-form-description">
         <DialogHeader>
           <DialogTitle>{isEditing ? "Editar tarefa" : "Nova tarefa"}</DialogTitle>
-          <DialogDescription>
+          <DialogDescription id="task-form-description">
             Preencha os detalhes da tarefa ou compromisso.
           </DialogDescription>
         </DialogHeader>
@@ -414,10 +414,10 @@ export function TaskFormDialog({ open, onOpenChange, task, defaultDate, defaultC
                            Excluir
                          </Button>
                        </AlertDialogTrigger>
-                       <AlertDialogContent>
+                       <AlertDialogContent aria-describedby="delete-task-description">
                          <AlertDialogHeader>
                            <AlertDialogTitle>Excluir tarefa?</AlertDialogTitle>
-                           <AlertDialogDescription>
+                            <AlertDialogDescription id="delete-task-description">
                              Esta ação não pode ser desfeita. A tarefa será removida permanentemente da agenda.
                            </AlertDialogDescription>
                          </AlertDialogHeader>
