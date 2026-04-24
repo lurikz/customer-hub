@@ -65,16 +65,18 @@ import { useAuth } from "@/contexts/AuthContext";
           <h2 className="text-3xl font-bold tracking-tight">Dashboard</h2>
           <p className="text-muted-foreground">Gerencie seus clientes e compromissos com facilidade.</p>
         </div>
-        <div className="flex items-center gap-3">
-          <Button 
-            onClick={openNew} 
-            disabled={!hasPermission("clients.editar")}
-            className="h-11 gap-2 rounded-xl bg-primary px-6 font-semibold shadow-[0_0_20px_rgba(124,58,237,0.4)] transition-all hover:scale-105 hover:bg-primary/90 active:scale-95 disabled:opacity-50"
-          >
-            <Plus className="h-5 w-5" />
-            Novo Cliente
-          </Button>
-        </div>
+        {activeTab === "clients" && (
+          <div className="flex items-center gap-3">
+            <Button 
+              onClick={openNew} 
+              disabled={!hasPermission("clients.editar")}
+              className="h-11 gap-2 rounded-xl bg-primary px-6 font-semibold shadow-[0_0_20px_rgba(124,58,237,0.4)] transition-all hover:scale-105 hover:bg-primary/90 active:scale-95 disabled:opacity-50"
+            >
+              <Plus className="h-5 w-5" />
+              Novo Cliente
+            </Button>
+          </div>
+        )}
       </div>
 
       <Tabs value={activeTab} onValueChange={(v) => setSearchParams({ tab: v })} className="flex w-full flex-1 flex-col overflow-hidden">
