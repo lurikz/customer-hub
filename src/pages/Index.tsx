@@ -70,19 +70,8 @@ import { useAuth } from "@/contexts/AuthContext";
          </div>
        </div>
  
-        <Tabs value={activeTab} onValueChange={(v) => setSearchParams({ tab: v })} className="flex w-full flex-1 flex-col overflow-hidden">
-          <TabsList className="inline-flex h-12 w-full justify-start rounded-xl border border-border/50 bg-background/50 p-1 backdrop-blur-sm sm:w-auto">
-           <TabsTrigger value="clients" className="h-10 gap-2 rounded-lg px-6 data-[state=active]:bg-primary data-[state=active]:text-white">
-             <LayoutDashboard className="h-4 w-4" />
-             Clientes
-           </TabsTrigger>
-           <TabsTrigger value="agenda" className="h-10 gap-2 rounded-lg px-6 data-[state=active]:bg-primary data-[state=active]:text-white">
-             <CalendarIcon className="h-4 w-4" />
-             Agenda
-           </TabsTrigger>
-         </TabsList>
- 
-         <TabsContent value="clients" className="mt-6 space-y-6 outline-none">
+        <Tabs value={activeTab} className="flex w-full flex-1 flex-col overflow-hidden">
+          <TabsContent value="clients" className="space-y-6 outline-none">
            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
              <div className="relative w-full sm:max-w-md">
                <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
