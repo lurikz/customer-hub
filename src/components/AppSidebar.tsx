@@ -56,7 +56,11 @@ import { useTheme } from "next-themes";
                  <SidebarMenuItem key={item.title}>
                    <SidebarMenuButton
                      asChild
-                     isActive={location.pathname === item.url || (item.url !== "/" && location.pathname.startsWith(item.url))}
+                      isActive={
+                        item.url === "/" 
+                          ? location.pathname === "/" && !location.search.includes("tab=agenda")
+                          : location.search.includes("tab=agenda") && item.url.includes("tab=agenda")
+                      }
                      tooltip={item.title}
                       className="relative h-11 px-4 transition-all hover:bg-accent hover:text-primary data-[active=true]:bg-primary/10 data-[active=true]:text-primary"
                    >
