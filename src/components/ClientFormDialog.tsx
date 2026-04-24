@@ -198,7 +198,7 @@ export function ClientFormDialog({ open, onOpenChange, client }: Props) {
    return (
      <>
        <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg">
+        <DialogContent className="sm:max-w-lg" aria-describedby="client-form-description">
         <DialogHeader>
           <DialogTitle>
             {isEditing ? "Editar cliente" : "Novo cliente"}
