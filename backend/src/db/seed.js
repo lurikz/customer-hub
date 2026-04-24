@@ -1,61 +1,72 @@
-/**
- * Seed inicial: cria tenant + super_admin.
- *
- * Defaults (sobrescritos por env):
- *   SEED_TENANT_NAME = "Padilha CRM"
- *   SEED_USER_NAME   = "Padilha Admin"
- *   SEED_USER_EMAIL  = "padilha@admin.com"
- *   SEED_USER_PASSWORD = "mp469535"
- *
- * Idempotente: se o e-mail já existir, apenas reporta.
- */
-import 'dotenv/config';
 import bcrypt from 'bcryptjs';
-import { pool, query } from './pool.js';
-import { runMigrations } from './migrate.js';
+import { pool } from './pool.js';
 
-async function main() {
-  const tenantName = process.env.SEED_TENANT_NAME || 'Padilha CRM';
-  const userName = process.env.SEED_USER_NAME || 'Padilha Admin';
-  const userEmail = (process.env.SEED_USER_EMAIL || 'padilha@admin.com').toLowerCase();
-  const userPassword = process.env.SEED_USER_PASSWORD || 'mp469535';
+async function seed() {
+  console.log('🌱 Populando banco de dados...');
+  
+  try {
+    // 1. Criar Plano Master
+    const { rows: planRows } = await pool.query(`
+      INSERT INTO plans (name, max_users, features)
+      VALUES ('Plano Master', 999, '{"clientes": true, "agenda": true}')
+      ON CONFLICT DO NOTHING
+      RETURNING id
+    `);
+    
+    let planId = planRows[0]?.id;
+    if (!planId) {
+       const res = await pool.query("SELECT id FROM plans WHERE name = 'Plano Master' LIMIT 1");
+       planId = res.rows[0].id;
+    }
 
-  if (userPassword.length < 6) {
-    console.error('❌ SEED_USER_PASSWORD muito curta');
-    process.exit(1);
+    // 2. Criar Tenant Master
+    const { rows: tenantRows } = await pool.query(`
+      INSERT INTO tenants (name, plan_id)
+      VALUES ('Mudali Tech Master', $1)
+      ON CONFLICT DO NOTHING
+      RETURNING id
+    `, [planId]);
+    
+    let tenantId = tenantRows[0]?.id;
+    if (!tenantId) {
+      const res = await pool.query("SELECT id FROM tenants WHERE name = 'Mudali Tech Master' LIMIT 1");
+      tenantId = res.rows[0].id;
+    }
+
+    // 3. Criar Perfil de Administrador para o Tenant
+    const { rows: roleRows } = await pool.query(`
+      INSERT INTO roles (name, tenant_id, permissions)
+      VALUES ('Administrador Master', $1, '{"clients": {"visualizar": true, "editar": true, "excluir": true}, "agenda": {"acessar": true}}')
+      ON CONFLICT DO NOTHING
+      RETURNING id
+    `, [tenantId]);
+    
+    let roleId = roleRows[0]?.id;
+    if (!roleId) {
+       const res = await pool.query("SELECT id FROM roles WHERE name = 'Administrador Master' AND tenant_id = $1 LIMIT 1", [tenantId]);
+       roleId = res.rows[0].id;
+    }
+
+    // 4. Criar Usuário Master
+    const email = 'padilha.ctt@gmail.com';
+    const password = 'mp469535';
+    const hash = await bcrypt.hash(password, 12);
+    
+    await pool.query(`
+      INSERT INTO users (tenant_id, name, email, password_hash, role, role_id)
+      VALUES ($1, 'Padilha Master', $2, $3, 'super_admin', $4)
+      ON CONFLICT (email) DO UPDATE SET
+        tenant_id = EXCLUDED.tenant_id,
+        role = EXCLUDED.role,
+        role_id = EXCLUDED.role_id
+    `, [tenantId, email, hash, roleId]);
+
+    console.log('✅ Seed finalizado com sucesso!');
+  } catch (err) {
+    console.error('❌ Erro no seed:', err);
+  } finally {
+    process.exit(0);
   }
-
-  await runMigrations();
-
-  const existing = await query('SELECT id, tenant_id, role FROM users WHERE email = $1', [
-    userEmail,
-  ]);
-  if (existing.rows[0]) {
-    console.log('ℹ️  Usuário já existe:', existing.rows[0]);
-    return;
-  }
-
-  const tenant = await query(
-    'INSERT INTO tenants (name) VALUES ($1) RETURNING id, name',
-    [tenantName]
-  );
-
-  const hash = await bcrypt.hash(userPassword, 12);
-  const user = await query(
-    `INSERT INTO users (tenant_id, name, email, password_hash, role)
-     VALUES ($1, $2, $3, $4, 'super_admin')
-     RETURNING id, tenant_id, name, email, role`,
-    [tenant.rows[0].id, userName, userEmail, hash]
-  );
-
-  console.log('✅ Tenant criado:', tenant.rows[0]);
-  console.log('✅ super_admin criado:', user.rows[0]);
 }
 
-main()
-  .then(() => pool.end())
-  .catch((e) => {
-    console.error(e);
-    pool.end();
-    process.exit(1);
-  });
+seed();
