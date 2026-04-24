@@ -192,7 +192,7 @@ export function TaskFormDialog({ open, onOpenChange, task, defaultDate, defaultC
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-lg" aria-describedby="task-form-description">
         <DialogHeader>
-          <DialogTitle>{isEditing ? "Editar tarefa" : "Nova tarefa"}</DialogTitle>
+          <DialogTitle id="task-form-title">{isEditing ? "Editar tarefa" : "Nova tarefa"}</DialogTitle>
           <DialogDescription id="task-form-description">
             Preencha os detalhes da tarefa ou compromisso.
           </DialogDescription>

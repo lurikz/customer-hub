@@ -331,17 +331,19 @@ export function Agenda() {
                   {selectedDay ? format(selectedDay, "EEEE, d 'de' MMMM", { locale: ptBR }) : "Tarefas do Dia"}
                 </span>
               </div>
-              <Button 
-                size="sm" 
-                onClick={() => {
-                  setDayModalOpen(false);
-                  handleNewTask(selectedDay || undefined);
-                }}
-                className="gap-2"
-              >
-                <Plus className="h-4 w-4" />
-                Nova Tarefa
-              </Button>
+              <div className="flex gap-2">
+                <Button 
+                  size="sm" 
+                  onClick={() => {
+                    setDayModalOpen(false);
+                    handleNewTask(selectedDay || undefined);
+                  }}
+                  className="gap-2"
+                >
+                  <Plus className="h-4 w-4" />
+                  Nova Tarefa
+                </Button>
+              </div>
             </DialogTitle>
           </DialogHeader>
           
