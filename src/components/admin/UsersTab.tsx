@@ -1,6 +1,6 @@
  import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
  import { Plus, Filter } from "lucide-react";
- import { adminApi } from "@/lib/api";
+import { adminApi, apiConfig } from "@/lib/api";
  import { Button } from "@/components/ui/button";
  import {
    Table,
@@ -149,8 +149,12 @@
                    </SelectContent>
                  </Select>
                </div>
-               <Button type="submit" className="w-full" disabled={mutation.isPending}>
-                 {mutation.isPending ? "Criando..." : "Criar Usuário"}
+                <Button 
+                  type="submit" 
+                  className="w-full" 
+                  disabled={mutation.isPending || apiConfig.isDemo()}
+                >
+                  {apiConfig.isDemo() ? "Não disponível em modo demo" : (mutation.isPending ? "Criando..." : "Criar Usuário")}
                </Button>
              </form>
            </DialogContent>
