@@ -43,6 +43,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
 } from "@/components/ui/dialog";
 import { tasksApi, type Task } from "@/lib/api";
 import { useAuth } from "@/contexts/AuthContext";
