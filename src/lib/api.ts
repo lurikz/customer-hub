@@ -354,7 +354,7 @@ export const authApi = {
        }
        return data.name;
      }
-     return request<string>("/origins", { method: "POST", body: JSON.stringify(data) });
+      return request<string>("/clients/origins", { method: "POST", body: JSON.stringify(data) });
    },
  };
  
