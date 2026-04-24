@@ -259,11 +259,14 @@ async function request<T>(path: string, init: RequestInit = {}, auth = true): Pr
   if (res.status === 204) return undefined as T;
 
   const ct = res.headers.get("content-type") || "";
-  if (!ct.includes("application/json")) {
-    // Backend ausente (preview estático devolveu HTML). Sinaliza para o caller
-    // decidir se cai no modo demo.
-    throw new ApiError("Backend indisponível (resposta não-JSON)", 502);
-  }
+   // Se não for JSON (ex: 404 HTML ou erro do EasyPanel), retornamos um erro específico
+   // que permite ao sistema decidir se entra em modo demo ou apenas reporta falha.
+   if (!ct.includes("application/json")) {
+     if (res.status === 404) {
+       throw new ApiError(`Rota não encontrada no servidor (${path})`, 404);
+     }
+     throw new ApiError("Servidor retornou um formato inesperado (não-JSON)", 502);
+   }
 
   let body: unknown = null;
   try {
