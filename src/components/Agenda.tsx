@@ -324,27 +324,25 @@ export function Agenda() {
         <DialogContent className="max-w-2xl max-h-[85vh] overflow-hidden flex flex-col p-0" aria-describedby="agenda-day-description">
           <DialogHeader className="p-6 pb-2 shrink-0 border-b">
             <p id="agenda-day-description" className="sr-only">Visualização detalhada das tarefas para o dia selecionado.</p>
-            <DialogTitle className="flex items-center justify-between text-2xl font-bold pr-8" id="agenda-day-title">
-              <div className="flex items-center gap-3">
+            <div className="flex items-center justify-between pr-8">
+              <DialogTitle className="flex items-center gap-3 text-2xl font-bold" id="agenda-day-title">
                 <CalendarIcon className="h-6 w-6 text-primary" />
                 <span className="capitalize">
                   {selectedDay ? format(selectedDay, "EEEE, d 'de' MMMM", { locale: ptBR }) : "Tarefas do Dia"}
                 </span>
-              </div>
-              <div className="flex gap-2">
-                <Button 
-                  size="sm" 
-                  onClick={() => {
-                    setDayModalOpen(false);
-                    handleNewTask(selectedDay || undefined);
-                  }}
-                  className="gap-2"
-                >
-                  <Plus className="h-4 w-4" />
-                  Nova Tarefa
-                </Button>
-              </div>
-            </DialogTitle>
+              </DialogTitle>
+              <Button 
+                size="sm" 
+                onClick={() => {
+                  setDayModalOpen(false);
+                  handleNewTask(selectedDay || undefined);
+                }}
+                className="gap-2"
+              >
+                <Plus className="h-4 w-4" />
+                Nova Tarefa
+              </Button>
+            </div>
           </DialogHeader>
           
           <div className="flex-1 overflow-y-auto p-4 pt-0 space-y-4">
