@@ -109,13 +109,15 @@ export interface Client {
    user_id: string;
  }
  
-export interface AuthUser {
-  id: string;
-  tenantId: string | null;
-  name: string;
-  email: string;
-  role: Role;
-}
+ export interface AuthUser {
+   id: string;
+   tenantId: string | null;
+   name: string;
+   email: string;
+   role: Role;
+   permissions?: Record<string, any>;
+   features?: Record<string, boolean>;
+ }
 
 export interface AdminUser {
   id: string;
