@@ -7,7 +7,7 @@ router.get('/', async (req, res, next) => {
   try {
     // Busca todas as origens únicas cadastradas pelos clientes do tenant
     const { rows } = await query(
-      'SELECT DISTINCT source FROM clients WHERE tenant_id = $1 AND source IS NOT NULL AND source <> '"' ORDER BY source ASC',
+       "SELECT DISTINCT source FROM clients WHERE tenant_id = $1 AND source IS NOT NULL AND source <> '' ORDER BY source ASC",
       [req.auth.tenantId]
     );
     
