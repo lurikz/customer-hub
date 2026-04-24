@@ -1,3 +1,31 @@
+ export interface AdminTenant {
+   id: string;
+   name: string;
+   cnpj: string | null;
+   plan_id: string | null;
+   plan_name?: string | null;
+   users_count?: number;
+   max_users?: number;
+   created_at: string;
+ }
+ 
+ export interface AdminPlan {
+   id: string;
+   name: string;
+   max_users: number;
+   features: Record<string, boolean>;
+   created_at: string;
+ }
+ 
+ export interface AdminRole {
+   id: string;
+   name: string;
+   tenant_id: string | null;
+   tenant_name?: string | null;
+   permissions: Record<string, any>;
+   created_at: string;
+ }
+ 
 // Cliente HTTP para a API do CRM, com JWT Bearer.
 // Inclui um fallback "modo demo" quando o backend Node/Express não está
 // disponível (ex.: preview estático do Lovable). Em produção real o backend
@@ -408,20 +436,37 @@ export const adminApi = {
     }
     return request<AdminStats>("/admin");
   },
-   async listUsers(): Promise<AdminUser[]> {
-     if (demoStore.isOn()) {
-       return [
-         {
-           id: DEMO_USER.id,
-           tenant_id: DEMO_USER.tenantId,
-           name: DEMO_USER.name,
-           email: DEMO_USER.email,
-           role: DEMO_USER.role,
-           created_at: new Date().toISOString(),
-         },
-       ];
-     }
-     return request<AdminUser[]>("/admin/users");
+   async listUsers(): Promise<(AdminUser & { tenant_name?: string; role_name?: string })[]> {
+     if (demoStore.isOn()) return [{ ...DEMO_USER, tenant_id: DEMO_USER.tenantId, created_at: new Date().toISOString() }];
+     return request<(AdminUser & { tenant_name?: string; role_name?: string })[]>("/admin/users");
+   },
+   async createUser(data: any): Promise<AdminUser> {
+     if (demoStore.isOn()) throw new ApiError("Não disponível em modo demo", 400);
+     return request<AdminUser>("/admin/users", { method: "POST", body: JSON.stringify(data) });
+   },
+   async listTenants(): Promise<AdminTenant[]> {
+     if (demoStore.isOn()) return [];
+     return request<AdminTenant[]>("/admin/tenants");
+   },
+   async createTenant(data: any): Promise<AdminTenant> {
+     if (demoStore.isOn()) throw new ApiError("Não disponível em modo demo", 400);
+     return request<AdminTenant>("/admin/tenants", { method: "POST", body: JSON.stringify(data) });
+   },
+   async listPlans(): Promise<AdminPlan[]> {
+     if (demoStore.isOn()) return [];
+     return request<AdminPlan[]>("/admin/plans");
+   },
+   async createPlan(data: any): Promise<AdminPlan> {
+     if (demoStore.isOn()) throw new ApiError("Não disponível em modo demo", 400);
+     return request<AdminPlan>("/admin/plans", { method: "POST", body: JSON.stringify(data) });
+   },
+   async listRoles(): Promise<AdminRole[]> {
+     if (demoStore.isOn()) return [];
+     return request<AdminRole[]>("/admin/roles");
+   },
+   async createRole(data: any): Promise<AdminRole> {
+     if (demoStore.isOn()) throw new ApiError("Não disponível em modo demo", 400);
+     return request<AdminRole>("/admin/roles", { method: "POST", body: JSON.stringify(data) });
    },
  };
  
