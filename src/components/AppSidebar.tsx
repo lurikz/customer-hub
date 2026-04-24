@@ -42,7 +42,7 @@ import { useTheme } from "next-themes";
               <LayoutDashboard className="h-5 w-5 text-primary-foreground" />
            </div>
            <div className="flex flex-col group-data-[collapsible=icon]:hidden">
-              <span className="text-sm font-bold tracking-tight">TECH CRM</span>
+               <span className="text-sm font-bold tracking-tight uppercase">Mudali Tech</span>
              <span className="text-[10px] uppercase tracking-wider text-muted-foreground">Sistema de Gestão</span>
            </div>
          </div>
