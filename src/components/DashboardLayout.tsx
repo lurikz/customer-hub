@@ -32,7 +32,7 @@
               <SidebarTrigger />
              <div className="ml-4 flex items-center gap-2">
                <div className="h-6 w-6 rounded bg-primary" />
-                <span className="text-sm font-bold tracking-tight uppercase">TECH CRM</span>
+                 <span className="text-sm font-bold tracking-tight uppercase">Mudali Tech</span>
              </div>
            </header>
              <main className="flex h-[calc(100vh-4rem)] flex-col overflow-hidden bg-background lg:h-screen">
