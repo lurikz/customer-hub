@@ -41,18 +41,20 @@ CREATE TABLE IF NOT EXISTS users (
   name           TEXT NOT NULL,
   email          TEXT NOT NULL,
   password_hash  TEXT NOT NULL,
-   role           TEXT NOT NULL DEFAULT 'user',
-   role_id        UUID REFERENCES roles(id) ON DELETE SET NULL,
- ALTER TABLE tenants ADD COLUMN IF NOT EXISTS plan_id UUID REFERENCES plans(id) ON DELETE SET NULL;
- ALTER TABLE tenants ADD COLUMN IF NOT EXISTS cnpj TEXT;
- ALTER TABLE users ADD COLUMN IF NOT EXISTS role_id UUID REFERENCES roles(id) ON DELETE SET NULL;
- 
+  role           TEXT NOT NULL DEFAULT 'user',
+  role_id        UUID REFERENCES roles(id) ON DELETE SET NULL,
   created_at     TIMESTAMPTZ NOT NULL DEFAULT now(),
   UNIQUE (email)
 );
 
 -- super_admin global pode ter tenant_id NULL
+-- super_admin global pode ter tenant_id NULL
 ALTER TABLE users ALTER COLUMN tenant_id DROP NOT NULL;
+
+-- Colunas adicionais necessárias
+ALTER TABLE tenants ADD COLUMN IF NOT EXISTS plan_id UUID REFERENCES plans(id) ON DELETE SET NULL;
+ALTER TABLE tenants ADD COLUMN IF NOT EXISTS cnpj TEXT;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS role_id UUID REFERENCES roles(id) ON DELETE SET NULL;
 
 -- Migração de roles legadas
 UPDATE users SET role = 'super_admin' WHERE role = 'owner';
