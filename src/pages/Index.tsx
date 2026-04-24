@@ -157,63 +157,6 @@ function PlanRestrictionMessage({ feature }: { feature: string }) {
       </p>
     </div>
   );
-}
- 
-        <Tabs value={activeTab} className="flex w-full flex-1 flex-col overflow-hidden">
-          <TabsContent value="clients" className="space-y-6 outline-none">
-           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-             <div className="relative w-full sm:max-w-md">
-               <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
-               <Input
-                 value={search}
-                 onChange={(e) => setSearch(e.target.value)}
-                 placeholder="Buscar por nome ou empresa..."
-                  className="h-12 rounded-xl border-border/50 bg-background/50 pl-11 backdrop-blur-sm transition-all focus:border-primary/50 focus:ring-primary/20"
-               />
-             </div>
-             <p className="text-sm font-medium text-muted-foreground">
-               {data ? (
-                 <span className="flex items-center gap-2">
-                   <span className="h-2 w-2 rounded-full bg-primary animate-pulse" />
-                   {filtered.length} de {data.length} clientes
-                 </span>
-               ) : "—"}
-             </p>
-           </div>
- 
-           {error ? (
-             <Alert variant="destructive" className="rounded-xl border-destructive/20 bg-destructive/10">
-               <AlertTitle>Erro ao carregar clientes</AlertTitle>
-               <AlertDescription>{(error as Error).message}</AlertDescription>
-             </Alert>
-           ) : isLoading ? (
-              <div className="flex h-[400px] w-full items-center justify-center rounded-2xl border border-border/50 bg-card/50 backdrop-blur-sm">
-               <div className="flex flex-col items-center gap-4">
-                 <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
-                 <p className="text-sm text-muted-foreground">Carregando dados dos clientes...</p>
-               </div>
-             </div>
-           ) : (
-              <div className="overflow-hidden rounded-2xl border border-border/50 bg-card/50 shadow-xl backdrop-blur-sm">
-               <ClientsTable clients={filtered} onEdit={openEdit} />
-             </div>
-           )}
-         </TabsContent>
- 
-           <TabsContent value="agenda" className="flex flex-1 flex-col overflow-hidden pt-6 outline-none">
-             <div className="flex-1 overflow-hidden rounded-2xl border border-border/50 bg-card/50 shadow-xl backdrop-blur-sm">
-               <Agenda />
-             </div>
-           </TabsContent>
-       </Tabs>
- 
-       <ClientFormDialog
-         open={dialogOpen}
-         onOpenChange={setDialogOpen}
-         client={editing}
-       />
-     </div>
-   );
-};
+ }
 
 export default Index;
