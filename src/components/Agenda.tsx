@@ -321,9 +321,10 @@ export function Agenda() {
       </div>
 
       <Dialog open={dayModalOpen} onOpenChange={setDayModalOpen}>
-        <DialogContent className="max-w-2xl max-h-[85vh] overflow-hidden flex flex-col p-0">
-          <DialogHeader className="p-6 pb-2 shrink-0">
-            <DialogTitle className="flex items-center justify-between text-2xl font-bold pr-8">
+        <DialogContent className="max-w-2xl max-h-[85vh] overflow-hidden flex flex-col p-0" aria-describedby="agenda-day-description">
+          <DialogHeader className="p-6 pb-2 shrink-0 border-b">
+            <p id="agenda-day-description" className="sr-only">Visualização detalhada das tarefas para o dia selecionado.</p>
+            <DialogTitle className="flex items-center justify-between text-2xl font-bold pr-8" id="agenda-day-title">
               <div className="flex items-center gap-3">
                 <CalendarIcon className="h-6 w-6 text-primary" />
                 <span className="capitalize">
