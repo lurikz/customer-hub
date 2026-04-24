@@ -203,7 +203,7 @@ export function ClientFormDialog({ open, onOpenChange, client }: Props) {
           <DialogTitle>
             {isEditing ? "Editar cliente" : "Novo cliente"}
           </DialogTitle>
-          <DialogDescription>
+          <DialogDescription id="client-form-description">
             Preencha os dados abaixo. Campos marcados com * são obrigatórios.
           </DialogDescription>
         </DialogHeader>
@@ -470,10 +470,10 @@ export function ClientFormDialog({ open, onOpenChange, client }: Props) {
        </Dialog>
  
        <Dialog open={originDialogOpen} onOpenChange={setOriginDialogOpen}>
-       <DialogContent className="sm:max-w-[425px]">
+        <DialogContent className="sm:max-w-[425px]" aria-describedby="origin-form-description">
          <DialogHeader>
            <DialogTitle>Nova Origem</DialogTitle>
-           <DialogDescription>
+            <DialogDescription id="origin-form-description">
              Cadastre uma nova origem para os clientes.
            </DialogDescription>
          </DialogHeader>
