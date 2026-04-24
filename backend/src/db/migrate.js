@@ -6,11 +6,29 @@ CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 -- =====================================================
 -- TENANTS
 -- =====================================================
-CREATE TABLE IF NOT EXISTS tenants (
-  id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  name        TEXT NOT NULL,
-  created_at  TIMESTAMPTZ NOT NULL DEFAULT now()
-);
+ CREATE TABLE IF NOT EXISTS plans (
+   id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+   name        TEXT NOT NULL,
+   max_users   INTEGER NOT NULL DEFAULT 1,
+   features    JSONB NOT NULL DEFAULT '{}'::jsonb,
+   created_at  TIMESTAMPTZ NOT NULL DEFAULT now()
+ );
+ 
+ CREATE TABLE IF NOT EXISTS tenants (
+   id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+   name        TEXT NOT NULL,
+   plan_id     UUID REFERENCES plans(id) ON DELETE SET NULL,
+   cnpj        TEXT,
+   created_at  TIMESTAMPTZ NOT NULL DEFAULT now()
+ );
+ 
+ CREATE TABLE IF NOT EXISTS roles (
+   id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+   name        TEXT NOT NULL,
+   tenant_id   UUID REFERENCES tenants(id) ON DELETE CASCADE,
+   permissions JSONB NOT NULL DEFAULT '{}'::jsonb,
+   created_at  TIMESTAMPTZ NOT NULL DEFAULT now()
+ );
 
 -- =====================================================
 -- USERS
@@ -23,7 +41,12 @@ CREATE TABLE IF NOT EXISTS users (
   name           TEXT NOT NULL,
   email          TEXT NOT NULL,
   password_hash  TEXT NOT NULL,
-  role           TEXT NOT NULL DEFAULT 'user',
+   role           TEXT NOT NULL DEFAULT 'user',
+   role_id        UUID REFERENCES roles(id) ON DELETE SET NULL,
+ ALTER TABLE tenants ADD COLUMN IF NOT EXISTS plan_id UUID REFERENCES plans(id) ON DELETE SET NULL;
+ ALTER TABLE tenants ADD COLUMN IF NOT EXISTS cnpj TEXT;
+ ALTER TABLE users ADD COLUMN IF NOT EXISTS role_id UUID REFERENCES roles(id) ON DELETE SET NULL;
+ 
   created_at     TIMESTAMPTZ NOT NULL DEFAULT now(),
   UNIQUE (email)
 );

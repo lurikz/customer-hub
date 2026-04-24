@@ -4,7 +4,8 @@ import { Router } from 'express';
 import rateLimit from 'express-rate-limit';
 import { z } from 'zod';
 
-import * as users from '../repositories/users.repo.js';
+ import * as usersRepo from '../repositories/users.repo.js';
+ import { query } from '../db/pool.js';
 import * as audit from '../repositories/audit.repo.js';
 import { httpError } from '../middleware/errorHandler.js';
 import { jwtAuth } from '../middleware/jwtAuth.js';
@@ -51,8 +52,7 @@ function signToken(user) {
 router.post('/login', loginLimiter, async (req, res, next) => {
   try {
     const { email, password } = loginSchema.parse(req.body);
-    // Busca apenas pelo email (sem filtrar por tenant_id).
-    let user = await users.findByEmail(email);
+     let user = await usersRepo.findByEmail(email);
     const hash = user?.password_hash || DUMMY_HASH;
     const ok = await bcrypt.compare(password, hash);
 
@@ -65,11 +65,19 @@ router.post('/login', loginLimiter, async (req, res, next) => {
       throw httpError(401, 'Credenciais inválidas');
     }
 
-    // super_admin sem tenant → vincular a um workspace "Master" para usar o CRM.
-    if (user.role === 'super_admin' && !user.tenant_id) {
-      const tenantId = await users.ensureMasterWorkspace(user.id);
-      user = { ...user, tenant_id: tenantId };
-    }
+     if (user.role === 'super_admin' && !user.tenant_id) {
+       const tenantId = await usersRepo.ensureMasterWorkspace(user.id);
+       user = { ...user, tenant_id: tenantId };
+     }
+ 
+     const { rows: userRoles } = await query(
+       `SELECT r.permissions FROM users u LEFT JOIN roles r ON u.role_id = r.id WHERE u.id = $1`,
+       [user.id]
+     );
+     const { rows: planFeatures } = await query(
+       `SELECT p.features FROM tenants t JOIN plans p ON t.plan_id = p.id WHERE t.id = $1`,
+       [user.tenant_id]
+     );
 
     const token = signToken(user);
     await audit.log({
@@ -79,40 +87,52 @@ router.post('/login', loginLimiter, async (req, res, next) => {
       ip: req.ip,
     });
 
-    res.json({
-      token,
-      user: {
-        id: user.id,
-        tenantId: user.tenant_id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-      },
-    });
+     res.json({
+       token,
+       user: {
+         id: user.id,
+         tenantId: user.tenant_id,
+         name: user.name,
+         email: user.email,
+         role: user.role,
+         permissions: userRoles[0]?.permissions || {},
+         features: planFeatures[0]?.features || {}
+       },
+     });
   } catch (e) {
     next(e);
   }
 });
 
-router.get('/me', jwtAuth, async (req, res, next) => {
-  try {
-    const u = await users.findById(req.auth.userId);
-    if (!u) throw httpError(404, 'Usuário não encontrado');
-    res.json({
-      id: u.id,
-      tenantId: u.tenant_id,
-      name: u.name,
-      email: u.email,
-      role: u.role,
-    });
-  } catch (e) {
-    next(e);
-  }
-});
+ router.get('/me', jwtAuth, async (req, res, next) => {
+   try {
+     const u = await usersRepo.findById(req.auth.userId);
+     if (!u) throw httpError(404, 'Usuário não encontrado');
+     
+     const { rows: userRoles } = await query(
+       `SELECT r.permissions FROM users u LEFT JOIN roles r ON u.role_id = r.id WHERE u.id = $1`,
+       [u.id]
+     );
+     const { rows: planFeatures } = await query(
+       `SELECT p.features FROM tenants t JOIN plans p ON t.plan_id = p.id WHERE t.id = $1`,
+       [u.tenant_id]
+     );
+ 
+     res.json({
+       id: u.id,
+       tenantId: u.tenant_id,
+       name: u.name,
+       email: u.email,
+       role: u.role,
+       permissions: userRoles[0]?.permissions || {},
+       features: planFeatures[0]?.features || {}
+     });
+   } catch (e) { next(e); }
+ });
 
 router.get('/team', jwtAuth, async (req, res, next) => {
   try {
-    const team = await users.listByTenant(req.auth.tenantId);
+     const team = await usersRepo.listByTenant(req.auth.tenantId);
     res.json(team);
   } catch (e) {
     next(e);

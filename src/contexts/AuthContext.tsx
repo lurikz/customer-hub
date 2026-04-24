@@ -6,7 +6,9 @@ interface AuthContextValue {
   loading: boolean;
   login: (email: string, password: string) => Promise<AuthUser>;
   logout: () => void;
-  hasRole: (...roles: Role[]) => boolean;
+   hasRole: (...roles: Role[]) => boolean;
+   hasFeature: (feature: string) => boolean;
+   hasPermission: (path: string) => boolean;
 }
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
@@ -44,13 +46,34 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return u;
   }, []);
 
-  const hasRole = useCallback(
-    (...roles: Role[]) => !!user && roles.includes(user.role),
-    [user]
-  );
+   const hasRole = useCallback(
+     (...roles: Role[]) => !!user && roles.includes(user.role),
+     [user]
+   );
+ 
+   const hasFeature = useCallback(
+     (feature: string) => {
+       if (user?.role === "super_admin") return true;
+       return !!user?.features?.[feature];
+     },
+     [user]
+   );
+ 
+   const hasPermission = useCallback(
+     (path: string) => {
+       if (user?.role === "super_admin") return true;
+       const parts = path.split(".");
+       let allowed: any = user?.permissions;
+       for (const p of parts) {
+         allowed = allowed?.[p];
+       }
+       return allowed === true;
+     },
+     [user]
+   );
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, logout, hasRole }}>
+     <AuthContext.Provider value={{ user, loading, login, logout, hasRole, hasFeature, hasPermission }}>
       {children}
     </AuthContext.Provider>
   );

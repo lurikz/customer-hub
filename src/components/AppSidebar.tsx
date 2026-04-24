@@ -17,22 +17,24 @@ import { useTheme } from "next-themes";
  import { Button } from "@/components/ui/button";
  
  export function AppSidebar() {
-   const { user, logout, hasRole } = useAuth();
+    const { user, logout, hasRole, hasFeature, hasPermission } = useAuth();
    const location = useLocation();
     const { theme, setTheme } = useTheme();
  
-   const menuItems = [
-     {
-       title: "Clientes",
-       icon: Users,
-       url: "/",
-     },
-     {
-       title: "Agenda",
-       icon: Calendar,
-       url: "/?tab=agenda",
-     },
-   ];
+    const menuItems = [
+      {
+        title: "Clientes",
+        icon: Users,
+        url: "/",
+        visible: hasFeature("clientes") && hasPermission("clients.visualizar"),
+      },
+      {
+        title: "Agenda",
+        icon: Calendar,
+        url: "/?tab=agenda",
+        visible: hasFeature("agenda") && hasPermission("agenda.acessar"),
+      },
+    ].filter(item => item.visible !== false);
  
    return (
       <Sidebar collapsible="icon" className="border-r border-border/50 bg-sidebar backdrop-blur-xl">
