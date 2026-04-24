@@ -331,13 +331,19 @@ export const authApi = {
  // Origins API
  // =====================================================================
  export const originsApi = {
-   async list(): Promise<string[]> {
-     if (demoStore.isOn()) {
-       const saved = localStorage.getItem("crm.sources");
-       return saved ? JSON.parse(saved) : ["Indicação", "Lead"];
-     }
-     return request<string[]>("/origins");
-   },
+    async list(): Promise<string[]> {
+      if (demoStore.isOn()) {
+        const saved = localStorage.getItem("crm.sources");
+        return saved ? JSON.parse(saved) : ["Indicação", "Lead"];
+      }
+      try {
+        return await request<string[]>("/origins");
+      } catch (e) {
+        // Fallback silencioso caso a rota ainda não exista ou dê erro no servidor
+        console.warn("Falha ao carregar origens do servidor, usando padrão:", e);
+        return ["Indicação", "Lead", "Instagram", "WhatsApp"];
+      }
+    },
    async create(data: OriginInput): Promise<string> {
      if (demoStore.isOn()) {
        const saved = localStorage.getItem("crm.sources");
