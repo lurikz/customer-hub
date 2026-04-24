@@ -275,12 +275,19 @@ export function Agenda() {
                      onClick={() => handleDayClick(day)}
                    >
                      <div className="flex items-center justify-between px-1 border-b border-border/10 mb-0.5">
-                       <span className={cn(
-                         "flex h-4 w-4 items-center justify-center rounded-full text-[10px] font-medium",
-                         isTodayDay ? "bg-primary text-primary-foreground" : "text-muted-foreground"
-                       )}>
-                         {format(day, "d")}
-                       </span>
+                       <div className="flex items-center gap-1.5 py-0.5">
+                         <span className={cn(
+                           "flex h-5 w-5 items-center justify-center rounded-full text-[11px] font-black",
+                           isTodayDay ? "bg-primary text-primary-foreground shadow-sm" : "text-muted-foreground/80"
+                         )}>
+                           {format(day, "d")}
+                         </span>
+                         {dayTasks.length > 0 && (
+                           <span className="text-[9px] font-bold text-muted-foreground/60">
+                             ({dayTasks.length})
+                           </span>
+                         )}
+                       </div>
                        {dayTasks.some(t => getTaskStatusGroup(t) === "atrasada") && (
                          <span className="absolute top-1 right-1 h-1.5 w-1.5 rounded-full bg-red-500 animate-pulse" />
                        )}
@@ -294,7 +301,7 @@ export function Agenda() {
                             <div
                               key={group.id}
                               className={cn(
-                                "flex items-center justify-between px-1.5 py-0.5 rounded-sm text-[10px] font-black leading-none",
+                               "flex items-center justify-between px-1.5 py-1 rounded-sm text-[11px] font-black leading-none shadow-sm border border-black/5",
                                 group.bg,
                                 group.color
                               )}
