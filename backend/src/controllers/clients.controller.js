@@ -1,3 +1,22 @@
+ export async function createOrigin(req, res, next) {
+   try {
+     const { name } = req.body;
+     if (!name) throw httpError(400, 'Nome da origem é obrigatório');
+     res.status(201).json(name);
+   } catch (e) {
+     next(e);
+   }
+ }
+ 
+ export async function listOrigins(req, res, next) {
+   try {
+     const sources = await service.listOrigins(req.auth.tenantId);
+     res.json(sources);
+   } catch (e) {
+     next(e);
+   }
+ }
+ 
 import * as service from '../services/clients.service.js';
 import * as audit from '../repositories/audit.repo.js';
 import {
