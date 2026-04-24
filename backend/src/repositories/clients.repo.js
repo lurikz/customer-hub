@@ -1,3 +1,15 @@
+ export async function listOrigins(tenantId) {
+   const { rows } = await query(
+     `SELECT DISTINCT source 
+      FROM clients 
+      WHERE tenant_id = $1 AND source IS NOT NULL AND source <> '' 
+      ORDER BY source ASC`,
+     [tenantId]
+   );
+   const sources = rows.map(r => r.source);
+   return sources.length > 0 ? sources : ['Indicação', 'Lead', 'Instagram', 'WhatsApp'];
+ }
+ 
 /**
  * Repository: acesso direto ao banco. Toda query DEVE filtrar por tenant_id.
  */

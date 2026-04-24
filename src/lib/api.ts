@@ -337,7 +337,7 @@ export const authApi = {
         return saved ? JSON.parse(saved) : ["Indicação", "Lead"];
       }
       try {
-        return await request<string[]>("/origins");
+       return await request<string[]>("/clients/origins");
       } catch (e) {
         // Fallback silencioso caso a rota ainda não exista ou dê erro no servidor
         console.warn("Falha ao carregar origens do servidor, usando padrão:", e);

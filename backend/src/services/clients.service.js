@@ -1,3 +1,4 @@
+ export const listOrigins = (tenantId) => repo.listOrigins(tenantId);
 import * as repo from '../repositories/clients.repo.js';
 
  import * as recordsRepo from '../repositories/records.repo.js';

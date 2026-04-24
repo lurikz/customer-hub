@@ -1,3 +1,4 @@
+  router.get('/origins', ctrl.listOrigins);
  import { Router } from 'express';
  import { checkPlanFeature, checkPermission } from '../middleware/jwtAuth.js';
 import * as ctrl from '../controllers/clients.controller.js';
