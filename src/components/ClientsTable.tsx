@@ -141,10 +141,10 @@ function formatDate(value: string | null) {
                         <Trash2 className="h-4 w-4 text-destructive" />
                       </Button>
                     </AlertDialogTrigger>
-                    <AlertDialogContent aria-describedby="delete-client-description">
+                    <AlertDialogContent>
                       <AlertDialogHeader>
                         <AlertDialogTitle>Excluir cliente?</AlertDialogTitle>
-                        <AlertDialogDescription id="delete-client-description">
+                        <AlertDialogDescription>
                           Esta ação não pode ser desfeita. O cliente{" "}
                           <strong>{c.name}</strong> será removido
                           permanentemente.

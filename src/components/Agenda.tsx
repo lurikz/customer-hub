@@ -325,7 +325,7 @@ export function Agenda() {
           <DialogHeader className="p-6 pb-2 shrink-0 border-b">
             <p id="agenda-day-description" className="sr-only">Visualização detalhada das tarefas para o dia selecionado.</p>
             <div className="flex items-center justify-between pr-8">
-              <DialogTitle className="flex items-center gap-3 text-2xl font-bold" id="agenda-day-title">
+              <DialogTitle className="flex items-center gap-3 text-2xl font-bold">
                 <CalendarIcon className="h-6 w-6 text-primary" />
                 <span className="capitalize">
                   {selectedDay ? format(selectedDay, "EEEE, d 'de' MMMM", { locale: ptBR }) : "Tarefas do Dia"}
