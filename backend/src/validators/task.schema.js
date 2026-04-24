@@ -6,7 +6,7 @@ export const createTaskSchema = z.object({
   datetime: z.string().refine((val) => !isNaN(Date.parse(val)), {
     message: 'Data e hora inválidas',
   }),
-  status: z.enum(['pendente', 'concluído']).default('pendente'),
+  status: z.enum(['pendente', 'em_andamento', 'concluído', 'cancelada']).default('pendente'),
   client_id: z.string().uuid('ID do cliente inválido').optional().nullable(),
   user_id: z.string().uuid('ID do usuário responsável inválido'),
 });
