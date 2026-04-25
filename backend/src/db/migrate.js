@@ -178,7 +178,12 @@ CREATE TABLE IF NOT EXISTS invites (
       title         TEXT NOT NULL,
       description   TEXT,
       datetime      TIMESTAMPTZ NOT NULL,
-      status        TEXT NOT NULL DEFAULT 'pendente' CHECK (status IN ('pendente', 'concluído')),
+      status        TEXT NOT NULL DEFAULT 'pendente',
+    -- Atualiza a constraint de status para as tarefas
+    ALTER TABLE tasks DROP CONSTRAINT IF EXISTS tasks_status_check;
+    ALTER TABLE tasks ADD CONSTRAINT tasks_status_check 
+      CHECK (status IN ('pendente', 'em_andamento', 'concluído', 'cancelada'));
+
       created_at    TIMESTAMPTZ NOT NULL DEFAULT now(),
       updated_at    TIMESTAMPTZ NOT NULL DEFAULT now()
     );
