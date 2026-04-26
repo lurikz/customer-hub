@@ -551,13 +551,13 @@ export function TaskFormDialog({ open, onOpenChange, task, defaultDate, defaultC
                         <Pencil className="h-4 w-4" />
                         Editar tudo
                       </Button>
-                      <Button 
-                        type="button"
-                        onClick={() => handleSubmit(form.getValues())}
-                        disabled={mutation.isPending}
-                      >
-                        {mutation.isPending ? "Salvando..." : "Salvar status"}
-                      </Button>
+                        <Button
+                          type="button"
+                          onClick={() => form.handleSubmit(handleSubmit)()}
+                          disabled={mutation.isPending}
+                        >
+                          {mutation.isPending ? "Salvando..." : "Salvar"}
+                        </Button>
                     </div>
                   </div>
                 )}
