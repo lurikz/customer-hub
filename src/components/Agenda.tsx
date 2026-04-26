@@ -1,31 +1,38 @@
 import { useState, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { 
-  format, 
-  startOfMonth, 
-  endOfMonth, 
-  startOfWeek, 
-  endOfWeek, 
-  eachDayOfInterval, 
-  isSameDay, 
-  addMonths, 
-  subMonths,
-  isToday,
-  isPast
+   format,
+   startOfMonth,
+   endOfMonth,
+   startOfWeek,
+   endOfWeek,
+   eachDayOfInterval,
+   isSameDay,
+   addMonths,
+   subMonths,
+   addWeeks,
+   subWeeks,
+   addDays,
+   subDays,
+   isToday,
+   isPast,
+   isSameMonth,
+   startOfDay
 } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import {
   Calendar as CalendarIcon,
   ChevronLeft,
   ChevronRight,
-  List,
-  Plus,
-  LayoutGrid,
-  Filter,
-  User,
-  Clock,
-  CheckCircle2,
-  Circle
+   List,
+   Plus,
+   LayoutGrid,
+   Filter,
+   User,
+   Clock,
+   CheckCircle2,
+   Circle,
+   CalendarDays
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -69,15 +76,15 @@ function getTaskStatusGroup(task: Task): StatusGroupId {
 }
 
 export function Agenda() {
-  const { user } = useAuth();
-  const queryClient = useQueryClient();
-  const [view, setView] = useState<"month" | "list">("month");
-  const [currentDate, setCurrentDate] = useState(new Date());
-  const [taskFormOpen, setTaskFormOpen] = useState(false);
-  const [editingTask, setEditingTask] = useState<Task | null>(null);
-  const [filterMyTasks, setFilterMyTasks] = useState(false);
-  const [selectedDay, setSelectedDay] = useState<Date | null>(null);
-  const [dayModalOpen, setDayModalOpen] = useState(false);
+   const { user } = useAuth();
+   const queryClient = useQueryClient();
+   const [view, setView] = useState<"month" | "week" | "day" | "list">("week");
+   const [currentDate, setCurrentDate] = useState(new Date());
+   const [taskFormOpen, setTaskFormOpen] = useState(false);
+   const [editingTask, setEditingTask] = useState<Task | null>(null);
+   const [filterMyTasks, setFilterMyTasks] = useState(false);
+   const [selectedDay, setSelectedDay] = useState<Date | null>(new Date());
+   const [dayModalOpen, setDayModalOpen] = useState(false);
 
   const { data: tasks = [], isLoading } = useQuery({
     queryKey: ["tasks", filterMyTasks ? user?.id : null],
@@ -117,14 +124,30 @@ export function Agenda() {
     setTaskFormOpen(true);
   };
 
-  const days = useMemo(() => {
-    const start = startOfWeek(startOfMonth(currentDate), { weekStartsOn: 0 });
-    const end = endOfWeek(endOfMonth(currentDate), { weekStartsOn: 0 });
-    return eachDayOfInterval({ start, end });
-  }, [currentDate]);
-
-  const nextDate = () => setCurrentDate(addMonths(currentDate, 1));
-  const prevDate = () => setCurrentDate(subMonths(currentDate, 1));
+   const days = useMemo(() => {
+     if (view === "month") {
+       const start = startOfWeek(startOfMonth(currentDate), { weekStartsOn: 0 });
+       const end = endOfWeek(endOfMonth(currentDate), { weekStartsOn: 0 });
+       return eachDayOfInterval({ start, end });
+     } else if (view === "week") {
+       const start = startOfWeek(currentDate, { weekStartsOn: 0 });
+       const end = endOfWeek(currentDate, { weekStartsOn: 0 });
+       return eachDayOfInterval({ start, end });
+     }
+     return [currentDate];
+   }, [currentDate, view]);
+ 
+   const nextDate = () => {
+     if (view === "month") setCurrentDate(addMonths(currentDate, 1));
+     else if (view === "week") setCurrentDate(addWeeks(currentDate, 1));
+     else setCurrentDate(addDays(currentDate, 1));
+   };
+ 
+   const prevDate = () => {
+     if (view === "month") setCurrentDate(subMonths(currentDate, 1));
+     else if (view === "week") setCurrentDate(subWeeks(currentDate, 1));
+     else setCurrentDate(subDays(currentDate, 1));
+   };
   const resetToToday = () => setCurrentDate(new Date());
 
   const stats = useMemo(() => {
@@ -168,45 +191,70 @@ export function Agenda() {
         </div>
       </div>
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex items-center gap-2">
-          <div className="flex items-center bg-card rounded-md border p-1">
-            <Button
-              variant={view === "month" ? "secondary" : "ghost"}
-              size="sm"
-              onClick={() => setView("month")}
-               className="h-7 px-2 text-xs gap-1.5"
-            >
-              <LayoutGrid className="h-4 w-4" />
-              Calendário
-            </Button>
-            <Button
-              variant={view === "list" ? "secondary" : "ghost"}
-              size="sm"
-              onClick={() => setView("list")}
-               className="h-7 px-2 text-xs gap-1.5"
-            >
-              <List className="h-4 w-4" />
-              Lista
-            </Button>
-          </div>
-
-          {view !== "list" && (
-            <div className="flex items-center gap-1 ml-2">
+         <div className="flex flex-col sm:flex-row items-center gap-2">
+           <div className="flex items-center bg-card rounded-md border p-1 shrink-0">
+             <Button
+               variant={view === "day" ? "secondary" : "ghost"}
+               size="sm"
+               onClick={() => { setView("day"); setSelectedDay(currentDate); }}
+               className="h-7 px-2 text-[10px] sm:text-xs gap-1"
+             >
+               Dia
+             </Button>
+             <Button
+               variant={view === "week" ? "secondary" : "ghost"}
+               size="sm"
+               onClick={() => setView("week")}
+               className="h-7 px-2 text-[10px] sm:text-xs gap-1"
+             >
+               Semana
+             </Button>
+             <Button
+               variant={view === "month" ? "secondary" : "ghost"}
+               size="sm"
+               onClick={() => setView("month")}
+               className="h-7 px-2 text-[10px] sm:text-xs gap-1"
+             >
+               Mês
+             </Button>
+             <Button
+               variant={view === "list" ? "secondary" : "ghost"}
+               size="sm"
+               onClick={() => setView("list")}
+               className="h-7 px-2 text-[10px] sm:text-xs gap-1"
+             >
+               Lista
+             </Button>
+           </div>
+ 
+           {view !== "list" && (
+             <div className="flex items-center gap-1">
                <Button variant="outline" size="icon" className="h-7 w-7" onClick={prevDate}>
                  <ChevronLeft className="h-3.5 w-3.5" />
-              </Button>
+               </Button>
                <Button variant="outline" size="sm" className="h-7 px-2 text-xs" onClick={resetToToday}>
-                Hoje
-              </Button>
+                 Hoje
+               </Button>
                <Button variant="outline" size="icon" className="h-7 w-7" onClick={nextDate}>
                  <ChevronRight className="h-3.5 w-3.5" />
-              </Button>
-               <h2 className="ml-1 font-bold text-sm capitalize">
-                {format(currentDate, "MMMM yyyy", { locale: ptBR })}
-              </h2>
-            </div>
-          )}
-        </div>
+               </Button>
+             </div>
+           )}
+         </div>
+ 
+         {view !== "list" && (
+           <div className="flex items-center justify-center flex-1 order-first sm:order-none mb-2 sm:mb-0">
+             <h2 className="font-bold text-base capitalize flex items-center gap-2">
+               <CalendarIcon className="h-4 w-4 text-primary" />
+               {view === "day" 
+                 ? format(currentDate, "EEEE, d 'de' MMMM", { locale: ptBR })
+                 : view === "week"
+                   ? `Semana de ${format(startOfWeek(currentDate, { weekStartsOn: 0 }), "d 'de' MMM", { locale: ptBR })}`
+                   : format(currentDate, "MMMM yyyy", { locale: ptBR })
+               }
+             </h2>
+           </div>
+         )}
 
         <div className="flex items-center gap-2">
           <DropdownMenu>
