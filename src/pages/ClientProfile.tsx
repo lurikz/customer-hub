@@ -373,29 +373,14 @@
                             </div>
                           </CardHeader>
                           <CardContent className="py-3 px-4 pt-0">
-                            {record.type === "Tarefa concluída" ? (
-                              <div className="space-y-3">
-                                {record.task_title && (
-                                  <h4 className="text-sm font-bold text-foreground leading-tight">
-                                    {record.task_title}
-                                  </h4>
-                                )}
-                                <div className="rounded-lg bg-emerald-500/5 border border-emerald-500/10 p-3 space-y-1.5">
-                                  <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
-                                    <CheckCircle2 className="h-3 w-3" />
-                                    O que foi feito:
-                                  </div>
-                                  <ExpandableText 
-                                    text={`"${record.description}"`}
-                                    className="text-sm text-foreground/90 whitespace-pre-wrap leading-relaxed italic"
-                                  />
-                                </div>
-                              </div>
-                            ) : (
-                              <p className="text-sm text-foreground whitespace-pre-wrap leading-relaxed">
-                                {record.description}
-                              </p>
+                            {record.type === "Tarefa concluída" && record.task_title && (
+                              <h4 className="text-sm font-bold text-foreground leading-tight mb-2">
+                                {record.task_title}
+                              </h4>
                             )}
+                            <p className="text-sm text-foreground whitespace-pre-wrap leading-relaxed">
+                              {record.description}
+                            </p>
                           </CardContent>
                         </Card>
                       );
