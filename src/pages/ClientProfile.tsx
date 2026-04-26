@@ -296,7 +296,7 @@
                 (() => {
                   const timeline = [
                     ...(records || []).map(r => ({ ...r, timelineType: 'record' as const })),
-                    ...(tasks || []).map(t => ({ ...t, timelineType: 'task' as const, created_at: t.datetime }))
+                    ...(tasks || []).filter(t => t.status !== "concluído" && t.status !== "ganho").map(t => ({ ...t, timelineType: 'task' as const, created_at: t.datetime }))
                   ].sort((a, b) => b.created_at.localeCompare(a.created_at));
 
                   if (timeline.length === 0) {
