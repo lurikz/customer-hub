@@ -573,12 +573,12 @@ export function Agenda() {
         </DialogContent>
       </Dialog>
 
-      <TaskFormDialog
-        open={taskFormOpen}
-        onOpenChange={setTaskFormOpen}
-        task={editingTask}
-        defaultDate={selectedDay ? selectedDay.toISOString() : currentDate.toISOString()}
-      />
+       <TaskFormDialog
+         open={taskFormOpen}
+         onOpenChange={setTaskFormOpen}
+         task={editingTask}
+         defaultDate={currentDate.toISOString()}
+       />
     </div>
   );
 }
