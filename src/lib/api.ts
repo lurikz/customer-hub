@@ -537,6 +537,25 @@ export const adminApi = {
         const all: ClientRecord[] = JSON.parse(allRaw);
         const i = all.findIndex((x) => x.id === recordId);
         if (i < 0) throw new ApiError("Registro não encontrado", 404);
+
+        const record = all[i];
+
+        // Se for edição de um registro de tarefa concluída, precisamos atualizar a tarefa também
+        if (record.type === "Tarefa concluída" && record.task_id) {
+          const tasks = demoStore.loadTasks();
+          const taskIdx = tasks.findIndex(t => t.id === record.task_id);
+          if (taskIdx >= 0) {
+            tasks[taskIdx] = {
+              ...tasks[taskIdx],
+              execution_log: {
+                ...tasks[taskIdx].execution_log!,
+                description: data.description
+              }
+            };
+            demoStore.saveTasks(tasks);
+          }
+        }
+
         all[i] = {
           ...all[i],
          type: data.type ?? "NOTE",
