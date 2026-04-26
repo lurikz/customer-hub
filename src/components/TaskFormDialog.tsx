@@ -65,6 +65,7 @@ const schema = z.object({
   status: z.enum(["pendente", "em_andamento", "concluído", "cancelada", "ganho"]),
   client_id: z.string().optional().nullable().or(z.literal("")),
   user_id: z.string().min(1, "Selecione o responsável"),
+  execution_description: z.string().optional(),
 });
 
 type FormValues = z.infer<typeof schema>;
@@ -116,7 +117,8 @@ export function TaskFormDialog({ open, onOpenChange, task, defaultDate, defaultC
            datetime: task.datetime.slice(0, 16), // Format for datetime-local input
            status: task.status,
            client_id: task.client_id || "",
-           user_id: task.user_id,
+            user_id: task.user_id,
+            execution_description: task.execution_log?.description || "",
          });
          setIsLocked(true);
        } else {
@@ -471,16 +473,23 @@ export function TaskFormDialog({ open, onOpenChange, task, defaultDate, defaultC
                     </div>
                     {!isLocked && (
                       <div className="pt-3 border-t border-emerald-500/10">
-                        <label className="text-[10px] font-bold uppercase tracking-wider text-emerald-600 mb-2 block">Editar registro de execução:</label>
-                        <Textarea 
-                          defaultValue={task.execution_log.description}
-                          onChange={(e) => {
-                            const val = e.target.value;
-                           // Injeta o valor no formulário para ser enviado no submit
-                           form.setValue("execution_description" as any, val, { shouldDirty: true });
-                          }}
-                          className="text-sm bg-background/50 border-emerald-500/20 focus-visible:ring-emerald-500"
-                          rows={2}
+                        <FormField
+                          control={form.control}
+                          name="execution_description"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="text-[10px] font-bold uppercase tracking-wider text-emerald-600 mb-2 block">
+                                Editar registro de execução:
+                              </FormLabel>
+                              <FormControl>
+                                <Textarea
+                                  {...field}
+                                  className="text-sm bg-background/50 border-emerald-500/20 focus-visible:ring-emerald-500"
+                                  rows={2}
+                                />
+                              </FormControl>
+                            </FormItem>
+                          )}
                         />
                       </div>
                     )}
@@ -542,13 +551,13 @@ export function TaskFormDialog({ open, onOpenChange, task, defaultDate, defaultC
                         <Pencil className="h-4 w-4" />
                         Editar tudo
                       </Button>
-                      <Button 
-                        type="button"
-                        onClick={() => handleSubmit(form.getValues())}
-                        disabled={mutation.isPending}
-                      >
-                        {mutation.isPending ? "Salvando..." : "Salvar status"}
-                      </Button>
+                        <Button
+                          type="button"
+                          onClick={() => form.handleSubmit(handleSubmit)()}
+                          disabled={mutation.isPending}
+                        >
+                          {mutation.isPending ? "Salvando..." : "Salvar"}
+                        </Button>
                     </div>
                   </div>
                 )}
