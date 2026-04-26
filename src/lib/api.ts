@@ -78,11 +78,15 @@ export interface Client {
    created_by: string | null;
    created_by_name?: string | null;
    created_at: string;
+    task_id?: string | null;
+    task_title?: string | null;
  }
  
  export interface RecordInput {
    description: string;
    type?: string | null;
+    task_id?: string | null;
+    task_title?: string | null;
  }
  
  export interface TaskExecutionLog {
@@ -657,15 +661,22 @@ export const adminApi = {
       demoStore.saveTasks(all);
 
       if (all[i].client_id) {
-        demoStore.addRecord({
-          id: uid(),
-          client_id: all[i].client_id!,
-          tenant_id: "demo-tenant",
-          description: data.description,
-          type: "Tarefa concluída",
-          created_by: DEMO_USER.id,
-          created_at: new Date().toISOString(),
-        });
+        const records = demoStore.loadRecords(all[i].client_id!);
+        const existingRecord = records.find(r => r.task_id === id);
+        
+        if (!existingRecord) {
+          demoStore.addRecord({
+            id: uid(),
+            client_id: all[i].client_id!,
+            tenant_id: "demo-tenant",
+            description: data.description,
+            type: "Tarefa concluída",
+            task_id: id,
+            task_title: all[i].title,
+            created_by: DEMO_USER.id,
+            created_at: new Date().toISOString(),
+          });
+        }
       }
       
       return all[i];
