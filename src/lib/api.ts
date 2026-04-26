@@ -504,10 +504,13 @@ export const adminApi = {
      if (demoStore.isOn()) return [];
      return request<AdminRole[]>("/admin/roles");
    },
-   async createRole(data: any): Promise<AdminRole> {
-     if (demoStore.isOn()) throw new ApiError("Não disponível em modo demo", 400);
-     return request<AdminRole>("/admin/roles", { method: "POST", body: JSON.stringify(data) });
-   },
+    async createRole(data: any): Promise<AdminRole> {
+      if (demoStore.isOn()) throw new ApiError("Não disponível em modo demo", 400);
+      return request<AdminRole>("/admin/roles", { method: "POST", body: JSON.stringify(data) });
+    },
+    async cleanup(): Promise<{ message: string }> {
+      return request<{ message: string }>("/admin/cleanup", { method: "DELETE" });
+    },
  };
  
  // =====================================================
