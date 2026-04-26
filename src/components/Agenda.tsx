@@ -97,7 +97,9 @@ export function Agenda() {
       let nextStatus: Task["status"] = "concluído";
       if (task.status === "concluído") nextStatus = "pendente";
       else if (task.status === "pendente") nextStatus = "em_andamento";
-      else if (task.status === "em_andamento") nextStatus = "concluído";
+       else if (task.status === "em_andamento") nextStatus = "concluído";
+       else if (task.status === "concluído") nextStatus = "ganho";
+       else if (task.status === "ganho") nextStatus = "pendente";
       else if (task.status === "cancelada") nextStatus = "pendente";
       
       return tasksApi.update(task.id, { status: nextStatus });
@@ -328,7 +330,7 @@ export function Agenda() {
                     </div>
                     <div className="flex-1 py-1">
                       <div className="flex items-center gap-2 mb-1">
-                        <h4 className={cn("text-base font-semibold leading-tight", task.status === 'concluído' && "line-through opacity-60")}>
+                        <h4 className={cn("text-base font-semibold leading-tight", (task.status === 'concluído' || task.status === 'ganho') && "line-through opacity-60")}>
                           {task.title}
                         </h4>
                         <Badge variant="outline" className={cn("text-[10px] px-1.5 h-5", group.color, group.bg, "border-none font-bold uppercase")}>
@@ -361,8 +363,8 @@ export function Agenda() {
                           toggleStatusMutation.mutate(task);
                         }}
                       >
-                        {task.status === "concluído" ? (
-                          <CheckCircle2 className="h-6 w-6 text-emerald-500" />
+                        {task.status === "concluído" || task.status === "ganho" ? (
+                          <CheckCircle2 className={cn("h-6 w-6", task.status === "ganho" ? "text-purple-500" : "text-emerald-500")} />
                         ) : (
                           <Circle className="h-6 w-6 text-muted-foreground group-hover:text-emerald-500 transition-colors" />
                         )}
