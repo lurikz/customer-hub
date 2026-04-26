@@ -159,6 +159,7 @@ export function TaskFormDialog({ open, onOpenChange, task, defaultDate, defaultC
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["tasks"] });
+      queryClient.invalidateQueries({ queryKey: ["client-records"] });
       const clientId = form.getValues("client_id") || task?.client_id;
       if (clientId) {
         queryClient.invalidateQueries({ queryKey: ["client-tasks", clientId] });
