@@ -690,7 +690,15 @@ export const adminApi = {
           demoStore.saveTasks(demoStore.loadTasks().filter((x) => x.id !== id));
           return;
         }
-        return request<void>(`/tasks/${id}`, { method: "DELETE" });
+      try {
+        return await request<void>(`/tasks/${id}`, { method: "DELETE" });
+      } catch (e) {
+        if (e instanceof ApiError && e.status === 404) {
+          console.warn("Tarefa não encontrada no servidor, ignorando erro 404 localmente.");
+          return;
+        }
+        throw e;
+      }
       },
       async listByClient(clientId: string): Promise<Task[]> {
         if (demoStore.isOn()) {
