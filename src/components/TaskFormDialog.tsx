@@ -409,12 +409,18 @@ export function TaskFormDialog({ open, onOpenChange, task, defaultDate, defaultC
                     <FormItem>
                        <FormLabel>Instruções da tarefa</FormLabel>
                        <FormControl>
-                         <Textarea
-                           placeholder="Instruções e detalhes do planejamento..."
-                          rows={3}
-                          {...field}
-                          disabled={isLocked}
-                        />
+                        {isCompleted && isLocked ? (
+                          <div className="text-sm text-foreground/80 bg-muted/30 p-3 rounded border italic">
+                            {field.value || "Sem instruções adicionais."}
+                          </div>
+                        ) : (
+                          <Textarea
+                            placeholder="Instruções e detalhes do planejamento..."
+                            rows={3}
+                            {...field}
+                            disabled={isLocked}
+                          />
+                        )}
                       </FormControl>
                       <FormMessage />
                     </FormItem>
