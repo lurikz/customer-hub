@@ -116,7 +116,8 @@ export function TaskFormDialog({ open, onOpenChange, task, defaultDate, defaultC
            datetime: task.datetime.slice(0, 16), // Format for datetime-local input
            status: task.status,
            client_id: task.client_id || "",
-           user_id: task.user_id,
+            user_id: task.user_id,
+            execution_description: task.execution_log?.description || "",
          });
          setIsLocked(true);
        } else {
@@ -471,16 +472,23 @@ export function TaskFormDialog({ open, onOpenChange, task, defaultDate, defaultC
                     </div>
                     {!isLocked && (
                       <div className="pt-3 border-t border-emerald-500/10">
-                        <label className="text-[10px] font-bold uppercase tracking-wider text-emerald-600 mb-2 block">Editar registro de execução:</label>
-                        <Textarea 
-                          defaultValue={task.execution_log.description}
-                          onChange={(e) => {
-                            const val = e.target.value;
-                           // Injeta o valor no formulário para ser enviado no submit
-                           form.setValue("execution_description" as any, val, { shouldDirty: true });
-                          }}
-                          className="text-sm bg-background/50 border-emerald-500/20 focus-visible:ring-emerald-500"
-                          rows={2}
+                        <FormField
+                          control={form.control}
+                          name="execution_description"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="text-[10px] font-bold uppercase tracking-wider text-emerald-600 mb-2 block">
+                                Editar registro de execução:
+                              </FormLabel>
+                              <FormControl>
+                                <Textarea
+                                  {...field}
+                                  className="text-sm bg-background/50 border-emerald-500/20 focus-visible:ring-emerald-500"
+                                  rows={2}
+                                />
+                              </FormControl>
+                            </FormItem>
+                          )}
                         />
                       </div>
                     )}
