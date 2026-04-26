@@ -3,7 +3,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-  import { CalendarDays, Check, CheckCircle2, ChevronsUpDown, Pencil, Trash2, User as UserIcon } from "lucide-react";
+  import { CalendarDays, Check, CheckCircle2, ChevronsUpDown, Clock, Pencil, Trash2, User as UserIcon } from "lucide-react";
  import { Badge } from "@/components/ui/badge";
   import { format } from "date-fns";
   import { ptBR } from "date-fns/locale";
@@ -55,6 +55,7 @@ import { cn } from "@/lib/utils";
 import { toast } from "@/hooks/use-toast";
 import { tasksApi, clientsApi, authApi, type Task, type TaskInput, type TaskCompleteInput } from "@/lib/api";
 import { TaskCompletionDialog } from "./TaskCompletionDialog";
+import { isPast, isToday } from "date-fns";
 import { useAuth } from "@/contexts/AuthContext";
 
 const schema = z.object({
@@ -447,7 +448,13 @@ export function TaskFormDialog({ open, onOpenChange, task, defaultDate, defaultC
                       <CheckCircle2 className="h-4 w-4" />
                       ✔ O que foi feito:
                     </div>
-                    <div className="space-y-1 min-w-0 w-full max-w-full overflow-hidden">
+                    <div className="space-y-2 min-w-0 w-full max-w-full overflow-hidden">
+                      {isPast(new Date(task.datetime)) && !isToday(new Date(task.datetime)) && (
+                        <div className="flex items-center gap-1.5 text-[10px] font-bold text-red-600 dark:text-red-400 uppercase bg-red-500/10 w-fit px-2 py-0.5 rounded">
+                          <Clock className="h-3 w-3" />
+                          Finalizada com atraso
+                        </div>
+                      )}
                       <p className="text-sm text-foreground/90 leading-relaxed whitespace-pre-wrap italic break-words [overflow-wrap:anywhere] [word-break:break-word] overflow-hidden w-full max-w-full">
                         {task.execution_log.description}
                       </p>
