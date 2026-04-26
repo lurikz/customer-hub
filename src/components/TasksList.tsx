@@ -53,29 +53,32 @@ export function TasksList({ tasks, onEdit, onToggleStatus }: Props) {
             const isOverdue = isPast(date) && (task.status === "pendente" || task.status === "em_andamento");
 
             return (
-              <TableRow 
-                key={task.id} 
+              <TableRow
+                key={task.id}
                 className={cn(
+                  "cursor-pointer transition-colors hover:bg-muted/50",
                   isOverdue && task.status !== "cancelada" && "bg-destructive/10 text-destructive hover:bg-destructive/15",
-                   (task.status === "concluído" || task.status === "ganho" || task.status === "cancelada") && "opacity-60"
+                  (task.status === "concluído" || task.status === "ganho" || task.status === "cancelada") && "opacity-60"
                 )}
+                onClick={() => onEdit(task)}
               >
-                <TableCell>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onToggleStatus(task);
-                    }}
-                    className={cn("h-8 w-8 rounded-full")}
-                  >
-                    {task.status === "concluído" || task.status === "ganho" || task.status === "cancelada" ? (
+                <TableCell onClick={(e) => e.stopPropagation()}>
+                  {task.status === "concluído" || task.status === "ganho" || task.status === "cancelada" ? (
+                    <div className="h-8 w-8 flex items-center justify-center">
                       <CheckCircle2 className={cn("h-5 w-5", task.status === "cancelada" ? "text-muted-foreground" : task.status === "ganho" ? "text-purple-600 fill-purple-50" : "text-green-600 fill-green-50")} />
-                    ) : (
+                    </div>
+                  ) : (
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={(e) => {
+                        onToggleStatus(task);
+                      }}
+                      className={cn("h-8 w-8 rounded-full")}
+                    >
                       <Circle className={cn("h-5 w-5", isOverdue ? "text-destructive" : "text-muted-foreground")} />
-                    )}
-                  </Button>
+                    </Button>
+                  )}
                 </TableCell>
                 <TableCell className="font-medium">
                   <div className="flex flex-col">

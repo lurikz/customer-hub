@@ -568,22 +568,28 @@ export function Agenda() {
                             </div>
                           </div>
                           
-                          <div className="flex items-center gap-1 shrink-0">
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-7 w-7 rounded-full opacity-60 hover:opacity-100 hover:bg-emerald-50"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                toggleStatusMutation.mutate(task);
-                              }}
-                            >
-                              {task.status === "concluído" ? (
-                                <CheckCircle2 className="h-4.5 w-4.5 text-emerald-500" />
-                              ) : (
+                          <div className="flex items-center gap-1 shrink-0" onClick={(e) => e.stopPropagation()}>
+                            {task.status === "concluído" || task.status === "ganho" ? (
+                              <div className="h-7 w-7 flex items-center justify-center">
+                                <CheckCircle2 className={cn("h-4.5 w-4.5", task.status === "ganho" ? "text-purple-500" : "text-emerald-500")} />
+                              </div>
+                            ) : (
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-7 w-7 rounded-full opacity-60 hover:opacity-100 hover:bg-emerald-50"
+                                onClick={(e) => {
+                                  const nextStatus = task.status === "pendente" ? "em_andamento" : "concluído";
+                                  if (nextStatus === "concluído") {
+                                    handleEditTask(task);
+                                  } else {
+                                    toggleStatusMutation.mutate(task);
+                                  }
+                                }}
+                              >
                                 <Circle className="h-4.5 w-4.5 text-muted-foreground group-hover:text-emerald-500 transition-colors" />
-                              )}
-                            </Button>
+                              </Button>
+                            )}
                           </div>
                         </div>
                       ))}
