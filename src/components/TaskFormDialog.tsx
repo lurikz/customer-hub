@@ -151,8 +151,8 @@ export function TaskFormDialog({ open, onOpenChange, task, defaultDate, defaultC
         user_id: values.user_id,
       };
 
-      // Se estiver editando uma tarefa já concluída e houver alteração na descrição da execução
-      if (isEditing && task && (values.status === "concluído" || values.status === "ganho") && values.execution_description) {
+      // Se houver alteração na descrição da execução (mesmo que o status não tenha mudado)
+      if (isEditing && task && values.execution_description) {
         payload.execution_description = values.execution_description;
       }
 
@@ -469,8 +469,8 @@ export function TaskFormDialog({ open, onOpenChange, task, defaultDate, defaultC
                           defaultValue={task.execution_log.description}
                           onChange={(e) => {
                             const val = e.target.value;
-                            // Usamos um campo oculto ou injetamos no payload da mutation
-                            form.setValue("execution_description" as any, val);
+                           // Injeta o valor no formulário para ser enviado no submit
+                           form.setValue("execution_description" as any, val, { shouldDirty: true });
                           }}
                           className="text-sm bg-background/50 border-emerald-500/20 focus-visible:ring-emerald-500"
                           rows={2}
