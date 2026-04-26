@@ -65,6 +65,7 @@ const schema = z.object({
   status: z.enum(["pendente", "em_andamento", "concluído", "cancelada", "ganho"]),
   client_id: z.string().optional().nullable().or(z.literal("")),
   user_id: z.string().min(1, "Selecione o responsável"),
+  execution_description: z.string().optional(),
 });
 
 type FormValues = z.infer<typeof schema>;
