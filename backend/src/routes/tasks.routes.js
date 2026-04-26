@@ -1,8 +1,9 @@
-router.post('/:id/complete', controller.complete);
-import { Router } from 'express';
-import * as controller from '../controllers/tasks.controller.js';
+ import { Router } from 'express';
+ import * as controller from '../controllers/tasks.controller.js';
 
-const router = Router();
+ const router = Router();
+
+ router.post('/:id/complete', controller.complete);
 
 router.get('/', controller.list);
 router.get('/:id', controller.getOne);
