@@ -159,8 +159,10 @@ export function TaskFormDialog({ open, onOpenChange, task, defaultDate, defaultC
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["tasks"] });
-      if (form.getValues("client_id")) {
-        queryClient.invalidateQueries({ queryKey: ["client-tasks", form.getValues("client_id")] });
+      const clientId = form.getValues("client_id") || task?.client_id;
+      if (clientId) {
+        queryClient.invalidateQueries({ queryKey: ["client-tasks", clientId] });
+        queryClient.invalidateQueries({ queryKey: ["clients", clientId] });
       }
       toast({
         title: isEditing ? "Tarefa atualizada" : "Tarefa criada",
