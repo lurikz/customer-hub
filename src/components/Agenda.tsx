@@ -367,27 +367,28 @@ export function Agenda() {
                           </span>
                       </div>
                     </div>
-                    <div className="flex items-center ml-2">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-10 w-10 rounded-full hover:bg-emerald-50"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          const nextStatus = task.status === "pendente" ? "em_andamento" : "concluído";
-                          if (nextStatus === "concluído") {
-                            handleEditTask(task);
-                          } else {
-                            toggleStatusMutation.mutate(task);
-                          }
-                        }}
-                      >
-                        {task.status === "concluído" || task.status === "ganho" ? (
+                    <div className="flex items-center ml-2" onClick={(e) => e.stopPropagation()}>
+                      {task.status === "concluído" || task.status === "ganho" ? (
+                        <div className="h-10 w-10 flex items-center justify-center">
                           <CheckCircle2 className={cn("h-6 w-6", task.status === "ganho" ? "text-purple-500" : "text-emerald-500")} />
-                        ) : (
+                        </div>
+                      ) : (
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-10 w-10 rounded-full hover:bg-emerald-50"
+                          onClick={(e) => {
+                            const nextStatus = task.status === "pendente" ? "em_andamento" : "concluído";
+                            if (nextStatus === "concluído") {
+                              handleEditTask(task);
+                            } else {
+                              toggleStatusMutation.mutate(task);
+                            }
+                          }}
+                        >
                           <Circle className="h-6 w-6 text-muted-foreground group-hover:text-emerald-500 transition-colors" />
-                        )}
-                      </Button>
+                        </Button>
+                      )}
                     </div>
                   </div>
                 );
