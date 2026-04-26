@@ -164,6 +164,9 @@ CREATE TABLE IF NOT EXISTS invites (
    created_at  TIMESTAMPTZ NOT NULL DEFAULT now()
  );
  
+  ALTER TABLE client_records ADD COLUMN IF NOT EXISTS task_id UUID REFERENCES tasks(id) ON DELETE SET NULL;
+  ALTER TABLE client_records ADD COLUMN IF NOT EXISTS task_title TEXT;
+
  CREATE INDEX IF NOT EXISTS idx_records_client_created ON client_records (client_id, created_at DESC);
     CREATE INDEX IF NOT EXISTS idx_records_tenant ON client_records (tenant_id);
 

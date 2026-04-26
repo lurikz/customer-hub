@@ -25,6 +25,23 @@ export async function findAll(tenantId, filters = {}) {
   sql += ` ORDER BY t.datetime ASC`;
 
   const { rows } = await query(sql, values);
+
+  // Buscar logs de execução para cada tarefa
+  const taskIds = rows.map(r => r.id);
+  if (taskIds.length > 0) {
+    const { rows: logs } = await query(
+      `SELECT l.*, u.name as user_name
+       FROM task_execution_logs l
+       INNER JOIN users u ON u.id = l.user_id
+       WHERE l.tenant_id = $1 AND l.task_id = ANY($2)`,
+      [tenantId, taskIds]
+    );
+
+    rows.forEach(task => {
+      task.execution_log = logs.find(l => l.task_id === task.id) || null;
+    });
+  }
+
   return rows;
 }
 
@@ -37,7 +54,20 @@ export async function findById(tenantId, id) {
      WHERE t.tenant_id = $1 AND t.id = $2`,
     [tenantId, id]
   );
-  return rows[0] || null;
+
+  const task = rows[0];
+  if (task) {
+    const { rows: logs } = await query(
+      `SELECT l.*, u.name as user_name
+       FROM task_execution_logs l
+       INNER JOIN users u ON u.id = l.user_id
+       WHERE l.tenant_id = $1 AND l.task_id = $2`,
+      [tenantId, id]
+    );
+    task.execution_log = logs[0] || null;
+  }
+
+  return task || null;
 }
 
 export async function insert(tenantId, data) {
@@ -101,5 +131,21 @@ export async function findByClient(tenantId, clientId) {
      ORDER BY t.datetime DESC`,
     [tenantId, clientId]
   );
+
+  const taskIds = rows.map(r => r.id);
+  if (taskIds.length > 0) {
+    const { rows: logs } = await query(
+      `SELECT l.*, u.name as user_name
+       FROM task_execution_logs l
+       INNER JOIN users u ON u.id = l.user_id
+       WHERE l.tenant_id = $1 AND l.task_id = ANY($2)`,
+      [tenantId, taskIds]
+    );
+
+    rows.forEach(task => {
+      task.execution_log = logs.find(l => l.task_id === task.id) || null;
+    });
+  }
+
   return rows;
 }

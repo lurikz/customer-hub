@@ -1,3 +1,4 @@
+import { query } from '../db/pool.js';
 import * as service from '../services/tasks.service.js';
 import * as taskLogsRepo from '../repositories/taskLogs.repo.js';
 import * as recordsRepo from '../repositories/records.repo.js';
@@ -30,13 +31,21 @@ export async function complete(req, res, next) {
       notes,
     });
 
-    // 3. Se tiver cliente, criar registro no histórico
+    // 3. Se tiver cliente, criar registro no histórico (verificando se já existe)
     if (task.client_id) {
-      await recordsRepo.insert(req.auth.tenantId, req.auth.userId, task.client_id, {
-        type: 'Tarefa concluída',
-        description: description,
-        reference: task.title, // Adicionando referência como título da tarefa
-      });
+      const { rows: existing } = await query(
+        `SELECT id FROM client_records WHERE tenant_id = $1 AND task_id = $2`,
+        [req.auth.tenantId, id]
+      );
+
+      if (existing.length === 0) {
+        await recordsRepo.insert(req.auth.tenantId, req.auth.userId, task.client_id, {
+          type: 'Tarefa concluída',
+          description: description,
+          task_id: id,
+          task_title: task.title,
+        });
+      }
     }
 
     await audit.log({
@@ -106,8 +115,26 @@ export async function update(req, res, next) {
   try {
     const { id } = idParamSchema.parse(req.params);
     const data = updateTaskSchema.parse(req.body);
-    const updated = await service.updateTask(req.auth.tenantId, id, data);
+    
+    const { execution_description, ...taskData } = data;
+
+    // 1. Atualizar tarefa
+    const updated = await service.updateTask(req.auth.tenantId, id, taskData);
     if (!updated) throw httpError(404, 'Tarefa não encontrada');
+
+    // 2. Se houver alteração na descrição da execução
+    if (execution_description) {
+      await taskLogsRepo.update(req.auth.tenantId, id, execution_description);
+
+      // Sincronizar com o histórico do cliente
+      await query(
+        `UPDATE client_records 
+         SET description = $3
+         WHERE tenant_id = $1 AND task_id = $2`,
+        [req.auth.tenantId, id, execution_description]
+      );
+    }
+
     await audit.log({
       tenantId: req.auth.tenantId,
       userId: req.auth.userId,

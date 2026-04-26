@@ -17,3 +17,14 @@ export async function insert(tenantId, data) {
   );
   return rows[0];
 }
+
+export async function update(tenantId, taskId, description) {
+  const { rows } = await query(
+    `UPDATE task_execution_logs 
+     SET description = $3
+     WHERE tenant_id = $1 AND task_id = $2
+     RETURNING *`,
+    [tenantId, taskId, description]
+  );
+  return rows[0] || null;
+}
