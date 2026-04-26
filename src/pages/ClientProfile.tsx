@@ -49,6 +49,7 @@
   import { ClientFormDialog } from "@/components/ClientFormDialog";
    import { TaskFormDialog } from "@/components/TaskFormDialog";
    import { TasksList } from "@/components/TasksList";
+   import { ExpandableText } from "@/components/ExpandableText";
   
   function formatDate(value: string | null) {
    if (!value) return "—";
@@ -384,9 +385,10 @@
                                     <CheckCircle2 className="h-3 w-3" />
                                     O que foi feito:
                                   </div>
-                                  <p className="text-sm text-foreground/90 whitespace-pre-wrap leading-relaxed italic">
-                                    "{record.description}"
-                                  </p>
+                                  <ExpandableText 
+                                    text={`"${record.description}"`}
+                                    className="text-sm text-foreground/90 whitespace-pre-wrap leading-relaxed italic"
+                                  />
                                 </div>
                               </div>
                             ) : (
