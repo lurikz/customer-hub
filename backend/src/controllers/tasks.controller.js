@@ -1,4 +1,59 @@
 import * as service from '../services/tasks.service.js';
+import * as taskLogsRepo from '../repositories/taskLogs.repo.js';
+import * as recordsRepo from '../repositories/records.repo.js';
+
+export async function complete(req, res, next) {
+  try {
+    const { id } = idParamSchema.parse(req.params);
+    const { status, description, result, notes } = req.body;
+
+    if (!['concluído', 'ganho'].includes(status)) {
+      throw httpError(400, 'Status inválido para conclusão');
+    }
+
+    if (!description) {
+      throw httpError(400, 'O campo "O que foi feito?" é obrigatório');
+    }
+
+    const task = await service.getTask(req.auth.tenantId, id);
+    if (!task) throw httpError(404, 'Tarefa não encontrada');
+
+    // 1. Atualizar status da tarefa
+    const updatedTask = await service.updateTask(req.auth.tenantId, id, { status });
+
+    // 2. Criar log de execução
+    await taskLogsRepo.insert(req.auth.tenantId, {
+      task_id: id,
+      user_id: req.auth.userId,
+      description,
+      result,
+      notes,
+    });
+
+    // 3. Se tiver cliente, criar registro no histórico
+    if (task.client_id) {
+      await recordsRepo.insert(req.auth.tenantId, req.auth.userId, task.client_id, {
+        type: 'Tarefa concluída',
+        description: description,
+        reference: task.title, // Adicionando referência como título da tarefa
+      });
+    }
+
+    await audit.log({
+      tenantId: req.auth.tenantId,
+      userId: req.auth.userId,
+      action: 'task.complete',
+      entity: 'task',
+      entityId: id,
+      ip: req.ip,
+      metadata: { status },
+    });
+
+    res.json(updatedTask);
+  } catch (e) {
+    next(e);
+  }
+}
 import * as audit from '../repositories/audit.repo.js';
 import {
   createTaskSchema,
