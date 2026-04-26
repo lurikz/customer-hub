@@ -576,9 +576,17 @@ export const adminApi = {
         demoStore.saveRecords(all.filter((x) => x.id !== recordId));
         return;
       }
-        return request<void>(`/clients/${clientId}/records/${recordId}`, {
-          method: "DELETE",
-        });
+    try {
+      return await request<void>(`/clients/${clientId}/records/${recordId}`, {
+        method: "DELETE",
+      });
+    } catch (e) {
+      if (e instanceof ApiError && e.status === 404) {
+        console.warn("Registro não encontrado no servidor, ignorando erro 404 localmente.");
+        return;
+      }
+      throw e;
+    }
       },
     };
 
