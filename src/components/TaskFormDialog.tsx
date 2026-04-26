@@ -50,14 +50,15 @@ import { cn } from "@/lib/utils";
    AlertDialogTrigger,
  } from "@/components/ui/alert-dialog";
 import { toast } from "@/hooks/use-toast";
-import { tasksApi, clientsApi, authApi, type Task, type TaskInput } from "@/lib/api";
+import { tasksApi, clientsApi, authApi, type Task, type TaskInput, type TaskCompleteInput } from "@/lib/api";
+import { TaskCompletionDialog } from "./TaskCompletionDialog";
 import { useAuth } from "@/contexts/AuthContext";
 
 const schema = z.object({
   title: z.string().trim().min(1, "O título é obrigatório").max(200),
   description: z.string().trim().max(2000).optional(),
   datetime: z.string().min(1, "A data e hora são obrigatórias"),
-  status: z.enum(["pendente", "em_andamento", "concluído", "cancelada"]),
+  status: z.enum(["pendente", "em_andamento", "concluído", "cancelada", "ganho"]),
   client_id: z.string().optional().nullable().or(z.literal("")),
   user_id: z.string().min(1, "Selecione o responsável"),
 });
