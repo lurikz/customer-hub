@@ -499,7 +499,13 @@ export function TaskFormDialog({ open, onOpenChange, task, defaultDate, defaultC
     {pendingValues && (pendingValues.status === "concluído" || pendingValues.status === "ganho") && (
       <TaskCompletionDialog
         open={completionDialogOpen}
-        onOpenChange={setCompletionDialogOpen}
+        onOpenChange={(val) => {
+          setCompletionDialogOpen(val);
+          if (!val) {
+            onOpenChange(false); // Fecha tudo se cancelar o registro
+            setPendingValues(null);
+          }
+        }}
         status={pendingValues.status}
         onConfirm={handleConfirmCompletion}
         isPending={mutation.isPending}
