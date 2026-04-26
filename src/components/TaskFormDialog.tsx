@@ -449,6 +449,21 @@ export function TaskFormDialog({ open, onOpenChange, task, defaultDate, defaultC
                         <span>Por: <strong>{task.execution_log.user_name || "Responsável"}</strong></span>
                       </div>
                     </div>
+                    {!isLocked && (
+                      <div className="pt-2 border-t border-emerald-500/10">
+                        <label className="text-[10px] font-bold uppercase tracking-wider text-emerald-600 mb-1 block">Editar o que foi feito:</label>
+                        <Textarea 
+                          defaultValue={task.execution_log.description}
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            // Usamos um campo oculto ou injetamos no payload da mutation
+                            form.setValue("execution_description" as any, val);
+                          }}
+                          className="text-sm bg-background/50 border-emerald-500/20 focus-visible:ring-emerald-500"
+                          rows={2}
+                        />
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
