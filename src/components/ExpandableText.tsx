@@ -31,11 +31,7 @@ export function ExpandableText({ text, className, maxLines = 2 }: ExpandableText
     <div className="space-y-1">
       <p
         ref={textRef}
-        className={cn(
-          "transition-all duration-200",
-          !isExpanded && "line-clamp-2",
-          className
-        )}
+        className={cn(className, !isExpanded && "line-clamp-2")}
       >
         {text}
       </p>
