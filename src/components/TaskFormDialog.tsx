@@ -132,17 +132,16 @@ export function TaskFormDialog({ open, onOpenChange, task, defaultDate, defaultC
    }, [open, task, form, user, defaultDate, defaultClientId]);
 
   const mutation = useMutation({
-    mutationFn: async (values: FormValues & { completionData?: Partial<TaskCompleteInput> }) => {
+    mutationFn: async (values: FormValues & { completionData?: Partial<TaskCompleteInput>, execution_description?: string }) => {
+      // Caso 1: Finalização de tarefa (fluxo do modal de conclusão)
       if (isEditing && task && (values.status === "concluído" || values.status === "ganho") && values.completionData) {
         return tasksApi.complete(task.id, {
           status: values.status,
           description: values.completionData.description!,
-          result: values.completionData.result,
-          notes: values.completionData.notes,
         });
       }
 
-      const payload: TaskInput = {
+      const payload: any = {
         title: values.title,
         description: values.description || null,
         datetime: new Date(values.datetime).toISOString(),
@@ -150,6 +149,11 @@ export function TaskFormDialog({ open, onOpenChange, task, defaultDate, defaultC
         client_id: values.client_id || null,
         user_id: values.user_id,
       };
+
+      // Se estiver editando uma tarefa já concluída e houver alteração na descrição da execução
+      if (isEditing && task && (values.status === "concluído" || values.status === "ganho") && values.execution_description) {
+        payload.execution_description = values.execution_description;
+      }
 
       if (isEditing && task) {
         return tasksApi.update(task.id, payload);
