@@ -491,13 +491,47 @@ export function TaskFormDialog({ open, onOpenChange, task, defaultDate, defaultC
              <DialogFooter className="gap-2 sm:gap-0">
                 {isLocked && isEditing && (
                   <div className="flex w-full justify-between items-center gap-2">
-                    <Button 
-                      type="button" 
-                      variant="outline"
-                      onClick={() => onOpenChange(false)}
-                    >
-                      Fechar
-                    </Button>
+                    <div className="flex gap-2">
+                      <Button 
+                        type="button" 
+                        variant="outline"
+                        onClick={() => onOpenChange(false)}
+                      >
+                        Fechar
+                      </Button>
+                      
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            className="text-destructive hover:text-destructive hover:bg-destructive/10 gap-2"
+                            disabled={deleteMutation.isPending}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                            Excluir
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>Excluir tarefa?</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              Esta ação não pode ser desfeita. A tarefa será removida permanentemente da agenda.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                            <AlertDialogAction
+                              onClick={() => deleteMutation.mutate()}
+                              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                            >
+                              {deleteMutation.isPending ? "Excluindo..." : "Excluir"}
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
+                    </div>
+                    
                     <div className="flex gap-2">
                       <Button 
                         type="button" 
