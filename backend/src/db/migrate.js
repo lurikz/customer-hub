@@ -181,8 +181,8 @@ CREATE TABLE IF NOT EXISTS invites (
       status        TEXT NOT NULL DEFAULT 'pendente',
     -- Atualiza a constraint de status para as tarefas
     ALTER TABLE tasks DROP CONSTRAINT IF EXISTS tasks_status_check;
-    ALTER TABLE tasks ADD CONSTRAINT tasks_status_check 
-      CHECK (status IN ('pendente', 'em_andamento', 'concluído', 'cancelada'));
+    ALTER TABLE tasks ADD CONSTRAINT tasks_status_check
+      CHECK (status IN ('pendente', 'em_andamento', 'concluído', 'cancelada', 'ganho'));
 
       created_at    TIMESTAMPTZ NOT NULL DEFAULT now(),
       updated_at    TIMESTAMPTZ NOT NULL DEFAULT now()
@@ -191,6 +191,23 @@ CREATE TABLE IF NOT EXISTS invites (
     CREATE INDEX IF NOT EXISTS idx_tasks_tenant_datetime ON tasks (tenant_id, datetime);
     CREATE INDEX IF NOT EXISTS idx_tasks_user ON tasks (user_id);
     CREATE INDEX IF NOT EXISTS idx_tasks_client ON tasks (client_id);
+
+    -- =====================================================
+    -- TASK EXECUTION LOGS
+    -- =====================================================
+    CREATE TABLE IF NOT EXISTS task_execution_logs (
+      id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+      tenant_id     UUID NOT NULL REFERENCES tenants(id) ON DELETE CASCADE,
+      task_id       UUID NOT NULL REFERENCES tasks(id) ON DELETE CASCADE,
+      user_id       UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      description   TEXT NOT NULL,
+      result        TEXT,
+      notes         TEXT,
+      created_at    TIMESTAMPTZ NOT NULL DEFAULT now()
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_task_logs_task ON task_execution_logs (task_id);
+    CREATE INDEX IF NOT EXISTS idx_task_logs_tenant ON task_execution_logs (tenant_id);
 
     DROP TRIGGER IF EXISTS trg_tasks_updated_at ON tasks;
     CREATE TRIGGER trg_tasks_updated_at

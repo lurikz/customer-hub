@@ -50,14 +50,15 @@ import { cn } from "@/lib/utils";
    AlertDialogTrigger,
  } from "@/components/ui/alert-dialog";
 import { toast } from "@/hooks/use-toast";
-import { tasksApi, clientsApi, authApi, type Task, type TaskInput } from "@/lib/api";
+import { tasksApi, clientsApi, authApi, type Task, type TaskInput, type TaskCompleteInput } from "@/lib/api";
+import { TaskCompletionDialog } from "./TaskCompletionDialog";
 import { useAuth } from "@/contexts/AuthContext";
 
 const schema = z.object({
   title: z.string().trim().min(1, "O título é obrigatório").max(200),
   description: z.string().trim().max(2000).optional(),
   datetime: z.string().min(1, "A data e hora são obrigatórias"),
-  status: z.enum(["pendente", "em_andamento", "concluído", "cancelada"]),
+  status: z.enum(["pendente", "em_andamento", "concluído", "cancelada", "ganho"]),
   client_id: z.string().optional().nullable().or(z.literal("")),
   user_id: z.string().min(1, "Selecione o responsável"),
 });
@@ -77,6 +78,8 @@ export function TaskFormDialog({ open, onOpenChange, task, defaultDate, defaultC
    const queryClient = useQueryClient();
    const isEditing = Boolean(task);
    const [isLocked, setIsLocked] = useState(isEditing);
+   const [completionDialogOpen, setCompletionDialogOpen] = useState(false);
+   const [pendingValues, setPendingValues] = useState<FormValues | null>(null);
  
    const form = useForm<FormValues>({
     resolver: zodResolver(schema),
@@ -127,7 +130,16 @@ export function TaskFormDialog({ open, onOpenChange, task, defaultDate, defaultC
    }, [open, task, form, user, defaultDate, defaultClientId]);
 
   const mutation = useMutation({
-    mutationFn: async (values: FormValues) => {
+    mutationFn: async (values: FormValues & { completionData?: Partial<TaskCompleteInput> }) => {
+      if (isEditing && task && (values.status === "concluído" || values.status === "ganho") && values.completionData) {
+        return tasksApi.complete(task.id, {
+          status: values.status,
+          description: values.completionData.description!,
+          result: values.completionData.result,
+          notes: values.completionData.notes,
+        });
+      }
+
       const payload: TaskInput = {
         title: values.title,
         description: values.description || null,
@@ -188,7 +200,24 @@ export function TaskFormDialog({ open, onOpenChange, task, defaultDate, defaultC
      },
    });
  
-   return (
+  const handleSubmit = (values: FormValues) => {
+    if (isEditing && (values.status === "concluído" || values.status === "ganho")) {
+      setPendingValues(values);
+      setCompletionDialogOpen(true);
+      return;
+    }
+    mutation.mutate(values);
+  };
+
+  const handleConfirmCompletion = (completionData: any) => {
+    if (pendingValues) {
+      mutation.mutate({ ...pendingValues, completionData });
+      setCompletionDialogOpen(false);
+    }
+  };
+
+  return (
+    <>
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
@@ -199,7 +228,7 @@ export function TaskFormDialog({ open, onOpenChange, task, defaultDate, defaultC
         </DialogHeader>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit((v) => mutation.mutate(v))} className="space-y-4">
+          <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
              <FormField
                control={form.control}
                name="title"
@@ -244,8 +273,9 @@ export function TaskFormDialog({ open, onOpenChange, task, defaultDate, defaultC
                         <SelectContent>
                           <SelectItem value="pendente">Pendente</SelectItem>
                           <SelectItem value="em_andamento">Em andamento</SelectItem>
-                          <SelectItem value="concluído">Concluído</SelectItem>
-                          <SelectItem value="cancelada">Cancelada</SelectItem>
+                           <SelectItem value="concluído">Concluído</SelectItem>
+                           <SelectItem value="ganho">Ganho</SelectItem>
+                           <SelectItem value="cancelada">Cancelada</SelectItem>
                         </SelectContent>
                      </Select>
                      <FormMessage />
@@ -355,10 +385,10 @@ export function TaskFormDialog({ open, onOpenChange, task, defaultDate, defaultC
                name="description"
                render={({ field }) => (
                  <FormItem>
-                   <FormLabel>Descrição</FormLabel>
-                   <FormControl>
-                     <Textarea
-                       placeholder="Detalhes adicionais..."
+                    <FormLabel>Instruções da tarefa</FormLabel>
+                    <FormControl>
+                      <Textarea
+                        placeholder="Instruções e detalhes do planejamento..."
                        rows={3}
                        {...field}
                        disabled={isLocked}
@@ -391,7 +421,7 @@ export function TaskFormDialog({ open, onOpenChange, task, defaultDate, defaultC
                       </Button>
                       <Button 
                         type="button"
-                        onClick={() => mutation.mutate(form.getValues())}
+                        onClick={() => handleSubmit(form.getValues())}
                         disabled={mutation.isPending}
                       >
                         {mutation.isPending ? "Salvando..." : "Salvar status"}
@@ -453,5 +483,16 @@ export function TaskFormDialog({ open, onOpenChange, task, defaultDate, defaultC
         </Form>
       </DialogContent>
     </Dialog>
+
+    {pendingValues && (pendingValues.status === "concluído" || pendingValues.status === "ganho") && (
+      <TaskCompletionDialog
+        open={completionDialogOpen}
+        onOpenChange={setCompletionDialogOpen}
+        status={pendingValues.status}
+        onConfirm={handleConfirmCompletion}
+        isPending={mutation.isPending}
+      />
+    )}
+    </>
   );
 }

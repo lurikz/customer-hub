@@ -64,6 +64,7 @@ const STATUS_GROUPS = [
     { id: "pendente", label: "Pendentes", color: "text-amber-600 dark:text-amber-400", bg: "bg-amber-500/10", border: "border-amber-500/20" },
     { id: "atrasada", label: "Atrasadas", color: "text-red-600 dark:text-red-400", bg: "bg-red-500/20", border: "border-red-500/30", isCritical: true },
     { id: "concluído", label: "Concluídas", color: "text-emerald-600 dark:text-emerald-400", bg: "bg-emerald-500/10", border: "border-emerald-500/20" },
+    { id: "ganho", label: "Ganho", color: "text-purple-600 dark:text-purple-400", bg: "bg-purple-500/10", border: "border-purple-500/20" },
     { id: "cancelada", label: "Canceladas", color: "text-slate-600 dark:text-slate-400", bg: "bg-slate-500/10", border: "border-slate-500/20" },
 ] as const;
 
@@ -94,10 +95,11 @@ export function Agenda() {
   const toggleStatusMutation = useMutation({
     mutationFn: (task: Task) => {
       let nextStatus: Task["status"] = "concluído";
-      if (task.status === "concluído") nextStatus = "pendente";
-      else if (task.status === "pendente") nextStatus = "em_andamento";
+      if (task.status === "pendente") nextStatus = "em_andamento";
       else if (task.status === "em_andamento") nextStatus = "concluído";
-      else if (task.status === "cancelada") nextStatus = "pendente";
+      else if (task.status === "concluído") nextStatus = "ganho";
+      else if (task.status === "ganho") nextStatus = "pendente";
+      else nextStatus = "pendente";
       
       return tasksApi.update(task.id, { status: nextStatus });
     },
@@ -156,6 +158,7 @@ export function Agenda() {
       pendente: 0,
       atrasada: 0,
       concluído: 0,
+      ganho: 0,
       cancelada: 0,
     };
     
@@ -290,7 +293,14 @@ export function Agenda() {
             <TasksList
               tasks={tasks}
               onEdit={handleEditTask}
-              onToggleStatus={(t) => toggleStatusMutation.mutate(t)}
+    onToggleStatus={(t) => {
+      const nextStatus = t.status === "pendente" ? "em_andamento" : "concluído";
+      if (nextStatus === "concluído") {
+        handleEditTask(t);
+      } else {
+        toggleStatusMutation.mutate(t);
+      }
+    }}
             />
           </div>
         ) : view === "day" ? (
@@ -326,7 +336,7 @@ export function Agenda() {
                     </div>
                     <div className="flex-1 py-1">
                       <div className="flex items-center gap-2 mb-1">
-                        <h4 className={cn("text-base font-semibold leading-tight", task.status === 'concluído' && "line-through opacity-60")}>
+                        <h4 className={cn("text-base font-semibold leading-tight", (task.status === 'concluído' || task.status === 'ganho') && "line-through opacity-60")}>
                           {task.title}
                         </h4>
                         <Badge variant="outline" className={cn("text-[10px] px-1.5 h-5", group.color, group.bg, "border-none font-bold uppercase")}>
@@ -356,11 +366,16 @@ export function Agenda() {
                         className="h-10 w-10 rounded-full hover:bg-emerald-50"
                         onClick={(e) => {
                           e.stopPropagation();
-                          toggleStatusMutation.mutate(task);
+                          const nextStatus = task.status === "pendente" ? "em_andamento" : "concluído";
+                          if (nextStatus === "concluído") {
+                            handleEditTask(task);
+                          } else {
+                            toggleStatusMutation.mutate(task);
+                          }
                         }}
                       >
-                        {task.status === "concluído" ? (
-                          <CheckCircle2 className="h-6 w-6 text-emerald-500" />
+                        {task.status === "concluído" || task.status === "ganho" ? (
+                          <CheckCircle2 className={cn("h-6 w-6", task.status === "ganho" ? "text-purple-500" : "text-emerald-500")} />
                         ) : (
                           <Circle className="h-6 w-6 text-muted-foreground group-hover:text-emerald-500 transition-colors" />
                         )}
