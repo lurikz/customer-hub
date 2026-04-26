@@ -1,31 +1,38 @@
 import { useState, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { 
-  format, 
-  startOfMonth, 
-  endOfMonth, 
-  startOfWeek, 
-  endOfWeek, 
-  eachDayOfInterval, 
-  isSameDay, 
-  addMonths, 
-  subMonths,
-  isToday,
-  isPast
+   format,
+   startOfMonth,
+   endOfMonth,
+   startOfWeek,
+   endOfWeek,
+   eachDayOfInterval,
+   isSameDay,
+   addMonths,
+   subMonths,
+   addWeeks,
+   subWeeks,
+   addDays,
+   subDays,
+   isToday,
+   isPast,
+   isSameMonth,
+   startOfDay
 } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import {
   Calendar as CalendarIcon,
   ChevronLeft,
   ChevronRight,
-  List,
-  Plus,
-  LayoutGrid,
-  Filter,
-  User,
-  Clock,
-  CheckCircle2,
-  Circle
+   List,
+   Plus,
+   LayoutGrid,
+   Filter,
+   User,
+   Clock,
+   CheckCircle2,
+   Circle,
+   CalendarDays
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -69,15 +76,15 @@ function getTaskStatusGroup(task: Task): StatusGroupId {
 }
 
 export function Agenda() {
-  const { user } = useAuth();
-  const queryClient = useQueryClient();
-  const [view, setView] = useState<"month" | "list">("month");
-  const [currentDate, setCurrentDate] = useState(new Date());
-  const [taskFormOpen, setTaskFormOpen] = useState(false);
-  const [editingTask, setEditingTask] = useState<Task | null>(null);
-  const [filterMyTasks, setFilterMyTasks] = useState(false);
-  const [selectedDay, setSelectedDay] = useState<Date | null>(null);
-  const [dayModalOpen, setDayModalOpen] = useState(false);
+   const { user } = useAuth();
+   const queryClient = useQueryClient();
+   const [view, setView] = useState<"month" | "week" | "day" | "list">("week");
+   const [currentDate, setCurrentDate] = useState(new Date());
+   const [taskFormOpen, setTaskFormOpen] = useState(false);
+   const [editingTask, setEditingTask] = useState<Task | null>(null);
+   const [filterMyTasks, setFilterMyTasks] = useState(false);
+   const [selectedDay, setSelectedDay] = useState<Date | null>(new Date());
+   const [dayModalOpen, setDayModalOpen] = useState(false);
 
   const { data: tasks = [], isLoading } = useQuery({
     queryKey: ["tasks", filterMyTasks ? user?.id : null],
@@ -117,14 +124,30 @@ export function Agenda() {
     setTaskFormOpen(true);
   };
 
-  const days = useMemo(() => {
-    const start = startOfWeek(startOfMonth(currentDate), { weekStartsOn: 0 });
-    const end = endOfWeek(endOfMonth(currentDate), { weekStartsOn: 0 });
-    return eachDayOfInterval({ start, end });
-  }, [currentDate]);
-
-  const nextDate = () => setCurrentDate(addMonths(currentDate, 1));
-  const prevDate = () => setCurrentDate(subMonths(currentDate, 1));
+   const days = useMemo(() => {
+     if (view === "month") {
+       const start = startOfWeek(startOfMonth(currentDate), { weekStartsOn: 0 });
+       const end = endOfWeek(endOfMonth(currentDate), { weekStartsOn: 0 });
+       return eachDayOfInterval({ start, end });
+     } else if (view === "week") {
+       const start = startOfWeek(currentDate, { weekStartsOn: 0 });
+       const end = endOfWeek(currentDate, { weekStartsOn: 0 });
+       return eachDayOfInterval({ start, end });
+     }
+     return [currentDate];
+   }, [currentDate, view]);
+ 
+   const nextDate = () => {
+     if (view === "month") setCurrentDate(addMonths(currentDate, 1));
+     else if (view === "week") setCurrentDate(addWeeks(currentDate, 1));
+     else setCurrentDate(addDays(currentDate, 1));
+   };
+ 
+   const prevDate = () => {
+     if (view === "month") setCurrentDate(subMonths(currentDate, 1));
+     else if (view === "week") setCurrentDate(subWeeks(currentDate, 1));
+     else setCurrentDate(subDays(currentDate, 1));
+   };
   const resetToToday = () => setCurrentDate(new Date());
 
   const stats = useMemo(() => {
@@ -168,45 +191,70 @@ export function Agenda() {
         </div>
       </div>
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex items-center gap-2">
-          <div className="flex items-center bg-card rounded-md border p-1">
-            <Button
-              variant={view === "month" ? "secondary" : "ghost"}
-              size="sm"
-              onClick={() => setView("month")}
-               className="h-7 px-2 text-xs gap-1.5"
-            >
-              <LayoutGrid className="h-4 w-4" />
-              Calendário
-            </Button>
-            <Button
-              variant={view === "list" ? "secondary" : "ghost"}
-              size="sm"
-              onClick={() => setView("list")}
-               className="h-7 px-2 text-xs gap-1.5"
-            >
-              <List className="h-4 w-4" />
-              Lista
-            </Button>
-          </div>
-
-          {view !== "list" && (
-            <div className="flex items-center gap-1 ml-2">
+         <div className="flex flex-col sm:flex-row items-center gap-2">
+           <div className="flex items-center bg-card rounded-md border p-1 shrink-0">
+             <Button
+               variant={view === "day" ? "secondary" : "ghost"}
+               size="sm"
+               onClick={() => { setView("day"); setSelectedDay(currentDate); }}
+               className="h-7 px-2 text-[10px] sm:text-xs gap-1"
+             >
+               Dia
+             </Button>
+             <Button
+               variant={view === "week" ? "secondary" : "ghost"}
+               size="sm"
+               onClick={() => setView("week")}
+               className="h-7 px-2 text-[10px] sm:text-xs gap-1"
+             >
+               Semana
+             </Button>
+             <Button
+               variant={view === "month" ? "secondary" : "ghost"}
+               size="sm"
+               onClick={() => setView("month")}
+               className="h-7 px-2 text-[10px] sm:text-xs gap-1"
+             >
+               Mês
+             </Button>
+             <Button
+               variant={view === "list" ? "secondary" : "ghost"}
+               size="sm"
+               onClick={() => setView("list")}
+               className="h-7 px-2 text-[10px] sm:text-xs gap-1"
+             >
+               Lista
+             </Button>
+           </div>
+ 
+           {view !== "list" && (
+             <div className="flex items-center gap-1">
                <Button variant="outline" size="icon" className="h-7 w-7" onClick={prevDate}>
                  <ChevronLeft className="h-3.5 w-3.5" />
-              </Button>
+               </Button>
                <Button variant="outline" size="sm" className="h-7 px-2 text-xs" onClick={resetToToday}>
-                Hoje
-              </Button>
+                 Hoje
+               </Button>
                <Button variant="outline" size="icon" className="h-7 w-7" onClick={nextDate}>
                  <ChevronRight className="h-3.5 w-3.5" />
-              </Button>
-               <h2 className="ml-1 font-bold text-sm capitalize">
-                {format(currentDate, "MMMM yyyy", { locale: ptBR })}
-              </h2>
-            </div>
-          )}
-        </div>
+               </Button>
+             </div>
+           )}
+         </div>
+ 
+         {view !== "list" && (
+           <div className="flex items-center justify-center flex-1 order-first sm:order-none mb-2 sm:mb-0">
+             <h2 className="font-bold text-base capitalize flex items-center gap-2">
+               <CalendarIcon className="h-4 w-4 text-primary" />
+               {view === "day" 
+                 ? format(currentDate, "EEEE, d 'de' MMMM", { locale: ptBR })
+                 : view === "week"
+                   ? `Semana de ${format(startOfWeek(currentDate, { weekStartsOn: 0 }), "d 'de' MMM", { locale: ptBR })}`
+                   : format(currentDate, "MMMM yyyy", { locale: ptBR })
+               }
+             </h2>
+           </div>
+         )}
 
         <div className="flex items-center gap-2">
           <DropdownMenu>
@@ -236,7 +284,7 @@ export function Agenda() {
         </div>
       </div>
 
-      <div className="flex-1 overflow-hidden">
+      <div className="flex-1 overflow-hidden mt-4">
         {view === "list" ? (
           <div className="h-full overflow-auto">
             <TasksList
@@ -245,73 +293,160 @@ export function Agenda() {
               onToggleStatus={(t) => toggleStatusMutation.mutate(t)}
             />
           </div>
+        ) : view === "day" ? (
+          <div className="h-full overflow-y-auto space-y-3 px-1">
+            {(() => {
+              const dayTasks = tasks.filter((t) => isSameDay(new Date(t.datetime), currentDate)).sort((a, b) => new Date(a.datetime).getTime() - new Date(b.datetime).getTime());
+              if (dayTasks.length === 0) {
+                return (
+                  <div className="flex flex-col items-center justify-center h-64 border-2 border-dashed rounded-xl text-muted-foreground">
+                    <CalendarDays className="h-12 w-12 mb-2 opacity-20" />
+                    <p>Nenhum compromisso para este dia.</p>
+                  </div>
+                );
+              }
+              return dayTasks.map((task) => {
+                const group = STATUS_GROUPS.find(g => g.id === getTaskStatusGroup(task)) || STATUS_GROUPS[1];
+                return (
+                  <div 
+                    key={task.id}
+                    className={cn(
+                      "flex items-stretch gap-4 p-4 bg-card border rounded-xl shadow-sm hover:shadow-md transition-all cursor-pointer group w-full",
+                      group.id === "atrasada" && "border-red-200 bg-red-50/10"
+                    )}
+                    onClick={() => handleEditTask(task)}
+                  >
+                    <div className="flex flex-col items-center justify-center min-w-[80px] border-r pr-4">
+                      <span className="text-lg font-bold text-primary">
+                        {format(new Date(task.datetime), "HH:mm")}
+                      </span>
+                      <span className="text-[10px] uppercase font-bold text-muted-foreground tracking-tighter">
+                        {format(new Date(task.datetime), "aaa")}
+                      </span>
+                    </div>
+                    <div className="flex-1 py-1">
+                      <div className="flex items-center gap-2 mb-1">
+                        <h4 className={cn("text-base font-semibold leading-tight", task.status === 'concluído' && "line-through opacity-60")}>
+                          {task.title}
+                        </h4>
+                        <Badge variant="outline" className={cn("text-[10px] px-1.5 h-5", group.color, group.bg, "border-none font-bold uppercase")}>
+                          {group.label}
+                        </Badge>
+                      </div>
+                      <p className="text-sm text-muted-foreground line-clamp-2">
+                        {task.description || "Sem descrição adicional."}
+                      </p>
+                      <div className="mt-2 flex items-center gap-4">
+                        {task.client_name && (
+                          <span className="text-xs text-muted-foreground flex items-center gap-1.5">
+                            <User className="h-3 w-3" />
+                            {task.client_name}
+                          </span>
+                        )}
+                         <span className="text-xs text-muted-foreground flex items-center gap-1.5">
+                            <Clock className="h-3 w-3" />
+                            Criado por {task.user_name}
+                          </span>
+                      </div>
+                    </div>
+                    <div className="flex items-center ml-2">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-10 w-10 rounded-full hover:bg-emerald-50"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toggleStatusMutation.mutate(task);
+                        }}
+                      >
+                        {task.status === "concluído" ? (
+                          <CheckCircle2 className="h-6 w-6 text-emerald-500" />
+                        ) : (
+                          <Circle className="h-6 w-6 text-muted-foreground group-hover:text-emerald-500 transition-colors" />
+                        )}
+                      </Button>
+                    </div>
+                  </div>
+                );
+              });
+            })()}
+          </div>
         ) : (
-          <div className="flex h-full flex-col border rounded-lg bg-background overflow-hidden">
-             <div className="grid grid-cols-7 border-b bg-muted/50 backdrop-blur-sm">
+          <div className="flex h-full flex-col border rounded-lg bg-background overflow-hidden shadow-sm">
+             <div className="grid grid-cols-7 border-b bg-muted/30">
               {["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"].map((day) => (
-                 <div key={day} className="py-1.5 text-center text-[9px] font-bold text-muted-foreground uppercase tracking-widest">
+                 <div key={day} className="py-2 text-center text-[10px] font-black text-muted-foreground uppercase tracking-widest">
                   {day}
                 </div>
               ))}
             </div>
              <div 
-               className="grid grid-cols-7 flex-1 overflow-hidden divide-x divide-y bg-muted/20"
+               className={cn(
+                 "grid grid-cols-7 flex-1 overflow-hidden divide-x divide-y",
+                 view === "week" ? "min-h-[300px]" : "bg-muted/5"
+               )}
                style={{ 
-                 gridTemplateRows: `repeat(${Math.ceil(days.length / 7)}, 1fr)` 
+                 gridTemplateRows: view === "month" ? `repeat(${Math.ceil(days.length / 7)}, 1fr)` : '1fr' 
                }}
              >
               {days.map((day, idx) => {
-                const dayTasks = tasks.filter((t) => isSameDay(new Date(t.datetime), day));
-                const isMonthDay = day.getMonth() === currentDate.getMonth();
+                const dayTasks = tasks.filter((t) => isSameDay(new Date(t.datetime), day)).sort((a, b) => new Date(a.datetime).getTime() - new Date(b.datetime).getTime());
+                const isMonthDay = isSameMonth(day, currentDate);
                 const isTodayDay = isToday(day);
 
                 return (
                    <div
                      key={idx}
                      className={cn(
-                       "flex flex-col min-h-0 bg-card p-0.5 transition-colors hover:bg-muted/10 cursor-pointer relative",
-                       !isMonthDay && "bg-muted/5 opacity-40",
-                       isTodayDay && "bg-accent/10 shadow-inner"
+                       "flex flex-col min-h-0 bg-card p-1 transition-all hover:bg-muted/10 cursor-pointer relative",
+                       view === "month" && !isMonthDay && "bg-muted/5 opacity-40",
+                       isTodayDay && "bg-accent/5 ring-1 ring-inset ring-primary/20"
                      )}
-                     onClick={() => handleDayClick(day)}
+                     onClick={() => {
+                       setCurrentDate(day);
+                       setView("day");
+                     }}
                    >
-                     <div className="flex items-center justify-between px-1 border-b border-border/10 mb-0.5">
-                       <div className="flex items-center gap-1.5 py-0.5">
-                         <span className={cn(
-                           "flex h-5 w-5 items-center justify-center rounded-full text-[11px] font-black",
-                           isTodayDay ? "bg-primary text-primary-foreground shadow-sm" : "text-muted-foreground/80"
-                         )}>
-                           {format(day, "d")}
-                         </span>
-                         {dayTasks.length > 0 && (
-                           <span className="text-[9px] font-bold text-muted-foreground/60">
-                             ({dayTasks.length})
-                           </span>
-                         )}
-                       </div>
-                       {dayTasks.some(t => getTaskStatusGroup(t) === "atrasada") && (
-                         <span className="absolute top-1 right-1 h-1.5 w-1.5 rounded-full bg-red-500 animate-pulse" />
-                       )}
+                     <div className="flex items-center justify-between mb-1">
+                        <span className={cn(
+                          "flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold transition-colors",
+                          isTodayDay ? "bg-primary text-primary-foreground shadow-sm" : "text-muted-foreground/60"
+                        )}>
+                          {format(day, "d")}
+                        </span>
+                        {dayTasks.length > 0 && view === "month" && (
+                          <span className="text-[9px] font-bold text-muted-foreground/40">
+                            {dayTasks.length} {dayTasks.length === 1 ? 'tarefa' : 'tarefas'}
+                          </span>
+                        )}
                      </div>
  
-                      <div className="flex-1 overflow-hidden px-0.5 flex flex-col gap-0.5">
-                        {STATUS_GROUPS.filter(g => ["em_andamento", "pendente", "concluído", "atrasada", "cancelada"].includes(g.id)).map((group) => {
-                          const groupTasks = dayTasks.filter(t => getTaskStatusGroup(t) === group.id);
-                          if (groupTasks.length === 0) return null;
+                      <div className="flex-1 overflow-hidden space-y-1">
+                        {dayTasks.slice(0, view === "week" ? 6 : 3).map((task) => {
+                          const group = STATUS_GROUPS.find(g => g.id === getTaskStatusGroup(task)) || STATUS_GROUPS[1];
                           return (
                             <div
-                              key={group.id}
+                              key={task.id}
                               className={cn(
-                               "flex items-center justify-between px-1.5 py-1 rounded-sm text-[11px] font-black leading-none shadow-sm border border-black/5",
+                               "px-1.5 py-1 rounded text-[10px] font-bold truncate border flex items-center gap-1.5 shadow-xs transition-transform hover:scale-[1.02]",
                                 group.bg,
-                                group.color
+                                group.color,
+                                group.border,
+                                task.status === 'concluído' && "opacity-50 grayscale-[0.5]"
                               )}
                             >
-                              <span className="truncate opacity-95">{group.label}</span>
-                              <span>{groupTasks.length}</span>
+                              <span className="font-mono text-[9px] shrink-0 opacity-70">
+                                {format(new Date(task.datetime), "HH:mm")}
+                              </span>
+                              <span className="truncate">{task.title}</span>
                             </div>
                           );
                         })}
+                        {dayTasks.length > (view === "week" ? 6 : 3) && (
+                          <div className="text-[9px] font-bold text-center text-muted-foreground/60 py-0.5 bg-muted/20 rounded">
+                            + {dayTasks.length - (view === "week" ? 6 : 3)} mais
+                          </div>
+                        )}
                       </div>
                    </div>
                 );
@@ -438,12 +573,12 @@ export function Agenda() {
         </DialogContent>
       </Dialog>
 
-      <TaskFormDialog
-        open={taskFormOpen}
-        onOpenChange={setTaskFormOpen}
-        task={editingTask}
-        defaultDate={selectedDay ? selectedDay.toISOString() : currentDate.toISOString()}
-      />
+       <TaskFormDialog
+         open={taskFormOpen}
+         onOpenChange={setTaskFormOpen}
+         task={editingTask}
+         defaultDate={currentDate.toISOString()}
+       />
     </div>
   );
 }
