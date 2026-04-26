@@ -345,9 +345,15 @@ export function Agenda() {
                           {group.label}
                         </Badge>
                       </div>
-                      <p className="text-sm text-muted-foreground line-clamp-2">
-                        {task.description || "Sem descrição adicional."}
-                      </p>
+                      <div className="text-sm text-muted-foreground">
+                        {task.status === "concluído" || task.status === "ganho" ? (
+                          <span className="italic opacity-70">Clique para ver detalhes</span>
+                        ) : (
+                          <p className="line-clamp-2">
+                            {task.description || "Sem descrição adicional."}
+                          </p>
+                        )}
+                      </div>
                       
                       <div className="mt-2 flex flex-wrap items-center gap-4">
                         {task.execution_log && isPast(new Date(task.datetime)) && !isToday(new Date(task.datetime)) && (
