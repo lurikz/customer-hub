@@ -216,9 +216,21 @@ export function TaskFormDialog({ open, onOpenChange, task, defaultDate, defaultC
     }
   };
 
+  // Se estiver concluindo ou ganhando na visualização travada, não mostramos o form principal
+  const isShowingCompletionOnly = completionDialogOpen && pendingValues;
+
   return (
     <>
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog 
+      open={open && !isShowingCompletionOnly} 
+      onOpenChange={(val) => {
+        if (!val) {
+          setCompletionDialogOpen(false);
+          setPendingValues(null);
+        }
+        onOpenChange(val);
+      }}
+    >
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>{isEditing ? "Editar tarefa" : "Nova tarefa"}</DialogTitle>
