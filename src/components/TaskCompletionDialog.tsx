@@ -22,9 +22,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 
 const schema = z.object({
-  description: z.string().trim().min(1, "O que foi feito é obrigatório"),
-  result: z.string().trim().optional(),
-  notes: z.string().trim().optional(),
+  description: z.string().trim().min(1, "O registro do que foi feito é obrigatório"),
 });
 
 type FormValues = z.infer<typeof schema>;
@@ -42,8 +40,6 @@ export function TaskCompletionDialog({ open, onOpenChange, onConfirm, isPending,
     resolver: zodResolver(schema),
     defaultValues: {
       description: "",
-      result: "",
-      notes: "",
     },
   });
 
@@ -71,38 +67,6 @@ export function TaskCompletionDialog({ open, onOpenChange, onConfirm, isPending,
                     <Textarea 
                       placeholder="Descreva as ações realizadas..." 
                       rows={3} 
-                      {...field} 
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="result"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Resultado obtido</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Qual foi o resultado?" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="notes"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Observações internas</FormLabel>
-                  <FormControl>
-                    <Textarea 
-                      placeholder="Notas adicionais para a equipe..." 
-                      rows={2} 
                       {...field} 
                     />
                   </FormControl>
