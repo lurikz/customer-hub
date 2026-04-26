@@ -246,7 +246,7 @@ export function TaskFormDialog({ open, onOpenChange, task, defaultDate, defaultC
       }}
     >
       <DialogContent className="sm:max-w-lg">
-        <DialogHeader className="min-w-0">
+        <DialogHeader className="min-w-0 w-full max-w-full overflow-hidden">
           <DialogTitle className="flex items-center gap-2">
             {isEditing ? "Detalhes da tarefa" : "Nova tarefa"}
             {isCompleted && (
@@ -447,8 +447,8 @@ export function TaskFormDialog({ open, onOpenChange, task, defaultDate, defaultC
                       <CheckCircle2 className="h-4 w-4" />
                       ✔ O que foi feito:
                     </div>
-                    <div className="space-y-1 min-w-0">
-                      <p className="text-sm text-foreground/90 leading-relaxed whitespace-pre-wrap italic break-words overflow-hidden w-full max-w-full">
+                    <div className="space-y-1 min-w-0 w-full max-w-full overflow-hidden">
+                      <p className="text-sm text-foreground/90 leading-relaxed whitespace-pre-wrap italic break-words [overflow-wrap:anywhere] [word-break:break-word] overflow-hidden w-full max-w-full">
                         {task.execution_log.description}
                       </p>
                     </div>
