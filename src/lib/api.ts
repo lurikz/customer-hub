@@ -85,6 +85,15 @@ export interface Client {
    type?: string | null;
  }
  
+ export interface TaskExecutionLog {
+   id: string;
+   task_id: string;
+   description: string;
+   user_id: string;
+   user_name?: string;
+   created_at: string;
+ }
+
  export interface Task {
    id: string;
    tenant_id: string;
@@ -98,6 +107,7 @@ export interface Client {
    updated_at: string;
    client_name?: string | null;
    user_name?: string | null;
+   execution_log?: TaskExecutionLog | null;
  }
  
  export interface TaskInput {
@@ -635,6 +645,14 @@ export const adminApi = {
         ...all[i],
         status: data.status,
         updated_at: new Date().toISOString(),
+        execution_log: {
+          id: uid(),
+          task_id: id,
+          description: data.description,
+          user_id: DEMO_USER.id,
+          user_name: DEMO_USER.name,
+          created_at: new Date().toISOString(),
+        }
       };
       demoStore.saveTasks(all);
 

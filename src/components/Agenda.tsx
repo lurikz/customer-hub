@@ -336,7 +336,7 @@ export function Agenda() {
                     </div>
                     <div className="flex-1 py-1">
                       <div className="flex items-center gap-2 mb-1">
-                        <h4 className={cn("text-base font-semibold leading-tight", (task.status === 'concluído' || task.status === 'ganho') && "line-through opacity-60")}>
+                        <h4 className={cn("text-base font-semibold leading-tight", (task.status === 'concluído' || task.status === 'ganho') && "opacity-60")}>
                           {task.title}
                         </h4>
                         <Badge variant="outline" className={cn("text-[10px] px-1.5 h-5", group.color, group.bg, "border-none font-bold uppercase")}>
@@ -346,6 +346,29 @@ export function Agenda() {
                       <p className="text-sm text-muted-foreground line-clamp-2">
                         {task.description || "Sem descrição adicional."}
                       </p>
+                      
+                      {(task.status === 'concluído' || task.status === 'ganho') && task.execution_log && (
+                        <div className="mt-3 p-3 bg-emerald-500/5 border border-emerald-500/20 rounded-lg space-y-2">
+                          <div className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400 font-bold text-xs uppercase tracking-wider">
+                            <CheckCircle2 className="h-3.5 w-3.5" />
+                            O que foi feito
+                          </div>
+                          <p className="text-sm text-foreground/80 leading-relaxed italic">
+                            "{task.execution_log.description}"
+                          </p>
+                          <div className="flex flex-wrap gap-x-4 gap-y-1 pt-1 border-t border-emerald-500/10">
+                            <span className="text-[10px] text-muted-foreground flex items-center gap-1">
+                              <CalendarDays className="h-3 w-3" />
+                              Concluído em: {format(new Date(task.execution_log.created_at), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}
+                            </span>
+                            <span className="text-[10px] text-muted-foreground flex items-center gap-1">
+                              <User className="h-3 w-3" />
+                              Por: {task.execution_log.user_name || "Responsável"}
+                            </span>
+                          </div>
+                        </div>
+                      )}
+
                       <div className="mt-2 flex items-center gap-4">
                         {task.client_name && (
                           <span className="text-xs text-muted-foreground flex items-center gap-1.5">

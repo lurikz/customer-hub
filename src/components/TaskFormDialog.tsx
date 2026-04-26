@@ -3,7 +3,9 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
- import { Check, ChevronsUpDown, Pencil, Trash2 } from "lucide-react";
+  import { CalendarDays, Check, CheckCircle2, ChevronsUpDown, Pencil, Trash2, User as UserIcon } from "lucide-react";
+  import { format } from "date-fns";
+  import { ptBR } from "date-fns/locale";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -157,8 +159,10 @@ export function TaskFormDialog({ open, onOpenChange, task, defaultDate, defaultC
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["tasks"] });
-      if (form.getValues("client_id")) {
-        queryClient.invalidateQueries({ queryKey: ["client-tasks", form.getValues("client_id")] });
+      const clientId = form.getValues("client_id") || task?.client_id;
+      if (clientId) {
+        queryClient.invalidateQueries({ queryKey: ["client-tasks", clientId] });
+        queryClient.invalidateQueries({ queryKey: ["clients", clientId] });
       }
       toast({
         title: isEditing ? "Tarefa atualizada" : "Tarefa criada",
@@ -201,7 +205,9 @@ export function TaskFormDialog({ open, onOpenChange, task, defaultDate, defaultC
    });
  
   const handleSubmit = (values: FormValues) => {
-    if (isEditing && (values.status === "concluído" || values.status === "ganho")) {
+    const statusChangedToCompleted = (values.status === "concluído" || values.status === "ganho") && (!task || task.status !== values.status);
+    
+    if (isEditing && statusChangedToCompleted) {
       setPendingValues(values);
       setCompletionDialogOpen(true);
       return;
@@ -218,6 +224,8 @@ export function TaskFormDialog({ open, onOpenChange, task, defaultDate, defaultC
 
   // Se estiver concluindo ou ganhando na visualização travada, não mostramos o form principal
   const isShowingCompletionOnly = completionDialogOpen && pendingValues;
+
+   const isCompleted = task?.status === "concluído" || task?.status === "ganho";
 
   return (
     <>
@@ -392,24 +400,51 @@ export function TaskFormDialog({ open, onOpenChange, task, defaultDate, defaultC
                )}
              />
 
-             <FormField
-               control={form.control}
-               name="description"
-               render={({ field }) => (
-                 <FormItem>
-                    <FormLabel>Instruções da tarefa</FormLabel>
-                    <FormControl>
-                      <Textarea
-                        placeholder="Instruções e detalhes do planejamento..."
-                       rows={3}
-                       {...field}
-                       disabled={isLocked}
-                     />
-                   </FormControl>
-                   <FormMessage />
-                 </FormItem>
-               )}
-             />
+              <div className="space-y-4">
+                <FormField
+                  control={form.control}
+                  name="description"
+                  render={({ field }) => (
+                    <FormItem>
+                       <FormLabel>Instruções da tarefa</FormLabel>
+                       <FormControl>
+                         <Textarea
+                           placeholder="Instruções e detalhes do planejamento..."
+                          rows={3}
+                          {...field}
+                          disabled={isLocked}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {isCompleted && task?.execution_log && (
+                  <div className="p-4 bg-emerald-500/5 border border-emerald-500/20 rounded-xl space-y-3">
+                    <div className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400 font-bold text-xs uppercase tracking-wider">
+                      <CheckCircle2 className="h-4 w-4" />
+                      Registro de Execução
+                    </div>
+                    <div className="space-y-1">
+                      <span className="text-xs font-medium text-muted-foreground">O que foi feito:</span>
+                      <p className="text-sm text-foreground/90 leading-relaxed bg-background/50 p-2 rounded border border-emerald-500/10 italic">
+                        "{task.execution_log.description}"
+                      </p>
+                    </div>
+                    <div className="flex flex-wrap gap-x-4 gap-y-2 pt-2 border-t border-emerald-500/10">
+                      <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
+                        <CalendarDays className="h-3.5 w-3.5" />
+                        <span>Concluído em: <strong>{format(new Date(task.execution_log.created_at), "dd/MM/yyyy HH:mm", { locale: ptBR })}</strong></span>
+                      </div>
+                      <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
+                        <UserIcon className="h-3.5 w-3.5" />
+                        <span>Por: <strong>{task.execution_log.user_name || "Responsável"}</strong></span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
 
              <DialogFooter className="gap-2 sm:gap-0">
                 {isLocked && isEditing && (
