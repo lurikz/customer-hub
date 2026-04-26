@@ -313,11 +313,27 @@
                     if (item.timelineType === 'record') {
                       const record = item as any;
                       return (
-                        <Card key={record.id} className="border-border/50 bg-card/50 backdrop-blur-sm border-l-4 border-l-primary/50">
+                        <Card 
+                          key={record.id} 
+                          className={cn(
+                            "border-border/50 bg-card/50 backdrop-blur-sm border-l-4 transition-all",
+                            record.type === "Tarefa concluída" 
+                              ? "border-l-emerald-500 hover:border-l-emerald-600 cursor-pointer hover:bg-emerald-500/5 shadow-sm hover:shadow-md" 
+                              : "border-l-primary/50"
+                          )}
+                          onClick={() => {
+                            if (record.type === "Tarefa concluída" && record.task_id) {
+                              tasksApi.get(record.task_id).then(handleEditTask);
+                            }
+                          }}
+                        >
                           <CardHeader className="py-3 px-4">
                             <div className="flex items-center justify-between">
                               <div className="flex items-center gap-2">
-                                <Badge variant="outline" className="capitalize">
+                                <Badge 
+                                  variant={record.type === "Tarefa concluída" ? "default" : "outline"} 
+                                  className={cn("capitalize", record.type === "Tarefa concluída" && "bg-emerald-600 hover:bg-emerald-700")}
+                                >
                                   {record.type || "Geral"}
                                 </Badge>
                                 <span className="text-xs text-muted-foreground flex items-center gap-1">
@@ -329,17 +345,43 @@
                                 <span className="text-xs text-muted-foreground mr-2">
                                   Por: {record.created_by_name || "Sistema"}
                                 </span>
-                                <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleEditRecord(record)}>
+                                <Button 
+                                  variant="ghost" 
+                                  size="icon" 
+                                  className="h-7 w-7" 
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleEditRecord(record);
+                                  }}
+                                >
                                   <Edit className="h-3.5 w-3.5" />
                                 </Button>
-                                <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive hover:text-destructive hover:bg-destructive/10" onClick={() => handleDeleteRecord(record.id)}>
+                                <Button 
+                                  variant="ghost" 
+                                  size="icon" 
+                                  className="h-7 w-7 text-destructive hover:text-destructive hover:bg-destructive/10" 
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleDeleteRecord(record.id);
+                                  }}
+                                >
                                   <Trash2 className="h-3.5 w-3.5" />
                                 </Button>
                               </div>
                             </div>
                           </CardHeader>
                           <CardContent className="py-3 px-4 pt-0">
-                            <p className="text-sm text-foreground whitespace-pre-wrap">{record.description}</p>
+                            {record.type === "Tarefa concluída" && record.task_title && (
+                              <h4 className="text-sm font-bold text-foreground mb-1">
+                                {record.task_title}
+                              </h4>
+                            )}
+                            <p className={cn(
+                              "text-sm whitespace-pre-wrap",
+                              record.type === "Tarefa concluída" ? "text-foreground/80 italic" : "text-foreground"
+                            )}>
+                              {record.type === "Tarefa concluída" ? `"${record.description}"` : record.description}
+                            </p>
                           </CardContent>
                         </Card>
                       );
