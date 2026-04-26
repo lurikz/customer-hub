@@ -132,17 +132,16 @@ export function TaskFormDialog({ open, onOpenChange, task, defaultDate, defaultC
    }, [open, task, form, user, defaultDate, defaultClientId]);
 
   const mutation = useMutation({
-    mutationFn: async (values: FormValues & { completionData?: Partial<TaskCompleteInput> }) => {
+    mutationFn: async (values: FormValues & { completionData?: Partial<TaskCompleteInput>, execution_description?: string }) => {
+      // Caso 1: Finalização de tarefa (fluxo do modal de conclusão)
       if (isEditing && task && (values.status === "concluído" || values.status === "ganho") && values.completionData) {
         return tasksApi.complete(task.id, {
           status: values.status,
           description: values.completionData.description!,
-          result: values.completionData.result,
-          notes: values.completionData.notes,
         });
       }
 
-      const payload: TaskInput = {
+      const payload: any = {
         title: values.title,
         description: values.description || null,
         datetime: new Date(values.datetime).toISOString(),
@@ -150,6 +149,11 @@ export function TaskFormDialog({ open, onOpenChange, task, defaultDate, defaultC
         client_id: values.client_id || null,
         user_id: values.user_id,
       };
+
+      // Se estiver editando uma tarefa já concluída e houver alteração na descrição da execução
+      if (isEditing && task && (values.status === "concluído" || values.status === "ganho") && values.execution_description) {
+        payload.execution_description = values.execution_description;
+      }
 
       if (isEditing && task) {
         return tasksApi.update(task.id, payload);
@@ -159,6 +163,7 @@ export function TaskFormDialog({ open, onOpenChange, task, defaultDate, defaultC
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["tasks"] });
+      queryClient.invalidateQueries({ queryKey: ["client-records"] });
       const clientId = form.getValues("client_id") || task?.client_id;
       if (clientId) {
         queryClient.invalidateQueries({ queryKey: ["client-tasks", clientId] });
@@ -408,12 +413,18 @@ export function TaskFormDialog({ open, onOpenChange, task, defaultDate, defaultC
                     <FormItem>
                        <FormLabel>Instruções da tarefa</FormLabel>
                        <FormControl>
-                         <Textarea
-                           placeholder="Instruções e detalhes do planejamento..."
-                          rows={3}
-                          {...field}
-                          disabled={isLocked}
-                        />
+                        {isCompleted && isLocked ? (
+                          <div className="text-sm text-foreground/80 bg-muted/30 p-3 rounded border italic">
+                            {field.value || "Sem instruções adicionais."}
+                          </div>
+                        ) : (
+                          <Textarea
+                            placeholder="Instruções e detalhes do planejamento..."
+                            rows={3}
+                            {...field}
+                            disabled={isLocked}
+                          />
+                        )}
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -442,6 +453,21 @@ export function TaskFormDialog({ open, onOpenChange, task, defaultDate, defaultC
                         <span>Por: <strong>{task.execution_log.user_name || "Responsável"}</strong></span>
                       </div>
                     </div>
+                    {!isLocked && (
+                      <div className="pt-2 border-t border-emerald-500/10">
+                        <label className="text-[10px] font-bold uppercase tracking-wider text-emerald-600 mb-1 block">Editar o que foi feito:</label>
+                        <Textarea 
+                          defaultValue={task.execution_log.description}
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            // Usamos um campo oculto ou injetamos no payload da mutation
+                            form.setValue("execution_description" as any, val);
+                          }}
+                          className="text-sm bg-background/50 border-emerald-500/20 focus-visible:ring-emerald-500"
+                          rows={2}
+                        />
+                      </div>
+                    )}
                   </div>
                 )}
               </div>

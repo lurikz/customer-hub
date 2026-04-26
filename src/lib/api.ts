@@ -537,6 +537,25 @@ export const adminApi = {
         const all: ClientRecord[] = JSON.parse(allRaw);
         const i = all.findIndex((x) => x.id === recordId);
         if (i < 0) throw new ApiError("Registro não encontrado", 404);
+
+        const record = all[i];
+
+        // Se for edição de um registro de tarefa concluída, precisamos atualizar a tarefa também
+        if (record.type === "Tarefa concluída" && record.task_id) {
+          const tasks = demoStore.loadTasks();
+          const taskIdx = tasks.findIndex(t => t.id === record.task_id);
+          if (taskIdx >= 0) {
+            tasks[taskIdx] = {
+              ...tasks[taskIdx],
+              execution_log: {
+                ...tasks[taskIdx].execution_log!,
+                description: data.description
+              }
+            };
+            demoStore.saveTasks(tasks);
+          }
+        }
+
         all[i] = {
           ...all[i],
          type: data.type ?? "NOTE",
@@ -608,11 +627,35 @@ export const adminApi = {
         }
         return request<Task>("/tasks", { method: "POST", body: JSON.stringify(data) });
       },
-      async update(id: string, data: Partial<TaskInput>): Promise<Task> {
+      async update(id: string, data: Partial<TaskInput> & { execution_description?: string }): Promise<Task> {
         if (demoStore.isOn()) {
           const all = demoStore.loadTasks();
           const i = all.findIndex((x) => x.id === id);
           if (i < 0) throw new ApiError("Tarefa não encontrada", 404);
+          
+          const task = all[i];
+          
+          // Se houver alteração na descrição da execução
+          if (data.execution_description && task.execution_log) {
+            task.execution_log = {
+              ...task.execution_log,
+              description: data.execution_description
+            };
+            
+            // Também precisamos atualizar o registro correspondente no histórico do cliente
+            if (task.client_id) {
+              const records = demoStore.loadRecords(task.client_id);
+              const recordIdx = records.findIndex(r => r.task_id === id);
+              if (recordIdx >= 0) {
+                records[recordIdx] = {
+                  ...records[recordIdx],
+                  description: data.execution_description
+                };
+                demoStore.saveRecords(records);
+              }
+            }
+          }
+
           const clients = demoStore.loadClients();
           const client = clients.find(c => c.id === data.client_id);
           all[i] = {
