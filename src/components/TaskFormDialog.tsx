@@ -228,7 +228,7 @@ export function TaskFormDialog({ open, onOpenChange, task, defaultDate, defaultC
         </DialogHeader>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit((v) => mutation.mutate(v))} className="space-y-4">
+          <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
              <FormField
                control={form.control}
                name="title"
@@ -421,7 +421,7 @@ export function TaskFormDialog({ open, onOpenChange, task, defaultDate, defaultC
                       </Button>
                       <Button 
                         type="button"
-                        onClick={() => mutation.mutate(form.getValues())}
+                        onClick={() => handleSubmit(form.getValues())}
                         disabled={mutation.isPending}
                       >
                         {mutation.isPending ? "Salvando..." : "Salvar status"}
@@ -483,5 +483,16 @@ export function TaskFormDialog({ open, onOpenChange, task, defaultDate, defaultC
         </Form>
       </DialogContent>
     </Dialog>
+
+    {pendingValues && (pendingValues.status === "concluído" || pendingValues.status === "ganho") && (
+      <TaskCompletionDialog
+        open={completionDialogOpen}
+        onOpenChange={setCompletionDialogOpen}
+        status={pendingValues.status}
+        onConfirm={handleConfirmCompletion}
+        isPending={mutation.isPending}
+      />
+    )}
+    </>
   );
 }
