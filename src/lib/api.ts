@@ -509,6 +509,11 @@ export const adminApi = {
       return request<AdminRole>("/admin/roles", { method: "POST", body: JSON.stringify(data) });
     },
     async cleanup(): Promise<{ message: string }> {
+      if (demoStore.isOn()) {
+        demoStore.saveTasks([]);
+        localStorage.setItem(DEMO_RECORDS_KEY, JSON.stringify([]));
+        return { message: "Dados demo limpos com sucesso" };
+      }
       return request<{ message: string }>("/admin/cleanup", { method: "DELETE" });
     },
  };
