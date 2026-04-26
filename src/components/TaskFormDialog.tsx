@@ -200,7 +200,24 @@ export function TaskFormDialog({ open, onOpenChange, task, defaultDate, defaultC
      },
    });
  
-   return (
+  const handleSubmit = (values: FormValues) => {
+    if (isEditing && (values.status === "concluído" || values.status === "ganho")) {
+      setPendingValues(values);
+      setCompletionDialogOpen(true);
+      return;
+    }
+    mutation.mutate(values);
+  };
+
+  const handleConfirmCompletion = (completionData: any) => {
+    if (pendingValues) {
+      mutation.mutate({ ...pendingValues, completionData });
+      setCompletionDialogOpen(false);
+    }
+  };
+
+  return (
+    <>
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
@@ -256,8 +273,9 @@ export function TaskFormDialog({ open, onOpenChange, task, defaultDate, defaultC
                         <SelectContent>
                           <SelectItem value="pendente">Pendente</SelectItem>
                           <SelectItem value="em_andamento">Em andamento</SelectItem>
-                          <SelectItem value="concluído">Concluído</SelectItem>
-                          <SelectItem value="cancelada">Cancelada</SelectItem>
+                           <SelectItem value="concluído">Concluído</SelectItem>
+                           <SelectItem value="ganho">Ganho</SelectItem>
+                           <SelectItem value="cancelada">Cancelada</SelectItem>
                         </SelectContent>
                      </Select>
                      <FormMessage />
@@ -367,10 +385,10 @@ export function TaskFormDialog({ open, onOpenChange, task, defaultDate, defaultC
                name="description"
                render={({ field }) => (
                  <FormItem>
-                   <FormLabel>Descrição</FormLabel>
-                   <FormControl>
-                     <Textarea
-                       placeholder="Detalhes adicionais..."
+                    <FormLabel>Instruções da tarefa</FormLabel>
+                    <FormControl>
+                      <Textarea
+                        placeholder="Instruções e detalhes do planejamento..."
                        rows={3}
                        {...field}
                        disabled={isLocked}
