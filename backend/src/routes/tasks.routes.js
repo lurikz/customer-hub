@@ -1,3 +1,4 @@
+router.post('/:id/complete', controller.complete);
 import { Router } from 'express';
 import * as controller from '../controllers/tasks.controller.js';
 
