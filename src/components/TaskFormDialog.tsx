@@ -246,9 +246,18 @@ export function TaskFormDialog({ open, onOpenChange, task, defaultDate, defaultC
     >
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>{isEditing ? "Editar tarefa" : "Nova tarefa"}</DialogTitle>
+          <DialogTitle className="flex items-center gap-2">
+            {isEditing ? "Detalhes da tarefa" : "Nova tarefa"}
+            {isCompleted && (
+              <Badge variant="outline" className="bg-emerald-500/10 text-emerald-600 border-emerald-500/20 uppercase text-[10px] font-bold">
+                Concluído
+              </Badge>
+            )}
+          </DialogTitle>
           <DialogDescription>
-            Preencha os detalhes da tarefa ou compromisso.
+            {isCompleted 
+              ? "Visualize as informações da execução desta tarefa."
+              : "Preencha os detalhes da tarefa ou compromisso."}
           </DialogDescription>
         </DialogHeader>
 
@@ -432,30 +441,29 @@ export function TaskFormDialog({ open, onOpenChange, task, defaultDate, defaultC
                 />
 
                 {isCompleted && task?.execution_log && (
-                  <div className="p-4 bg-emerald-500/5 border border-emerald-500/20 rounded-xl space-y-3">
-                    <div className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400 font-bold text-xs uppercase tracking-wider">
+                  <div className="p-5 bg-emerald-500/5 border border-emerald-500/20 rounded-xl space-y-4">
+                    <div className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400 font-bold text-xs uppercase tracking-widest border-b border-emerald-500/10 pb-2">
                       <CheckCircle2 className="h-4 w-4" />
-                      Registro de Execução
+                      ✔ O que foi feito:
                     </div>
                     <div className="space-y-1">
-                      <span className="text-xs font-medium text-muted-foreground">O que foi feito:</span>
-                      <p className="text-sm text-foreground/90 leading-relaxed bg-background/50 p-2 rounded border border-emerald-500/10 italic">
-                        "{task.execution_log.description}"
+                      <p className="text-sm text-foreground/90 leading-relaxed whitespace-pre-wrap italic">
+                        {task.execution_log.description}
                       </p>
                     </div>
-                    <div className="flex flex-wrap gap-x-4 gap-y-2 pt-2 border-t border-emerald-500/10">
+                    <div className="flex flex-wrap gap-x-5 gap-y-2 pt-3 border-t border-emerald-500/10">
                       <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
-                        <CalendarDays className="h-3.5 w-3.5" />
+                        <CalendarDays className="h-4 w-4" />
                         <span>Concluído em: <strong>{format(new Date(task.execution_log.created_at), "dd/MM/yyyy HH:mm", { locale: ptBR })}</strong></span>
                       </div>
                       <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
-                        <UserIcon className="h-3.5 w-3.5" />
-                        <span>Por: <strong>{task.execution_log.user_name || "Responsável"}</strong></span>
+                        <UserIcon className="h-4 w-4" />
+                        <span>Responsável: <strong>{task.execution_log.user_name || "Responsável"}</strong></span>
                       </div>
                     </div>
                     {!isLocked && (
-                      <div className="pt-2 border-t border-emerald-500/10">
-                        <label className="text-[10px] font-bold uppercase tracking-wider text-emerald-600 mb-1 block">Editar o que foi feito:</label>
+                      <div className="pt-3 border-t border-emerald-500/10">
+                        <label className="text-[10px] font-bold uppercase tracking-wider text-emerald-600 mb-2 block">Editar registro de execução:</label>
                         <Textarea 
                           defaultValue={task.execution_log.description}
                           onChange={(e) => {
