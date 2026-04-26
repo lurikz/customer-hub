@@ -78,6 +78,8 @@ export function TaskFormDialog({ open, onOpenChange, task, defaultDate, defaultC
    const queryClient = useQueryClient();
    const isEditing = Boolean(task);
    const [isLocked, setIsLocked] = useState(isEditing);
+   const [completionDialogOpen, setCompletionDialogOpen] = useState(false);
+   const [pendingValues, setPendingValues] = useState<FormValues | null>(null);
  
    const form = useForm<FormValues>({
     resolver: zodResolver(schema),
@@ -128,7 +130,16 @@ export function TaskFormDialog({ open, onOpenChange, task, defaultDate, defaultC
    }, [open, task, form, user, defaultDate, defaultClientId]);
 
   const mutation = useMutation({
-    mutationFn: async (values: FormValues) => {
+    mutationFn: async (values: FormValues & { completionData?: Partial<TaskCompleteInput> }) => {
+      if (isEditing && task && (values.status === "concluído" || values.status === "ganho") && values.completionData) {
+        return tasksApi.complete(task.id, {
+          status: values.status,
+          description: values.completionData.description!,
+          result: values.completionData.result,
+          notes: values.completionData.notes,
+        });
+      }
+
       const payload: TaskInput = {
         title: values.title,
         description: values.description || null,
