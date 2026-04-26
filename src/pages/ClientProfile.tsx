@@ -43,7 +43,8 @@
  } from "@/components/ui/select";
  import { Badge } from "@/components/ui/badge";
   import { Skeleton } from "@/components/ui/skeleton";
-  import { toast } from "@/hooks/use-toast";
+   import { toast } from "@/hooks/use-toast";
+   import { cn } from "@/lib/utils";
    import { clientsApi, recordsApi, tasksApi, type ClientRecord, type Task } from "@/lib/api";
   import { ClientFormDialog } from "@/components/ClientFormDialog";
    import { TaskFormDialog } from "@/components/TaskFormDialog";
