@@ -93,7 +93,7 @@ export interface Client {
    title: string;
    description: string | null;
    datetime: string;
-    status: "pendente" | "em_andamento" | "concluído" | "cancelada";
+    status: "pendente" | "em_andamento" | "concluído" | "cancelada" | "ganho";
    created_at: string;
    updated_at: string;
    client_name?: string | null;
@@ -104,7 +104,14 @@ export interface Client {
    title: string;
    description?: string | null;
    datetime: string;
-    status?: "pendente" | "em_andamento" | "concluído" | "cancelada";
+    status?: "pendente" | "em_andamento" | "concluído" | "cancelada" | "ganho";
+export interface TaskCompleteInput {
+  status: "concluído" | "ganho";
+  description: string;
+  result?: string;
+  notes?: string;
+}
+
    client_id?: string | null;
    user_id: string;
  }
@@ -616,9 +623,38 @@ export const adminApi = {
         if (demoStore.isOn()) {
           return demoStore.loadTasks().filter((t) => t.client_id === clientId);
         }
-        return request<Task[]>(`/tasks/client/${clientId}`);
-      },
-    };
+    return request<Task[]>(`/tasks/client/${clientId}`);
+  },
+  async complete(id: string, data: TaskCompleteInput): Promise<Task> {
+    if (demoStore.isOn()) {
+      const all = demoStore.loadTasks();
+      const i = all.findIndex((x) => x.id === id);
+      if (i < 0) throw new ApiError("Tarefa não encontrada", 404);
+      
+      all[i] = {
+        ...all[i],
+        status: data.status,
+        updated_at: new Date().toISOString(),
+      };
+      demoStore.saveTasks(all);
+
+      if (all[i].client_id) {
+        demoStore.addRecord({
+          id: uid(),
+          client_id: all[i].client_id!,
+          tenant_id: "demo-tenant",
+          description: data.description,
+          type: "Tarefa concluída",
+          created_by: DEMO_USER.id,
+          created_at: new Date().toISOString(),
+        });
+      }
+      
+      return all[i];
+    }
+    return request<Task>(`/tasks/${id}/complete`, { method: "POST", body: JSON.stringify(data) });
+  },
+};
 
 // Limpa flag demo no logout (chamado pelo AuthContext indiretamente via tokenStore.clear()).
 const _origClear = tokenStore.clear;
