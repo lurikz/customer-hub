@@ -201,7 +201,9 @@ export function TaskFormDialog({ open, onOpenChange, task, defaultDate, defaultC
    });
  
   const handleSubmit = (values: FormValues) => {
-    if (isEditing && (values.status === "concluído" || values.status === "ganho")) {
+    const statusChangedToCompleted = (values.status === "concluído" || values.status === "ganho") && (!task || task.status !== values.status);
+    
+    if (isEditing && statusChangedToCompleted) {
       setPendingValues(values);
       setCompletionDialogOpen(true);
       return;
