@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
-  import { ArrowLeft, Building2, Shield, Users as UsersIcon, LayoutDashboard, CreditCard, Lock } from "lucide-react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+  import { ArrowLeft, Building2, Shield, Users as UsersIcon, LayoutDashboard, CreditCard, Lock, Trash2 } from "lucide-react";
  import { cn } from "@/lib/utils";
 
 import { Button } from "@/components/ui/button";
@@ -19,8 +19,9 @@ import { Badge } from "@/components/ui/badge";
    TableHeader,
    TableRow,
  } from "@/components/ui/table";
-import { adminApi } from "@/lib/api";
+import { adminApi, apiConfig } from "@/lib/api";
 import { useAuth } from "@/contexts/AuthContext";
+import { toast } from "sonner";
 
 const roleLabel: Record<string, string> = {
   user: "Usuário",
@@ -36,6 +37,24 @@ const roleVariant: Record<string, "secondary" | "default" | "destructive"> = {
 
 export default function Admin() {
   const { user, logout } = useAuth();
+  const queryClient = useQueryClient();
+
+  const cleanupMutation = useMutation({
+    mutationFn: adminApi.cleanup,
+    onSuccess: () => {
+      queryClient.invalidateQueries();
+      toast.success("Todos os registros de tarefas e histórico foram excluídos.");
+    },
+    onError: (error: any) => {
+      toast.error(error.message || "Erro ao realizar limpeza");
+    },
+  });
+
+  const handleCleanup = () => {
+    if (confirm("TEM CERTEZA? Esta ação excluirá TODAS as tarefas e históricos de TODOS os clientes. Esta ação não pode ser desfeita.")) {
+      cleanupMutation.mutate();
+    }
+  };
 
   const { data: overview, error: overviewError } = useQuery({
     queryKey: ["admin-overview"],
@@ -58,6 +77,17 @@ export default function Admin() {
           <p className="text-muted-foreground">Gerenciamento completo do ecossistema.</p>
         </div>
         <div className="flex items-center gap-3">
+          {!apiConfig.isDemo() && (
+            <Button 
+              variant="destructive" 
+              className="h-11 gap-2 rounded-xl px-6"
+              onClick={handleCleanup}
+              disabled={cleanupMutation.isPending}
+            >
+              <Trash2 className="h-4 w-4" />
+              {cleanupMutation.isPending ? "Limpando..." : "Limpar Dados"}
+            </Button>
+          )}
           <Button asChild variant="outline" className="h-11 gap-2 rounded-xl border-border/50 bg-card/50 px-6 backdrop-blur-sm transition-all hover:bg-accent">
             <Link to="/">
               <ArrowLeft className="h-4 w-4" />
