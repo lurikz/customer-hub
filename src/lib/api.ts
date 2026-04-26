@@ -105,17 +105,17 @@ export interface Client {
    description?: string | null;
    datetime: string;
     status?: "pendente" | "em_andamento" | "concluído" | "cancelada" | "ganho";
-export interface TaskCompleteInput {
-  status: "concluído" | "ganho";
-  description: string;
-  result?: string;
-  notes?: string;
-}
+    client_id?: string | null;
+    user_id: string;
+  }
 
-   client_id?: string | null;
-   user_id: string;
- }
- 
+  export interface TaskCompleteInput {
+    status: "concluído" | "ganho";
+    description: string;
+    result?: string;
+    notes?: string;
+  }
+
  export interface AuthUser {
    id: string;
    tenantId: string | null;
