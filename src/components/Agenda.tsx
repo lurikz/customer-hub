@@ -64,6 +64,7 @@ const STATUS_GROUPS = [
     { id: "pendente", label: "Pendentes", color: "text-amber-600 dark:text-amber-400", bg: "bg-amber-500/10", border: "border-amber-500/20" },
     { id: "atrasada", label: "Atrasadas", color: "text-red-600 dark:text-red-400", bg: "bg-red-500/20", border: "border-red-500/30", isCritical: true },
     { id: "concluído", label: "Concluídas", color: "text-emerald-600 dark:text-emerald-400", bg: "bg-emerald-500/10", border: "border-emerald-500/20" },
+    { id: "ganho", label: "Ganho", color: "text-purple-600 dark:text-purple-400", bg: "bg-purple-500/10", border: "border-purple-500/20" },
     { id: "cancelada", label: "Canceladas", color: "text-slate-600 dark:text-slate-400", bg: "bg-slate-500/10", border: "border-slate-500/20" },
 ] as const;
 
@@ -156,6 +157,7 @@ export function Agenda() {
       pendente: 0,
       atrasada: 0,
       concluído: 0,
+      ganho: 0,
       cancelada: 0,
     };
     
