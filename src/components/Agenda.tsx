@@ -95,12 +95,11 @@ export function Agenda() {
   const toggleStatusMutation = useMutation({
     mutationFn: (task: Task) => {
       let nextStatus: Task["status"] = "concluído";
-      if (task.status === "concluído") nextStatus = "pendente";
-      else if (task.status === "pendente") nextStatus = "em_andamento";
-       else if (task.status === "em_andamento") nextStatus = "concluído";
-       else if (task.status === "concluído") nextStatus = "ganho";
-       else if (task.status === "ganho") nextStatus = "pendente";
-      else if (task.status === "cancelada") nextStatus = "pendente";
+      if (task.status === "pendente") nextStatus = "em_andamento";
+      else if (task.status === "em_andamento") nextStatus = "concluído";
+      else if (task.status === "concluído") nextStatus = "ganho";
+      else if (task.status === "ganho") nextStatus = "pendente";
+      else nextStatus = "pendente";
       
       return tasksApi.update(task.id, { status: nextStatus });
     },
