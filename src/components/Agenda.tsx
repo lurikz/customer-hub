@@ -345,9 +345,15 @@ export function Agenda() {
                           {group.label}
                         </Badge>
                       </div>
-                      <p className="text-sm text-muted-foreground line-clamp-2">
-                        {task.description || "Sem descrição adicional."}
-                      </p>
+                      <div className="text-sm text-muted-foreground">
+                        {task.status === "concluído" || task.status === "ganho" ? (
+                          <span className="italic opacity-70">Clique para ver detalhes</span>
+                        ) : (
+                          <p className="line-clamp-2">
+                            {task.description || "Sem descrição adicional."}
+                          </p>
+                        )}
+                      </div>
                       
                       <div className="mt-2 flex flex-wrap items-center gap-4">
                         {task.execution_log && isPast(new Date(task.datetime)) && !isToday(new Date(task.datetime)) && (
@@ -367,27 +373,28 @@ export function Agenda() {
                           </span>
                       </div>
                     </div>
-                    <div className="flex items-center ml-2">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-10 w-10 rounded-full hover:bg-emerald-50"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          const nextStatus = task.status === "pendente" ? "em_andamento" : "concluído";
-                          if (nextStatus === "concluído") {
-                            handleEditTask(task);
-                          } else {
-                            toggleStatusMutation.mutate(task);
-                          }
-                        }}
-                      >
-                        {task.status === "concluído" || task.status === "ganho" ? (
+                    <div className="flex items-center ml-2" onClick={(e) => e.stopPropagation()}>
+                      {task.status === "concluído" || task.status === "ganho" ? (
+                        <div className="h-10 w-10 flex items-center justify-center">
                           <CheckCircle2 className={cn("h-6 w-6", task.status === "ganho" ? "text-purple-500" : "text-emerald-500")} />
-                        ) : (
+                        </div>
+                      ) : (
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-10 w-10 rounded-full hover:bg-emerald-50"
+                          onClick={(e) => {
+                            const nextStatus = task.status === "pendente" ? "em_andamento" : "concluído";
+                            if (nextStatus === "concluído") {
+                              handleEditTask(task);
+                            } else {
+                              toggleStatusMutation.mutate(task);
+                            }
+                          }}
+                        >
                           <Circle className="h-6 w-6 text-muted-foreground group-hover:text-emerald-500 transition-colors" />
-                        )}
-                      </Button>
+                        </Button>
+                      )}
                     </div>
                   </div>
                 );
@@ -568,22 +575,28 @@ export function Agenda() {
                             </div>
                           </div>
                           
-                          <div className="flex items-center gap-1 shrink-0">
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-7 w-7 rounded-full opacity-60 hover:opacity-100 hover:bg-emerald-50"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                toggleStatusMutation.mutate(task);
-                              }}
-                            >
-                              {task.status === "concluído" ? (
-                                <CheckCircle2 className="h-4.5 w-4.5 text-emerald-500" />
-                              ) : (
+                          <div className="flex items-center gap-1 shrink-0" onClick={(e) => e.stopPropagation()}>
+                            {task.status === "concluído" || task.status === "ganho" ? (
+                              <div className="h-7 w-7 flex items-center justify-center">
+                                <CheckCircle2 className={cn("h-4.5 w-4.5", task.status === "ganho" ? "text-purple-500" : "text-emerald-500")} />
+                              </div>
+                            ) : (
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-7 w-7 rounded-full opacity-60 hover:opacity-100 hover:bg-emerald-50"
+                                onClick={(e) => {
+                                  const nextStatus = task.status === "pendente" ? "em_andamento" : "concluído";
+                                  if (nextStatus === "concluído") {
+                                    handleEditTask(task);
+                                  } else {
+                                    toggleStatusMutation.mutate(task);
+                                  }
+                                }}
+                              >
                                 <Circle className="h-4.5 w-4.5 text-muted-foreground group-hover:text-emerald-500 transition-colors" />
-                              )}
-                            </Button>
+                              </Button>
+                            )}
                           </div>
                         </div>
                       ))}
