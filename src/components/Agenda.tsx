@@ -57,6 +57,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "@/hooks/use-toast";
 import { TaskFormDialog } from "./TaskFormDialog";
 import { TasksList } from "./TasksList";
+import { ExpandableText } from "./ExpandableText";
 import { cn } from "@/lib/utils";
 
 const STATUS_GROUPS = [
@@ -353,9 +354,10 @@ export function Agenda() {
                             <CheckCircle2 className="h-3.5 w-3.5" />
                             O que foi feito
                           </div>
-                          <p className="text-sm text-foreground/80 leading-relaxed italic">
-                            "{task.execution_log.description}"
-                          </p>
+                          <ExpandableText 
+                            text={`"${task.execution_log.description}"`}
+                            className="text-sm text-foreground/80 leading-relaxed italic"
+                          />
                           <div className="flex flex-wrap gap-x-4 gap-y-1 pt-1 border-t border-emerald-500/10">
                             <span className="text-[10px] text-muted-foreground flex items-center gap-1">
                               <CalendarDays className="h-3 w-3" />
