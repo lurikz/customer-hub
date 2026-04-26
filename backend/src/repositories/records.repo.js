@@ -1,6 +1,6 @@
  import { query } from '../db/pool.js';
  
- const COLUMNS = 'id, client_id, tenant_id, description, type, created_by, created_at';
+  const COLUMNS = 'id, client_id, tenant_id, description, type, created_by, created_at, task_id, task_title';
  
  export async function findAllByClient(tenantId, clientId) {
    const { rows } = await query(
@@ -14,13 +14,13 @@
    return rows;
  }
  
- export async function insert(tenantId, userId, clientId, data) {
-   const { description, type = null } = data;
-   const { rows } = await query(
-     `INSERT INTO client_records (tenant_id, created_by, client_id, description, type)
-      VALUES ($1, $2, $3, $4, $5)
-      RETURNING ${COLUMNS}`,
-     [tenantId, userId, clientId, description, type]
-   );
-   return rows[0];
- }
+  export async function insert(tenantId, userId, clientId, data) {
+    const { description, type = null, task_id = null, task_title = null } = data;
+    const { rows } = await query(
+      `INSERT INTO client_records (tenant_id, created_by, client_id, description, type, task_id, task_title)
+       VALUES ($1, $2, $3, $4, $5, $6, $7)
+       RETURNING ${COLUMNS}`,
+      [tenantId, userId, clientId, description, type, task_id, task_title]
+    );
+    return rows[0];
+  }
