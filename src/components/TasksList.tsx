@@ -57,7 +57,7 @@ export function TasksList({ tasks, onEdit, onToggleStatus }: Props) {
                 key={task.id} 
                 className={cn(
                   isOverdue && task.status !== "cancelada" && "bg-destructive/10 text-destructive hover:bg-destructive/15",
-                  (task.status === "concluído" || task.status === "cancelada") && "opacity-60"
+                   (task.status === "concluído" || task.status === "ganho" || task.status === "cancelada") && "opacity-60"
                 )}
               >
                 <TableCell>
@@ -70,8 +70,8 @@ export function TasksList({ tasks, onEdit, onToggleStatus }: Props) {
                     }}
                     className={cn("h-8 w-8 rounded-full")}
                   >
-                    {task.status === "concluído" || task.status === "cancelada" ? (
-                      <CheckCircle2 className={cn("h-5 w-5", task.status === "cancelada" ? "text-muted-foreground" : "text-green-600 fill-green-50")} />
+                    {task.status === "concluído" || task.status === "ganho" || task.status === "cancelada" ? (
+                      <CheckCircle2 className={cn("h-5 w-5", task.status === "cancelada" ? "text-muted-foreground" : task.status === "ganho" ? "text-purple-600 fill-purple-50" : "text-green-600 fill-green-50")} />
                     ) : (
                       <Circle className={cn("h-5 w-5", isOverdue ? "text-destructive" : "text-muted-foreground")} />
                     )}
@@ -107,7 +107,8 @@ export function TasksList({ tasks, onEdit, onToggleStatus }: Props) {
                 <TableCell>
                   <Badge
                     variant={
-                      task.status === "concluído" ? "secondary" :
+                        task.status === "concluído" ? "secondary" :
+                        task.status === "ganho" ? "default" :
                       task.status === "cancelada" ? "outline" :
                       task.status === "em_andamento" ? "default" :
                       isOverdue ? "destructive" : "outline"
@@ -116,6 +117,7 @@ export function TasksList({ tasks, onEdit, onToggleStatus }: Props) {
                   >
                     {
                       task.status === "concluído" ? "Concluído" : 
+                      task.status === "ganho" ? "Ganho" :
                       task.status === "cancelada" ? "Cancelada" :
                       task.status === "em_andamento" ? "Em andamento" :
                       isOverdue ? "Atrasado" : "Pendente"
