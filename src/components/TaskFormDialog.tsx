@@ -151,8 +151,8 @@ export function TaskFormDialog({ open, onOpenChange, task, defaultDate, defaultC
         user_id: values.user_id,
       };
 
-      // Se estiver editando uma tarefa já concluída e houver alteração na descrição da execução
-      if (isEditing && task && (values.status === "concluído" || values.status === "ganho") && values.execution_description) {
+      // Se houver alteração na descrição da execução (mesmo que o status não tenha mudado)
+      if (isEditing && task && values.execution_description) {
         payload.execution_description = values.execution_description;
       }
 
