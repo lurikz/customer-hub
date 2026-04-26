@@ -3,7 +3,9 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
- import { CalendarDays, CheckCircle2, ChevronsUpDown, Pencil, Trash2, User as UserIcon } from "lucide-react";
+  import { CalendarDays, Check, CheckCircle2, ChevronsUpDown, Pencil, Trash2, User as UserIcon } from "lucide-react";
+  import { format } from "date-fns";
+  import { ptBR } from "date-fns/locale";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
