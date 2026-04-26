@@ -182,14 +182,14 @@ CREATE TABLE IF NOT EXISTS invites (
       description   TEXT,
       datetime      TIMESTAMPTZ NOT NULL,
       status        TEXT NOT NULL DEFAULT 'pendente',
+      created_at    TIMESTAMPTZ NOT NULL DEFAULT now(),
+      updated_at    TIMESTAMPTZ NOT NULL DEFAULT now()
+    );
+
     -- Atualiza a constraint de status para as tarefas
     ALTER TABLE tasks DROP CONSTRAINT IF EXISTS tasks_status_check;
     ALTER TABLE tasks ADD CONSTRAINT tasks_status_check
       CHECK (status IN ('pendente', 'em_andamento', 'concluído', 'cancelada', 'ganho'));
-
-      created_at    TIMESTAMPTZ NOT NULL DEFAULT now(),
-      updated_at    TIMESTAMPTZ NOT NULL DEFAULT now()
-    );
 
     CREATE INDEX IF NOT EXISTS idx_tasks_tenant_datetime ON tasks (tenant_id, datetime);
     CREATE INDEX IF NOT EXISTS idx_tasks_user ON tasks (user_id);
