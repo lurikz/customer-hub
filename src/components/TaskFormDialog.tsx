@@ -4,6 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
   import { CalendarDays, Check, CheckCircle2, ChevronsUpDown, Pencil, Trash2, User as UserIcon } from "lucide-react";
+ import { Badge } from "@/components/ui/badge";
   import { format } from "date-fns";
   import { ptBR } from "date-fns/locale";
 import { Button } from "@/components/ui/button";
