@@ -83,7 +83,11 @@ export function TasksList({ tasks, onEdit, onToggleStatus }: Props) {
                 <TableCell className="font-medium">
                   <div className="flex flex-col">
                     <span>{task.title}</span>
-                    {task.description && <span className={cn("text-xs line-clamp-1", !isOverdue && "text-muted-foreground")}>{task.description}</span>}
+                    {task.description && (task.status !== "concluído" && task.status !== "ganho") && (
+                      <span className={cn("text-xs line-clamp-1", !isOverdue && "text-muted-foreground")}>
+                        {task.description}
+                      </span>
+                    )}
                   </div>
                 </TableCell>
                 <TableCell>
