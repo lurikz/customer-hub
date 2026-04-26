@@ -451,7 +451,15 @@ export const clientsApi = {
       demoStore.saveClients(demoStore.loadClients().filter((x) => x.id !== id));
       return;
     }
-    return request<void>(`/clients/${id}`, { method: "DELETE" });
+      try {
+        return await request<void>(`/clients/${id}`, { method: "DELETE" });
+      } catch (e) {
+        if (e instanceof ApiError && e.status === 404) {
+          console.warn("Cliente não encontrado no servidor, ignorando erro 404 localmente.");
+          return;
+        }
+        throw e;
+      }
   },
 };
 
