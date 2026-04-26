@@ -293,7 +293,14 @@ export function Agenda() {
             <TasksList
               tasks={tasks}
               onEdit={handleEditTask}
-              onToggleStatus={(t) => toggleStatusMutation.mutate(t)}
+    onToggleStatus={(t) => {
+      const nextStatus = t.status === "pendente" ? "em_andamento" : "concluído";
+      if (nextStatus === "concluído") {
+        handleEditTask(t);
+      } else {
+        toggleStatusMutation.mutate(t);
+      }
+    }}
             />
           </div>
         ) : view === "day" ? (
@@ -359,7 +366,12 @@ export function Agenda() {
                         className="h-10 w-10 rounded-full hover:bg-emerald-50"
                         onClick={(e) => {
                           e.stopPropagation();
-                          toggleStatusMutation.mutate(task);
+                          const nextStatus = task.status === "pendente" ? "em_andamento" : "concluído";
+                          if (nextStatus === "concluído") {
+                            handleEditTask(task);
+                          } else {
+                            toggleStatusMutation.mutate(task);
+                          }
                         }}
                       >
                         {task.status === "concluído" || task.status === "ganho" ? (
