@@ -1,3 +1,4 @@
+import { query } from '../db/pool.js';
 import * as service from '../services/tasks.service.js';
 import * as taskLogsRepo from '../repositories/taskLogs.repo.js';
 import * as recordsRepo from '../repositories/records.repo.js';
